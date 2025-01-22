@@ -6,7 +6,6 @@ import logging
 import requests
 from openai import OpenAI
 
-
 app = Flask(__name__)
 
 if __name__ == '__main__':
