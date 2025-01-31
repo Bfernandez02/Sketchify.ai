@@ -17,34 +17,50 @@ CORS(app)
 
 stable_diffusion_api_url = 'https://api.stability.ai/v2beta/stable-image/generate/ultra'
 stable_diffusion_apiKey = os.getenv("STABILITY_API_KEY")
+
+@app.route('/get-image', methods = ['POST'])
+def get_photo():     
+    data = request.json
+    image_data = data.get("image")
+
+    if not image_data:
+        print("No image found !")
+        return jsonify({"error": "No image provided"}), 400
+
+    print('recieved image')
+    return image_data
+
+    
+
 @app.route('/generate-prompt', methods =['POST'])
 def generate_prompt():
-    try:
-        response  = client.chat.completions.create(
-            model= "gpt-4o-mini",
+    
+    try:        
+        data = request.json
+        image_data = data.get("image")
+
+        if not image_data:
+            print("No image found !")
+            return jsonify({"error": "No image provided"}), 400
+        
+        image_base64 = image_data.split(",")[1]
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
             messages=[
-                {"role":"system","content":"You are given a scenerio and your job is to explain the scene in as much detail as possible"},
-                {"role":"user","content":"Bigfoot in a Mossy Green Forest"}
-            ],
-        )
+                {"role": "system", "content": "Your job is to describe the sketch in as much detail as possible and present every single detail without losing any context."},
+                {"role": "user", "content": [
+                    {"type": "text", "text": "I want a 1 sentence description of this sketch, be laconic and emphasize brevity. Do not include any response details like \"Description:\"."
+                     },
+                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_base64}"}}
+                ]}
+            ]
+            )
+
         api_response  =  response.choices[0].message.content
 
         print(f"AI Response: {api_response}")
 
-        # Generate image using stability AI
-
-        # headers = {
-        #     "authorization": f"Bearer {stable_diffusion_apiKey}",
-        #     "accept": "image/*"
-        # },
-        # data = {
-        #     "prompt": [{"text": api_response}],
-        #     "cfg_scale": 7, 
-        #     "output_format": "webp",
-        #     "width": 1024,
-        #     "height": 1024,
-        #     "samples": 1,
-        # }
         stability_response = requests.post(
             stable_diffusion_api_url,
             headers={
