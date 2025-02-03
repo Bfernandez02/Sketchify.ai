@@ -3,20 +3,29 @@
 @tailwind utilities;
 
 :root {
-	--background: #ffffff;
-	--foreground: #171717;
+	--blue: #3d405b;
+	--red: #e07a5f;
+	--background: #f4f1de;
+	--black: #1a1a1a;
+	--white: #f8f8f8;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
 	:root {
 		--background: #0a0a0a;
 		--foreground: #ededed;
 	}
-}
+} */
 
 body {
-	color: var(--foreground);
+	color: var(--black);
 	background: var(--background);
+	font-family: "Roboto", sans-serif;
+	font-size: 1.125rem; /* 18px */
+}
+
+p {
+	font-family: 1.125rem; /* 18px */
 	font-family: "Roboto", sans-serif;
 }
 
@@ -27,15 +36,20 @@ h1 {
 
 h2 {
 	font-size: 2.3rem; /* 36px */
-	font-family: "Fraunces", serif;
+	font-family: "Fraunces", sans-serif;
 }
 
 h3 {
 	font-size: 1.9rem; /* 30px */
-	font-family: "Fraunces", serif;
+	font-family: "Fraunces", sans-serif;
 }
 
 h4 {
 	font-size: 1.5rem; /* 24px */
-	font-family: "Fraunces", serif;
+	font-family: "Fraunces", sans-serif;
+}
+
+button {
+	font-family: "Fraunces", sans-serif;
+	font-size: 1.125rem; /* 18px */
 }

@@ -12,6 +12,9 @@ export default function index() {
 					A bunch of Roboto Body Text, A bunch of Roboto Body Text, A
 					bunch of Roboto Body Text, A bunch of Roboto Body Text,{" "}
 				</p>
+				<button className="bg-blue text-white p-2">
+					Start Sketching
+				</button>
 			</div>
 		</>
 	);
