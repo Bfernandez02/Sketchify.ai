@@ -12,9 +12,14 @@ export default function index() {
 					A bunch of Roboto Body Text, A bunch of Roboto Body Text, A
 					bunch of Roboto Body Text, A bunch of Roboto Body Text,{" "}
 				</p>
-				<button className="bg-blue text-white p-2">
-					Start Sketching
-				</button>
+				<div className="flex gap-4 p-2">
+					<button className="bg-red text-white font-fraunces">
+						Explore
+					</button>
+					<button className="bg-blue text-white font-fraunces">
+						Start Sketching
+					</button>
+				</div>
 			</div>
 		</>
 	);

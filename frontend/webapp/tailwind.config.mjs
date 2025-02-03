@@ -15,6 +15,10 @@ export default {
 				background: "var(--background)",
 				foreground: "var(--foreground)",
 			},
+			fontFamily: {
+				fraunces: ["Fraunces", "serif"],
+				roboto: ["Roboto", "sans-serif"],
+			},
 		},
 	},
 	plugins: [],

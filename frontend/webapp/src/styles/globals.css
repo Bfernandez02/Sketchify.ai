@@ -50,6 +50,7 @@ h4 {
 }
 
 button {
-	font-family: "Fraunces", sans-serif;
-	font-size: 1.125rem; /* 18px */
+	font-size: 1.75rem; /* 28px */
+	padding: 10px 20px;
+	border-radius: 20px;
 }
