@@ -10,18 +10,17 @@
 	--white: #f8f8f8;
 }
 
-/* @media (prefers-color-scheme: dark) {
-	:root {
-		--background: #0a0a0a;
-		--foreground: #ededed;
-	}
-} */
-
 body {
 	color: var(--black);
 	background: var(--background);
 	font-family: "Roboto", sans-serif;
 	font-size: 1.125rem; /* 18px */
+}
+
+/* Not sure if we are going to want a global content container or not, because of the heros this might actually suck to use - feel free to change Brandon */
+.content-container {
+	max-width: 1560px;
+	margin: 0 auto;
 }
 
 p {
