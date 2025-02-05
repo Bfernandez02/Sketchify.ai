@@ -5,9 +5,9 @@ import painters from "../../public/painters.png";
 export default function LandingHero() {
 	return (
 		<>
-			<div className="flex justify-center pt-8">
+			<div className="flex flex-col md:flex-row justify-center pt-8">
 				<div className="flex flex-col w-full pt-4 pl-8">
-					<h1 className="font-fraunces text-8xl ">
+					<h1 className="font-fraunces xl:text-8xl text-7xl ">
 						From Sketch to Stunning <br /> – Powered by AI.
 					</h1>
 					<h4 className="font-fraunces text-2xl mt-4">
@@ -16,8 +16,12 @@ export default function LandingHero() {
 						you!
 					</h4>
 				</div>
-				<div className="w-[800px]">
-					<img src={painters.src} alt="painters" />
+				<div className="md:w-[860px] w-[100%]">
+					<img
+						className="object-cover"
+						src={painters.src}
+						alt="painters"
+					/>
 				</div>
 			</div>
 		</>
