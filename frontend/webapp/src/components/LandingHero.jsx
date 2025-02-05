@@ -4,7 +4,7 @@ import painters from "../../public/painters.png";
 export default function LandingHero() {
 	return (
 		<>
-			<div className="flex flex-col md:flex-row justify-center pt-8 md:text-left text-center px-8">
+			<div className="flex flex-col md:flex-row justify-center pt-8 md:text-left text-center md:px-0 px-8">
 				<div className="flex flex-col w-full pt-4 md:pl-8 pl-0">
 					<h1 className="font-fraunces xl:text-8xl md:text-7xl text-5xl ">
 						From Sketch to Stunning <br /> – Powered by AI.
