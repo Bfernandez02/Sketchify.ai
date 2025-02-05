@@ -18,6 +18,7 @@ export default {
 			fontFamily: {
 				fraunces: ["Fraunces", "serif"],
 				roboto: ["Roboto", "sans-serif"],
+				italianno: ["Italianno", "serif"],
 			},
 		},
 	},
