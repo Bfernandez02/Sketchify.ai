@@ -9,32 +9,10 @@ import cake from "../../public/cake.jpg";
 import forest from "../../public/forest.jpg";
 
 export default function FeaturedArtwork() {
-	const featuredArtwork = [
-		{
-			src: abstract.src,
-			alt: "Abstract",
-		},
-		{
-			src: astro.src,
-			alt: "Astro",
-		},
-		{
-			src: bunny.src,
-			alt: "Bunny",
-		},
-		{
-			src: cake.src,
-			alt: "Cake",
-		},
-		{
-			src: forest.src,
-			alt: "Forest",
-		},
-	];
-
 	return (
 		<>
-			<div className="relative flex flex-col pb-24">
+			{/* Will come back to mobile later, just a full separete div with all parts re-rendered (>768px) cause damn this hurt to do */}
+			<div className="relative md:flex hidden flex-col pb-24">
 				<img
 					className="relative md:w-[400px] w-[280px] ml-[14vw]"
 					src={brushes.src}
