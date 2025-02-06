@@ -9,7 +9,7 @@ export default function index() {
 			<NextSeo title="Home | Sketchify" />
 			<div className="">
 				<LandingHero />
-				<div className="mt-[-9vw]">
+				<div className="2xl:mt-[-12vw] mt-[-9vw] max-w-[2000px] mx-auto">
 					<FeaturedArtwork />
 				</div>
 			</div>
