@@ -48,9 +48,9 @@ export default function Navbar() {
 				</nav>
 			</div>
 
-			<div className="flex justify-end">
+			<div className="flex justify-end sticky top-0 p-4">
 				{/* Mobile Navigation */}
-				<div className="md:hidden z-[21] sticky top-0 right-0 p-4">
+				<div className="md:hidden z-[21]">
 					<Hamburger
 						toggled={mobileIsOpen}
 						toggle={setMobileIsOpen}

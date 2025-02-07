@@ -11,7 +11,7 @@ import forest from "../../public/forest.jpg";
 export default function FeaturedArtwork() {
 	return (
 		<>
-			{/* Will come back to mobile later, just a full separete div with all parts re-rendered (>768px) cause damn this hurt to do */}
+			{/* Desktop */}
 			<div className="relative md:flex hidden flex-col pb-24">
 				<img
 					className="relative md:w-[400px] w-[280px] ml-[14vw]"
@@ -66,6 +66,65 @@ export default function FeaturedArtwork() {
 						<div className="w-[90%]">
 							<Image
 								className="object-cover rounded-[20px] 2xl:h-[200px] lg:h-[145px] h-[92px]"
+								src={bunny.src}
+								alt="bunny"
+								width={500}
+								height={500}
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{/* Mobile */}
+			<div className="md:hidden">
+				<div>
+					<Image
+						className="object-cover mx-auto w-[75vw]"
+						src={brushes.src}
+						alt="Brushes"
+						width={500}
+						height={500}
+					/>
+				</div>
+				<div className="bg-blue rounded-[20px]">
+					<div className="flex flex-col gap-[2vw] py-10 justify-center items-center pl-[7.5vw] z-10">
+						<div className="w-[90vw] flex gap-[2%]">
+							<Image
+								className="object-cover rounded-[20px] h-[192px] w-[45%]"
+								src={abstract.src}
+								alt="Abstract"
+								width={500}
+								height={500}
+							/>
+							<Image
+								className="object-cover rounded-[20px] h-[192px] w-[45%]"
+								src={cake.src}
+								alt="cake"
+								width={500}
+								height={500}
+							/>
+						</div>
+
+						<div className="w-[90vw]">
+							<Image
+								className="object-cover rounded-[20px] h-[160px] w-[92%]"
+								src={forest.src}
+								alt="Forest"
+								width={500}
+								height={500}
+							/>
+						</div>
+						<div className="w-[90vw] flex gap-[2%]">
+							<Image
+								className="object-cover rounded-[20px] h-[156px] w-[45%]"
+								src={astro.src}
+								alt="astro"
+								width={500}
+								height={500}
+							/>
+							<Image
+								className="object-cover rounded-[20px] h-[156px] w-[45%]"
 								src={bunny.src}
 								alt="bunny"
 								width={500}
