@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Spin as Hamburger } from "hamburger-react";
@@ -6,6 +6,20 @@ import { Spin as Hamburger } from "hamburger-react";
 export default function Navbar() {
 	const router = useRouter();
 	const [mobileIsOpen, setMobileIsOpen] = useState(false);
+	const [hasScrolled, setHasScrolled] = useState(false);
+
+	useEffect(() => {
+		const handleScroll = () => {
+			if (window.scrollY > 0) {
+				setHasScrolled(true);
+			} else {
+				setHasScrolled(false);
+			}
+		};
+
+		window.addEventListener("scroll", handleScroll);
+		return () => window.removeEventListener("scroll", handleScroll);
+	}, []);
 
 	const menuItems = [
 		{ name: "Home", path: "/" },
@@ -16,7 +30,11 @@ export default function Navbar() {
 
 	return (
 		<>
-			<div className="hidden md:flex justify-between items-center px-8 lg:px-10 py-4 z-10 sticky top-0 bg-background">
+			<div
+				className={`hidden md:flex justify-between items-center px-8 lg:px-10 py-4 z-20 sticky top-0 bg-background transition-shadow duration-300 ${
+					hasScrolled ? "shadow-md" : ""
+				}`}
+			>
 				<Link
 					className="hidden md:flex font-italianno lg:text-5xl text-4xl"
 					href="/"
