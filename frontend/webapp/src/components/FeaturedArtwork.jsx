@@ -77,48 +77,61 @@ export default function FeaturedArtwork() {
 			</div>
 
 			{/* Mobile */}
-			<div className="md:hidden flex flex-col gap-[2vw] pb-10 justify-center items-center pl-[7.5vw]">
-				<div className="w-[90vw] flex gap-[2%]">
+			<div className="md:hidden">
+				<div>
 					<Image
-						className="object-cover rounded-[20px] h-[192px] w-[45%]"
-						src={abstract.src}
-						alt="Abstract"
-						width={500}
-						height={500}
-					/>
-					<Image
-						className="object-cover rounded-[20px] h-[192px] w-[45%]"
-						src={cake.src}
-						alt="cake"
+						className="object-cover mx-auto w-[75vw]"
+						src={brushes.src}
+						alt="Brushes"
 						width={500}
 						height={500}
 					/>
 				</div>
+				<div className="bg-blue rounded-[20px]">
+					<div className="flex flex-col gap-[2vw] py-10 justify-center items-center pl-[7.5vw] z-10">
+						<div className="w-[90vw] flex gap-[2%]">
+							<Image
+								className="object-cover rounded-[20px] h-[192px] w-[45%]"
+								src={abstract.src}
+								alt="Abstract"
+								width={500}
+								height={500}
+							/>
+							<Image
+								className="object-cover rounded-[20px] h-[192px] w-[45%]"
+								src={cake.src}
+								alt="cake"
+								width={500}
+								height={500}
+							/>
+						</div>
 
-				<div className="w-[90vw]">
-					<Image
-						className="object-cover rounded-[20px] h-[160px] w-[92%]"
-						src={forest.src}
-						alt="Forest"
-						width={500}
-						height={500}
-					/>
-				</div>
-				<div className="w-[90vw] flex gap-[2%]">
-					<Image
-						className="object-cover rounded-[20px] h-[156px] w-[45%]"
-						src={astro.src}
-						alt="astro"
-						width={500}
-						height={500}
-					/>
-					<Image
-						className="object-cover rounded-[20px] h-[156px] w-[45%]"
-						src={bunny.src}
-						alt="bunny"
-						width={500}
-						height={500}
-					/>
+						<div className="w-[90vw]">
+							<Image
+								className="object-cover rounded-[20px] h-[160px] w-[92%]"
+								src={forest.src}
+								alt="Forest"
+								width={500}
+								height={500}
+							/>
+						</div>
+						<div className="w-[90vw] flex gap-[2%]">
+							<Image
+								className="object-cover rounded-[20px] h-[156px] w-[45%]"
+								src={astro.src}
+								alt="astro"
+								width={500}
+								height={500}
+							/>
+							<Image
+								className="object-cover rounded-[20px] h-[156px] w-[45%]"
+								src={bunny.src}
+								alt="bunny"
+								width={500}
+								height={500}
+							/>
+						</div>
+					</div>
 				</div>
 			</div>
 		</>
