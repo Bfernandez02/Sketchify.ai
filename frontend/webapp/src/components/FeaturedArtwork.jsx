@@ -87,7 +87,7 @@ export default function FeaturedArtwork() {
 						height={500}
 					/>
 				</div>
-				<div className="bg-blue rounded-[20px]">
+				<div className="bg-primary rounded-[20px]">
 					<div className="flex flex-col gap-[2vw] py-10 justify-center items-center pl-[7.5vw] z-10">
 						<div className="w-[90vw] flex gap-[2%]">
 							<Image
