@@ -2,14 +2,14 @@
 
 @layer utilities {
   .btn {
-    @apply bg-blue text-white px-3 py-2 lg:px-4 lg:py-2 rounded-[20px] hover:bg-red transition-all duration-300  text-[16px] lg:text-[18px];
+    @apply bg-primary text-white px-3 py-2 lg:px-4 lg:py-2 rounded-[20px] hover:bg-secondary transition-all duration-300  text-[16px] lg:text-[18px];
   }
   .btnLarge {
-    @apply bg-blue text-white px-3 py-2 lg:px-4 lg:py-2 rounded-[20px] hover:bg-red transition-all duration-300  text-[20px] lg:text-[24px];
+    @apply bg-primary text-white px-3 py-2 lg:px-4 lg:py-2 rounded-[20px] hover:bg-secondary transition-all duration-300  text-[20px] lg:text-[24px];
   }
   .btnSecondary {
     @apply text-white font-semibold py-[6px] px-[12px] text-[16px]
-     bg-red shadow-lg rounded-[10px] hover:bg-tertiary hover:text-primary transition-colors duration-300 gap-x-10 lg:py-[8px] lg:px-[16px] lg:text-[18px];
+     bg-secondary shadow-lg rounded-[10px] hover:bg-primary hover:text-primary transition-colors duration-300 gap-x-10 lg:py-[8px] lg:px-[16px] lg:text-[18px];
   }
 
   .btnAlternate {

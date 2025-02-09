@@ -15,10 +15,10 @@ export default function LandingHero() {
 						you!
 					</h4>
 					<div className="flex md:flex-row gap-4 pt-8 md:justify-start justify-center flex-col ">
-						<button className="bg-red text-white font-fraunces text-2xl rounded-[20px]">
+						<button className="bg-secondary text-white font-fraunces text-2xl rounded-[20px]">
 							Explore
 						</button>
-						<button className="bg-blue text-white font-fraunces text-2xl rounded-[20px]">
+						<button className="bg-primary text-white font-fraunces text-2xl rounded-[20px]">
 							Start Sketching
 						</button>
 					</div>
