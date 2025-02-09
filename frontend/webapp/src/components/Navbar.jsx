@@ -50,8 +50,8 @@ export default function Navbar() {
 							href={path}
 							className={`${
 								router.pathname === path
-									? "underline"
-									: "text-black hover:underline"
+									? "border-b-2 border-black"
+									: "text-black border-b-2 border-transparent hover:border-black transition-all duration-300"
 							}`}
 						>
 							{name}
@@ -59,14 +59,14 @@ export default function Navbar() {
 					))}
 					<Link
 						href="/sign-in"
-						className="bg-blue text-white px-3 py-2 lg:px-4 lg:py-2 rounded-[20px] hover:bg-red transition-all duration-100"
+						className="btnLarge"
 					>
 						Login
 					</Link>
 				</nav>
 			</div>
 
-			<div className="flex justify-end sticky top-0 p-4">
+			<div className={`flex justify-end sticky top-0 py-2 px-4 bg-background transition-all duration-300` + (hasScrolled ? " shadow-md" : "")}>
 				{/* Mobile Navigation */}
 				<div className="md:hidden z-[21]">
 					<Hamburger
@@ -82,7 +82,7 @@ export default function Navbar() {
 				{/* MOBILE NAV MENU */}
 				<nav
 					aria-description="Mobile Navbar"
-					className={`bg-background fixed right-0 top-0 z-[20] flex text-center h-screen w-screen origin-top-right flex-col gap-8 px-10 pt-28 transition-all md:hidden max-h-screen overflow-y-scroll ${
+					className={`bg-background/80 backdrop-blur-2xl fixed right-0 top-0 z-[20] flex text-center h-screen w-screen origin-top-right flex-col gap-8 px-10 pt-28 transition-all md:hidden max-h-screen overflow-y-scroll ${
 						mobileIsOpen
 							? "visible scale-100 opacity-100"
 							: "invisible scale-0 opacity-0"

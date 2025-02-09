@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+const config = {
 	content: [
 		"./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
 		"./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,11 +8,11 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				blue: "var(--blue)",
-				red: "var(--red)",
-				white: "var(--white)",
-				black: "var(--black)",
-				background: "var(--background)",
+				blue: "#3d405b",
+				red: "#e07a5f",
+				white: "#f8f8f8",
+				black: "#1a1a1a",
+				background: "#f4f1de",
 				foreground: "var(--foreground)",
 			},
 			fontFamily: {
@@ -24,3 +24,5 @@ export default {
 	},
 	plugins: [],
 };
+
+export default config;
