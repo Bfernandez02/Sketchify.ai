@@ -2,6 +2,7 @@ import React from "react";
 import abs from "../../public/abs.jpg";
 import min from "../../public/min.jpg";
 import rea from "../../public/rea.jpg";
+import Image from "next/image";
 
 export default function Trending() {
 	const trendingThemes = [
@@ -20,10 +21,12 @@ export default function Trending() {
 						className="w-[400px] h-[200px] rounded-[20px] relative overflow-hidden"
 					>
 						{/* Image */}
-						<img
+						<Image
 							className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
 							src={theme.image.src}
 							alt={theme.name}
+							width={800}
+							height={400}
 						/>
 
 						{/* Dark Overlay Mask */}
