@@ -10,7 +10,7 @@ const quickLinks = [
 
 const BlockComponent = ({ title, customBody }) => {
   return (
-    <div className="flex flex-col gap-2 w-full max-w-[300px] lg:max-w-[500px]">
+    <div className="flex flex-col gap-2 w-full max-w-[500px] lg:max-w-[700px]">
       <div className="text-[22px] text-secondary font-serif font-bold">
         {title}
       </div>
@@ -36,7 +36,7 @@ export default function Footer() {
       className="w-full bg-primary h-fit py-4 text-white rounded-t-[20px]"
       suppressHydrationWarning={true}
     >
-      <div className="w-full py-[10px] md:lg:px-[140px] md:lg:pt-[20px] h-auto ">
+      <div className="w-full py-[10px] lg:px-[140px] lg:pt-[20px] h-auto px-[20px] ">
         <div className="flex md:lg:justify-start gap-5">
           {/* logo */}
           <Link
@@ -149,8 +149,7 @@ export default function Footer() {
       {/* Logo and Copyright*/}
       <div className="pt-5 w-full flex flex-col px-3 gap-1 content-center items-center justify-center md:px-[80px] h-auto">
         <div className="order-2 content-center text-[11px] py-2 md:lg:text-[14px] md:lg:order-1">
-          2025 © Town of Lincoln. All rights reserved. Official Tourism Site for
-          the town of Lincoln{" "}
+          2025 © Skethchify.ai . All rights reserved. Privacy Policy | Terms of Service | Sitemap
         </div>
       </div>
     </div>
