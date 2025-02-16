@@ -78,6 +78,7 @@ export default function profile() {
 
 	const [arts, setArts] = useState(artsData);
 	const [filter, setFilter] = useState("All");
+	const [selectedOption, setSelectedOption] = useState("My Artwork");
 
 	const filterArts = (theme) => {
 		if (theme === "All") {
@@ -96,14 +97,14 @@ export default function profile() {
 	};
 
 	return (
-		<div className="max-w-[1280px] mx-auto p-4">
-			<div className="flex gap-6">
+		<div className="max-w-[1280px] mx-auto px-4">
+			<div className="flex gap-6 justify-center items-center">
 				<Image
-					className="rounded-full"
+					className="rounded-full w-[164px] h-[164px]"
 					src={user.profilePic}
 					alt="alt text"
-					width={200}
-					height={200}
+					width={500}
+					height={500}
 				/>
 				<div className="flex flex-col py-4 justify-between w-full">
 					<div>
@@ -116,8 +117,8 @@ export default function profile() {
 						</a>
 					</div>
 					{/*Themes - users most common themes? can also serve as filtering for their artworks maybe.*/}
-					<div className="flex flex-row justify-between">
-						<div className="flex flex-row gap-2">
+					<div className="flex flex-row justify-between pt-4">
+						<div className="flex flex-wrap gap-2">
 							<button
 								className={` ${
 									filter === "All"
@@ -143,12 +144,22 @@ export default function profile() {
 							))}
 						</div>
 						{/*Only if you are the user*/}
-						<button className="btnRev">My Saved</button>
+						{/* <button className="btnRev h-fit">My Saved</button> */}
 					</div>
 				</div>
 			</div>
 
-			<h2 className="pt-12 font-fraunces">Artwork</h2>
+			<div className="flex justify-between items-center pt-12">
+				<h2 className="font-fraunces">Artwork</h2>
+				<select
+					className="bg-transparent border border-black rounded pr-2 py-2 cursor-pointer focus:outline-none text-left"
+					value={selectedOption}
+					onChange={(e) => setSelectedOption(e.target.value)}
+				>
+					<option value="My Artwork">My Artwork</option>
+					<option value="My Saved">Favourites</option>
+				</select>
+			</div>
 			<div className="flex flex-wrap gap-4 mb-4">
 				{arts.map((art, index) => (
 					<div key={index} className="w-[300px]">
