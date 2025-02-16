@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import pic from "../../../public/erik.png";
+import ArtCard from "@/components/ArtCard";
 
 export default function profile() {
 	// ex of user object we will use from firebase**
@@ -8,8 +9,72 @@ export default function profile() {
 		username: "EHansen100",
 		profilePic: pic,
 		themes: ["Surrealism", "Abstract", "Cartoon"],
-		// artworks: [artwork1, artwork2, artwork3]
 	};
+
+	// temp artData for testing
+	const artsData = [
+		{
+			id: 1,
+			title: "Sunset Over the Hills",
+			image: "/astro.jpg",
+			date: "2023-08-15",
+			categories: [
+				{ id: 1, name: "Nature" },
+				{ id: 3, name: "Landscape" },
+			],
+			user: {
+				id: 1,
+				name: user.username,
+				profile: user.profilePic,
+			},
+		},
+		{
+			id: 1,
+			title: "Urban Exploration",
+			image: "/abstract.jpg",
+			date: "2023-07-22",
+			categories: [
+				{ id: 2, name: "Minimalism" },
+				{ id: 4, name: "Urban" },
+			],
+			user: {
+				id: 1,
+				name: user.username,
+				profile: user.profilePic,
+			},
+		},
+		{
+			id: 3,
+			title: "Forest Tranquility",
+			image: "/forest.jpg",
+			date: "2023-06-10",
+			categories: [
+				{ id: 1, name: "Nature" },
+				{ id: 5, name: "Tranquility" },
+			],
+			user: {
+				id: 1,
+				name: user.username,
+				profile: user.profilePic,
+			},
+		},
+
+		{
+			id: 5,
+			title: "Mountain Majesty",
+			image: "/bunny.jpg",
+			date: "2023-04-18",
+			categories: [
+				{ id: 1, name: "Nature" },
+				{ id: 3, name: "Landscape" },
+			],
+			user: {
+				id: 1,
+				name: user.username,
+				profile: user.profilePic,
+			},
+		},
+	];
 
 	return (
 		<div className="content-container">
@@ -47,12 +112,12 @@ export default function profile() {
 			</div>
 
 			<h2 className="pt-12 font-fraunces">Artwork</h2>
-			<div className="grid grid-cols-3 gap-4">
-				{/* Use Cards here
-                
-                {user.artworks.map((artwork, index) => (
-                    <Artwork key={index} artwork={artwork} />
-                ))} */}
+			<div className="flex flex-wrap gap-4 justify-center mb-4">
+				{artsData.map((art, index) => (
+					<div key={index} className="w-[300px]">
+						<ArtCard art={art} grid={true} />
+					</div>
+				))}
 			</div>
 		</div>
 	);
