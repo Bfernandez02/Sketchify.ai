@@ -99,14 +99,15 @@ export default function profile() {
 	return (
 		<div className="max-w-[1280px] mx-auto px-4">
 			<div className="flex gap-6 justify-center items-center">
+				{/*User profile pic Desktop*/}
 				<Image
-					className="rounded-full w-[164px] h-[164px]"
+					className="rounded-full w-[164px] h-[164px] md:flex hidden"
 					src={user.profilePic}
 					alt="alt text"
 					width={500}
 					height={500}
 				/>
-				<div className="flex flex-col py-4 justify-between w-full">
+				<div className="flex flex-col py-4 w-full">
 					<div>
 						<h2 className="font-fraunces leading-9">
 							{user.username}
