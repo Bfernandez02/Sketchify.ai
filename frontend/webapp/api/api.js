@@ -1,7 +1,12 @@
 import axios from "axios";
 
-
+const  BASE_URL = "test"
 
 const CallApi = async()=>{
-    console.log('hi')
+    try {
+        const response = axios.get
+        
+    } catch (error) {
+        
+    }
 }
