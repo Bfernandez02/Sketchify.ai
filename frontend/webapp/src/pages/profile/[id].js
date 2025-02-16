@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import pic from "../../../public/erik.png";
 import ArtCard from "@/components/ArtCard";
@@ -8,7 +8,7 @@ export default function profile() {
 	const user = {
 		username: "EHansen100",
 		profilePic: pic,
-		themes: ["Surrealism", "Abstract", "Cartoon"],
+		themes: ["Nature", "Landscape", "Minimalism", "Urban", "Tranquility"],
 	};
 
 	// temp artData for testing
@@ -76,8 +76,27 @@ export default function profile() {
 		},
 	];
 
+	const [arts, setArts] = useState(artsData);
+	const [filter, setFilter] = useState("All");
+
+	const filterArts = (theme) => {
+		if (theme === "All") {
+			setArts(artsData);
+			setFilter("All");
+		} else {
+			const filteredArts = artsData.filter((art) => {
+				const categories = art.categories.map(
+					(category) => category.name
+				);
+				return categories.includes(theme);
+			});
+			setArts(filteredArts);
+			setFilter(theme);
+		}
+	};
+
 	return (
-		<div className="content-container">
+		<div className="max-w-[1280px] mx-auto p-4">
 			<div className="flex gap-6">
 				<Image
 					className="rounded-full"
@@ -98,9 +117,27 @@ export default function profile() {
 					</div>
 					{/*Themes - users most common themes? can also serve as filtering for their artworks maybe.*/}
 					<div className="flex flex-row justify-between">
-						<div className="flex flex-wrap gap-2">
+						<div className="flex flex-row gap-2">
+							<button
+								className={` ${
+									filter === "All"
+										? "font-roboto text-[18px] border-2 border-black"
+										: "font-roboto text-[18px] border-2 border-transparent"
+								}`}
+								onClick={() => filterArts("All")}
+							>
+								All
+							</button>
 							{user.themes.map((theme, index) => (
-								<button key={index} className="btn">
+								<button
+									key={index}
+									className={` ${
+										filter === theme
+											? "font-roboto text-[18px] border-2 border-black"
+											: "font-roboto text-[18px] border-2 border-transparent"
+									}`}
+									onClick={() => filterArts(theme)}
+								>
 									{theme}
 								</button>
 							))}
@@ -112,8 +149,8 @@ export default function profile() {
 			</div>
 
 			<h2 className="pt-12 font-fraunces">Artwork</h2>
-			<div className="flex flex-wrap gap-4 justify-center mb-4">
-				{artsData.map((art, index) => (
+			<div className="flex flex-wrap gap-4 mb-4">
+				{arts.map((art, index) => (
 					<div key={index} className="w-[300px]">
 						<ArtCard art={art} grid={true} />
 					</div>
