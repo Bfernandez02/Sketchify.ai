@@ -33,7 +33,7 @@ def get_photo():
 
 @app.route('/generate-prompt', methods =['POST'])
 def generate_prompt():
-    
+
     try:        
         data = request.json
         image_data = data.get("image")
@@ -78,10 +78,12 @@ def generate_prompt():
         else:
             with open("generated_image.jpeg","wb") as f:
                 f.write(stability_response.content)
-                img_bytes = BytesIO(stability_response.content)
-                img_base64 = base64.b64encode(img_bytes.getvalue()).decode("utf-8")
+                img_base64 = base64.b64encode(stability_response.content).decode("utf-8")
 
-            return jsonify({"image": f"data:image/jpeg;base64,{img_base64}"}), 200
+            return jsonify({
+                "image": img_base64,
+                "Description":api_response
+                }), 200
         
     except Exception as e:
         logging.error(f"Error: {e}")
