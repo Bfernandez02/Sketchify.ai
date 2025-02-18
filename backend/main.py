@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 load_dotenv()
 from io import BytesIO
 
-
 app = Flask(__name__)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 client  = OpenAI()
@@ -23,9 +22,11 @@ stable_diffusion_apiKey = os.getenv("STABILITY_API_KEY")
 def get_photo():     
     data = request.json
     image_data = data.get("image")
+    
     if not image_data:
         print("No image found !")
         return jsonify({"error": "No image provided"}), 400
+      
     print('recieved image')
     return image_data
 
@@ -33,7 +34,6 @@ def get_photo():
 
 @app.route('/generate-prompt', methods =['POST'])
 def generate_prompt():
-
     try:        
         data = request.json
         image_data = data.get("image")

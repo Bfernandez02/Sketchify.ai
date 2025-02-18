@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import { db } from "../firebase/firebase";
 
 const quickLinks = [
   { title: "Home", url: "/" },
@@ -10,7 +12,7 @@ const quickLinks = [
 
 const BlockComponent = ({ title, customBody }) => {
   return (
-    <div className="flex flex-col gap-2 w-full max-w-[300px] lg:max-w-[500px]">
+    <div className="flex flex-col gap-2 w-full max-w-[500px] lg:max-w-[700px]">
       <div className="text-[22px] text-secondary font-serif font-bold">
         {title}
       </div>
@@ -20,15 +22,71 @@ const BlockComponent = ({ title, customBody }) => {
 };
 
 export default function Footer() {
-  const [email, setEmail] = React.useState("");
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [feedbackState, setFeedbackState] = useState({
+    message: "",
+    type: ""
+  });
 
   const handleChange = (event) => {
     setEmail(event.target.value);
+    setFeedbackState({ message: "", type: "" });
   };
 
-  const handleSubmit = (event) => {
+  const checkExistingSubscriber = async (email) => {
+    const q = query(
+      collection(db, "newsletter-subscribers"),
+      where("email", "==", email)
+    );
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    alert(`Email submitted: ${email}`);
+    setIsLoading(true);
+    setFeedbackState({ message: "", type: "" });
+
+    try {
+      const exists = await checkExistingSubscriber(email);
+      if (exists) {
+        setFeedbackState({
+          message: "This email is already subscribed to our newsletter!",
+          type: "error"
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      await addDoc(collection(db, "newsletter-subscribers"), {
+        email: email,
+        subscribedAt: new Date(),
+        status: "active"
+      });
+      
+      setFeedbackState({
+        message: "Thank you for subscribing! You'll receive our newsletter soon.",
+        type: "success"
+      });
+      setEmail("");
+    } catch (error) {
+      console.error("Error during subscription:", error);
+      let errorMessage = "Failed to subscribe. Please try again later.";
+      
+      if (error.code === 'permission-denied') {
+        errorMessage = "Unable to subscribe due to permission issues. Please try again later.";
+      } else if (error.code === 'unavailable') {
+        errorMessage = "Service temporarily unavailable. Please try again in a few minutes.";
+      }
+      
+      setFeedbackState({
+        message: errorMessage,
+        type: "error"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -36,9 +94,8 @@ export default function Footer() {
       className="w-full bg-primary h-fit py-4 text-white rounded-t-[20px]"
       suppressHydrationWarning={true}
     >
-      <div className="w-full py-[10px] md:lg:px-[140px] md:lg:pt-[20px] h-auto ">
+      <div className="w-full py-[10px] lg:px-[140px] lg:pt-[20px] h-auto px-[20px] ">
         <div className="flex md:lg:justify-start gap-5">
-          {/* logo */}
           <Link
             className="font-italianno lg:text-5xl text-4xl text-white px-5 "
             href="/"
@@ -57,6 +114,7 @@ export default function Footer() {
                     href={link.url}
                     className="text-[18px] hover:underline"
                   >
+                 
                     {link.title}
                   </a>
                 ))}
@@ -123,34 +181,47 @@ export default function Footer() {
                 </div>
               }
             />
-            {/* email component */}
-            <div className="flex flex-row items-center outline outline-2 rounded w-[268px] md:lg:h-[35px] md:lg:w-[350px]">
-              <form onSubmit={handleSubmit} className="flex w-full">
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={handleChange} // Update the email state on each change
-                  required
-                  className="bg-primary font-sans text-white rounded px-2 py-1 outline-none w-[160px] md:lg:w-[250px]"
-                  placeholder="Enter your email"
-                />
-                <button
-                  type="submit"
-                  className="bg-primary text-white rounded flex-shrink-0 border-l-2 hover:text-secondary transition-colors text-[14px] px-2 py-1 md:lg:px-4 md:lg:py-2"
-                >
-                  Subscribe
-                </button>
-              </form>
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-row items-center outline outline-2 rounded w-[268px] md:lg:h-[35px] md:lg:w-[350px]">
+                <form onSubmit={handleSubmit} className="flex w-full">
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={handleChange}
+                    required
+                    disabled={isLoading}
+                    className="bg-primary font-sans text-white rounded px-2 py-1 outline-none w-[160px] md:lg:w-[250px] disabled:opacity-50"
+                    placeholder="Enter your email"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className={`bg-primary text-white rounded flex-shrink-0 border-l-2 
+                      hover:text-secondary transition-colors text-[14px] px-2 py-1 
+                      md:lg:px-4 md:lg:py-2 disabled:opacity-50 disabled:cursor-not-allowed
+                      ${isLoading ? 'animate-pulse' : ''}`}
+                  >
+                    {isLoading ? 'Subscribing...' : 'Subscribe'}
+                  </button>
+                </form>
+              </div>
+              {feedbackState.message && (
+                <div className={`text-sm ${
+                  feedbackState.type === 'success' 
+                    ? 'text-green-400' 
+                    : 'text-red-400'
+                  } transition-all duration-300 ease-in-out`}>
+                  {feedbackState.message}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-      {/* Logo and Copyright*/}
       <div className="pt-5 w-full flex flex-col px-3 gap-1 content-center items-center justify-center md:px-[80px] h-auto">
         <div className="order-2 content-center text-[11px] py-2 md:lg:text-[14px] md:lg:order-1">
-          2025 © Town of Lincoln. All rights reserved. Official Tourism Site for
-          the town of Lincoln{" "}
+          2025 © Skethchify.ai . All rights reserved. Privacy Policy | Terms of Service | Sitemap
         </div>
       </div>
     </div>
