@@ -49,11 +49,12 @@ const SketchPad = () => {
     const response = await CallApi(ImageData);
 
     if (response && response.image) {
+      console.log('Image Recieved')
       const img = new Image();
       img.src = response.image;
       img.onload = () => {
         ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        ctxRef.current.drawImage(img, 0, 0);
+        ctxRef.current.drawImage(img, 0, 0,canvas.width,canvas.height);
       };
     }
   };
