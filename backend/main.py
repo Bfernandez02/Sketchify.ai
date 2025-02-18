@@ -7,8 +7,8 @@ import requests
 from openai import OpenAI
 import openai
 from dotenv import load_dotenv
-
 load_dotenv()
+from io import BytesIO
 
 app = Flask(__name__)
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -22,11 +22,11 @@ stable_diffusion_apiKey = os.getenv("STABILITY_API_KEY")
 def get_photo():     
     data = request.json
     image_data = data.get("image")
-
+    
     if not image_data:
         print("No image found !")
         return jsonify({"error": "No image provided"}), 400
-
+      
     print('recieved image')
     return image_data
 
@@ -34,7 +34,6 @@ def get_photo():
 
 @app.route('/generate-prompt', methods =['POST'])
 def generate_prompt():
-    
     try:        
         data = request.json
         image_data = data.get("image")
@@ -50,16 +49,13 @@ def generate_prompt():
             messages=[
                 {"role": "system", "content": "Your job is to describe the sketch in as much detail as possible and present every single detail without losing any context."},
                 {"role": "user", "content": [
-                    {"type": "text", "text": "I want a 1 sentence description of this sketch, be laconic and emphasize brevity. Do not include any response details like \"Description:\"."
+                    {"type": "text", "text": "I want a detailed  description of this sketch, do not lose context and be specific to what you see. Do not include any response details like \"Description:\"."
                      },
                     {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_base64}"}}
                 ]}
             ]
             )
-
         api_response  =  response.choices[0].message.content
-        
-
         print(f"AI Response: {api_response}")
 
         stability_response = requests.post(
@@ -82,11 +78,15 @@ def generate_prompt():
         else:
             with open("generated_image.jpeg","wb") as f:
                 f.write(stability_response.content)
+                img_base64 = base64.b64encode(stability_response.content).decode("utf-8")
 
-            return jsonify({"message": "Image successfully generated and saved as 'generated_image.png'"}), 20
+            return jsonify({
+                "image": img_base64,
+                "Description":api_response
+                }), 200
+        
     except Exception as e:
         logging.error(f"Error: {e}")
-      #  logging.error(f"Error from Stability AI: {stability_response.text}")
         return json.jsonify({"error": str(e)}), 500
     
 if __name__ == '__main__':
