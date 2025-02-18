@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import { CallApi } from "../../api/api";
 
 const DropdownMenu = ({ label, options }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -7,7 +8,7 @@ const DropdownMenu = ({ label, options }) => {
   return (
     <div className="relative">
       <button
-        className="w-[300px] bg-gray-800 text-white px-4 py-2 rounded-lg flex  items-center font-fraunces text-center justify-center"
+        className="w-[300px] bg-primary text-white px-4 py-2 rounded-lg flex  items-center font-fraunces text-center justify-center"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selected || label}
@@ -34,21 +35,44 @@ const DropdownMenu = ({ label, options }) => {
 };
 
 const SketchPad = () => {
+  const getCanvasImage = () => {
+    return canvasRef.current.toDataURL("image/png");
+  };
+
+  const HandleAPICall = async () => {
+    const ImageData = getCanvasImage();
+
+    const response = await CallApi(ImageData);
+
+    if (response && response.image) {
+      const img = new Image();
+      img.src = response.image; // Assuming the backend returns a base64 image
+      img.onload = () => {
+        ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+
+        ctxRef.current.drawImage(img, 0, 0);
+      };
+    }
+  };
+
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [scale, setScale] = useState(1);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    const scale = window.devicePixelRatio || 1;
-    canvas.width = 1080 * scale;
-    canvas.height = 700 * scale;
+    const scaleFactor = window.devicePixelRatio || 1;
+    setScale(scaleFactor);
+
+    canvas.width = 1080 * scaleFactor;
+    canvas.height = 700 * scaleFactor;
     canvas.style.width = "1200px";
     canvas.style.height = "700px";
 
-    ctx.scale(scale, scale);
+    ctx.scale(scaleFactor, scaleFactor);
     ctx.lineWidth = 3;
     ctx.lineCap = "round";
     ctx.strokeStyle = "black";
@@ -86,7 +110,7 @@ const SketchPad = () => {
   };
 
   return (
-    <div className=" text-gray-900 flex flex-row items-center py-8 justify-center">
+    <div className="text-gray-900 flex flex-row items-center py-8 justify-center">
       <div className="mt-6 flex gap-6">
         {/* Sidebar */}
         <div className="flex flex-col bg-gray-900 text-white p-2 rounded-lg space-y-4">
@@ -122,17 +146,24 @@ const SketchPad = () => {
           </button>
         </div>
 
-        {/* Right Panel - Textarea & Dropdowns */}
         <div className="flex flex-col space-y-6">
           <textarea
             className="border border-black placeholder-gray-500 px-3 py-2 rounded-lg bg-background w-[300px] h-[250px] text-top resize-none"
             placeholder="Additional Prompts..."
           ></textarea>
 
-          {/* Dropdown Menus */}
           <DropdownMenu label="Theme" options={["Dark", "Light", "Custom"]} />
           <DropdownMenu label="Option" options={["Option 1", "Option 2", "Option 3"]} />
           <DropdownMenu label="Option" options={["Option A", "Option B", "Option C"]} />
+
+          <div className="pt-28">
+            <button
+              className="w-[300px] bg-secondary text-white px-4 py-2 rounded-lg flex items-center font-fraunces text-center justify-center"
+              onClick={HandleAPICall}
+            >
+              Enhance
+            </button>
+          </div>
         </div>
       </div>
     </div>
