@@ -49,7 +49,7 @@ def generate_prompt():
             messages=[
                 {"role": "system", "content": "Your job is to describe the sketch in as much detail as possible and present every single detail without losing any context."},
                 {"role": "user", "content": [
-                    {"type": "text", "text": "I want a 1 sentence description of this sketch, be laconic and emphasize brevity. Do not include any response details like \"Description:\"."
+                    {"type": "text", "text": "I want a detailed  description of this sketch, do not lose context and be specific to what you see. Do not include any response details like \"Description:\"."
                      },
                     {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_base64}"}}
                 ]}
