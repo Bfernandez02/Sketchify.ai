@@ -62,7 +62,7 @@ export default function art() {
 						))}
 					</div>
 				</div>
-				<div className="flex flex-row gap-2 items-center">
+				<div className="flex flex-row gap-2 items-center justify-end w-1/2">
 					<div>
 						<Image
 							className="rounded-full w-[80px] h-[80px]"
