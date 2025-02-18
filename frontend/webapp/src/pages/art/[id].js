@@ -47,7 +47,7 @@ export default function art() {
 
 	return (
 		<div className="content-container">
-			<div className="flex flex-row justify-between">
+			<div className="flex flex-row justify-between mb-10">
 				<div className="flex flex-col">
 					<h2 className="font-fraunces">{art.title}</h2>
 					<div className="flex flex-row gap-2">
@@ -62,17 +62,17 @@ export default function art() {
 						))}
 					</div>
 				</div>
-				<div className="flex flex-row gap-2">
+				<div className="flex flex-row gap-2 items-center">
 					<div>
 						<Image
-							className="rounded-full w-[100px] h-[100px]"
+							className="rounded-full w-[80px] h-[80px]"
 							src={pic}
 							alt="profile picture"
 							width={500}
 							height={500}
 						/>
 					</div>
-					<div className="flex flex-col justify-center">
+					<div className="flex flex-col">
 						<Link
 							className="font-fraunces text-[24px] leading-6 hover:underline"
 							href={`/profile/${art.user.id}`}
@@ -84,6 +84,29 @@ export default function art() {
 						</p>
 					</div>
 				</div>
+			</div>
+			<div className="flex flex-row justify-between items-center max-w-[1080px] mx-auto mb-10">
+				<Image
+					className="w-[35%] h-auto rounded-[20px]"
+					src={art.original}
+					alt="original sketch"
+					width={500}
+					height={500}
+				/>
+				<Image
+					className="w-[80px] h-[80px]"
+					src={wand}
+					alt="wand"
+					width={500}
+					height={500}
+				/>
+				<Image
+					className="w-[35%] h-auto rounded-[20px]"
+					src={art.enhanced}
+					alt="enhanced sketch"
+					width={500}
+					height={500}
+				/>
 			</div>
 		</div>
 	);
