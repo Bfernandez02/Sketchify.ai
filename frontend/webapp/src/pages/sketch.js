@@ -16,7 +16,7 @@ export default function sketch() {
             </h1>
           </div>
 		  
-          <img className="w-40 h-40" src={pencil.src} alt="Pencil" />
+          <img className="w-[200px] h-[200px]" src={pencil.src} alt="Pencil" />
         </div>
         <SketchPad />
       </div>
