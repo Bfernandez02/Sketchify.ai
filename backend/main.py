@@ -8,6 +8,8 @@ from openai import OpenAI
 import openai
 from dotenv import load_dotenv
 load_dotenv()
+from io import BytesIO
+
 
 app = Flask(__name__)
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -21,11 +23,9 @@ stable_diffusion_apiKey = os.getenv("STABILITY_API_KEY")
 def get_photo():     
     data = request.json
     image_data = data.get("image")
-
     if not image_data:
         print("No image found !")
         return jsonify({"error": "No image provided"}), 400
-
     print('recieved image')
     return image_data
 
@@ -78,11 +78,13 @@ def generate_prompt():
         else:
             with open("generated_image.jpeg","wb") as f:
                 f.write(stability_response.content)
+                img_bytes = BytesIO(stability_response.content)
+                img_base64 = base64.b64encode(img_bytes.getvalue()).decode("utf-8")
 
-            return jsonify({"message": "Image successfully generated and saved as 'generated_image.png'"}), 20
+            return jsonify({"image": f"data:image/jpeg;base64,{img_base64}"}), 200
+        
     except Exception as e:
         logging.error(f"Error: {e}")
-      #  logging.error(f"Error from Stability AI: {stability_response.text}")
         return json.jsonify({"error": str(e)}), 500
     
 if __name__ == '__main__':
