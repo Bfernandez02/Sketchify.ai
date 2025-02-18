@@ -7,7 +7,6 @@ import requests
 from openai import OpenAI
 import openai
 from dotenv import load_dotenv
-
 load_dotenv()
 
 app = Flask(__name__)
@@ -56,10 +55,7 @@ def generate_prompt():
                 ]}
             ]
             )
-
         api_response  =  response.choices[0].message.content
-        
-
         print(f"AI Response: {api_response}")
 
         stability_response = requests.post(
