@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, use } from "react";
 import { CallApi } from "../../api/api";
 
 const DropdownMenu = ({ label, options }) => {
@@ -35,6 +35,8 @@ const DropdownMenu = ({ label, options }) => {
 };
 
 const SketchPad = () => {
+
+  const [isLoading,setIsLoading] = useState(false);
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -45,17 +47,23 @@ const SketchPad = () => {
   };
 
   const HandleAPICall = async () => {
+    setIsLoading(true);
     const ImageData = getCanvasImage();
     const response = await CallApi(ImageData);
 
-    if (response && response.image) {
+    if (response) {
       console.log('Image Recieved')
       const img = new Image();
-      img.src = response.image;
+      img.src = `data:image/png;base64,${response.data.image}`;
+
       img.onload = () => {
-        ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        const canvas = canvasRef.current
+        ctxRef.current.clearRect(0, 0, canvas.width, canvas.height);
         ctxRef.current.drawImage(img, 0, 0,canvas.width,canvas.height);
+        setIsLoading(false);
       };
+    }else{
+      setIsLoading(false);
     }
   };
 
@@ -161,10 +169,13 @@ const SketchPad = () => {
 
           <div className="pt-28">
             <button
-              className="w-[300px] bg-secondary text-white px-4 py-2 rounded-lg flex items-center font-fraunces text-center justify-center"
+               className={`w-[300px] bg-secondary text-white px-4 py-2 rounded-lg flex items-center font-fraunces text-center justify-center ${
+                isLoading ? "opacity-50" : "opacity-100"
+              }`}
               onClick={HandleAPICall}
+              disabled ={isLoading}
             >
-              Enhance
+              {isLoading ? "Enhancing..." : "Enhance"}
             </button>
           </div>
         </div>
