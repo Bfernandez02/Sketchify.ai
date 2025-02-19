@@ -1,8 +1,9 @@
 import React from "react";
 import { NextSeo } from "next-seo";
 import { useState } from "react";
+import Link from "next/link";
 
-export default function sigin() {
+export default function Sigin() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -22,7 +23,7 @@ export default function sigin() {
   };
 
   return (
-    <div>
+    <div className="mb-[120px]">
       <NextSeo
         title={"Sketchify.ai | Sign In"}
         description="Sign in to Sketchify to start creating and sharing your art."
@@ -38,9 +39,26 @@ export default function sigin() {
         />
       </div>
 
-      <div className="flex md:flex-row flex-col justify-between items-center xl:w-[1280px] w-full mx-auto p-4">
-        <div className="w-full px-[20px] lg:px-[80px] xl:px-[160px] py-[80px]">
+      <div className="flex md:flex-row flex-col justify-between items-center xl:w-[1280px] w-full mx-auto rounded-[20px] bg-white">
+        <div className="w-full px-[20px] lg:px-[80px] xl:px-[160px] py-[60px]">
           <div className="flex flex-col gap-2">
+            <h2 className="font-fraunces md:text-7xl text-5xl text-center mb-[20px]">
+              Sign In
+            </h2>
+
+            <div className="flex gap-2 items-center">
+              <button className="btn w-full flex items-center justify-center gap-2">
+                <i className="fa-brands fa-google fa-lg"></i>
+                Sign in with Google
+              </button>
+            </div>
+
+            <div className="flex gap-2 items-center">
+              <div className="flex items-center justify-between h-[1px] w-full bg-slate-400"></div>
+              <span className="text-slate-400">or</span>
+              <div className="flex items-center justify-between h-[1px] w-full bg-slate-400"></div>
+            </div>
+
             <label htmlFor="email" className="text-primary">
               Email <span className="text-red-600">*</span>
             </label>
@@ -55,7 +73,7 @@ export default function sigin() {
                   setFormData({ ...formData, email: e.target.value })
                 }
               />
-              <i className="fa-solid fa-envelope text-primary w-fit fa-lg " />
+              <i className="fa-solid fa-envelope text-primary w-fit text-[18px] " />
             </div>
           </div>
 
@@ -63,8 +81,8 @@ export default function sigin() {
             <label htmlFor="password" className="text-primary">
               Password <span className="text-red-600">*</span>
             </label>
-            <div className="flex items-center justify-between border border-primary rounded-md p-2">
-              <i className="fa-solid fa-lock text-primary w-fit fa-lg mr-2" />
+            <div className="flex items-center justify-between border border-primary rounded-md ">
+              <i className="fa-solid fa-lock text-primary w-fit text-[18px] mr-2 px-2" />
               <input
                 type="password"
                 placeholder="password"
@@ -76,24 +94,31 @@ export default function sigin() {
                 }
               />
               <button
-                className="h-fit w-fit"
+                className="p-0"
                 onClick={() => togglePasswordVisibility("password")}
               >
-                <i className="fa-solid fa-eye text-gray-400 w-fit fa-lg " />
+                <i className="fa-solid fa-eye text-gray-400 text-[18px] " />
               </button>
             </div>
           </div>
 
-          <button className="btn md:mx-[80px]" onClick={handleSubmit}>
+          <button className="btnRev w-full my-4 md:my-6" onClick={handleSubmit}>
             Sign In
           </button>
 
           <p className="text-primary text-center">
             Don't have an account?{" "}
-            <a href="/signup" className="text-accent">
+            <Link href="/sign-up" className="text-secondary">
               Sign Up
-            </a>
+            </Link>
           </p>
+        </div>
+
+        <div className="md:grid grid-cols-2 w-full hidden rounded-r-[20px] overflow-clip">
+          <img src="/astro.jpg" alt="signinArt" className=" h-[300px]" />
+          <img src="/bunny.jpg" alt="signinArt" className=" h-[300px]" />
+          <img src="/abstract.jpg" alt="signinArt" className=" h-[300px]" />
+          <img src="/forest.jpg" alt="signinArt" className=" h-[300px]" />
         </div>
       </div>
     </div>
