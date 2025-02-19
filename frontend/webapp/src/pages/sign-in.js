@@ -30,7 +30,7 @@ export default function Sigin() {
       />
       <div className="flex md:flex-row flex-col justify-between items-center xl:w-[1280px] w-full mx-auto p-4">
         <h2 className="font-fraunces md:text-7xl text-5xl">
-          Join Sketchify <br /> Start Creating Today!
+          Welcome Back <br /> Let&apos;s Get Creative!
         </h2>
         <img
           className="md:w-[360px] w-[300px]"
@@ -62,7 +62,7 @@ export default function Sigin() {
             <label htmlFor="email" className="text-primary">
               Email <span className="text-red-600">*</span>
             </label>
-            <div className="flex items-center justify-between border border-primary rounded-md p-2">
+            <div className="flex items-center justify-between border border-primary rounded-md p-2 h-[42px]">
               <input
                 type="email"
                 placeholder="email"
@@ -81,8 +81,8 @@ export default function Sigin() {
             <label htmlFor="password" className="text-primary">
               Password <span className="text-red-600">*</span>
             </label>
-            <div className="flex items-center justify-between border border-primary rounded-md ">
-              <i className="fa-solid fa-lock text-primary w-fit text-[18px] mr-2 px-2" />
+            <div className="flex items-center justify-between border border-primary rounded-md px-2 h-[42px]">
+              <i className="fa-solid fa-lock text-primary w-fit text-[16px] mr-2 " />
               <input
                 type="password"
                 placeholder="password"
