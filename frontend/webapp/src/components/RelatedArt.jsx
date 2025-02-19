@@ -67,7 +67,7 @@ export default function RelatedArt() {
 	}, []);
 
 	return (
-		<div className="content-container max-w-[1200px] px-4 py-8">
+		<div className="content-container max-w-[1200px] py-8">
 			<div>
 				<h2 className="font-fraunces md:text-[36px] text-[30px]">
 					More like this
