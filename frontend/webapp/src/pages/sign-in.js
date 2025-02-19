@@ -67,7 +67,7 @@ export default function Sigin() {
                 type="email"
                 placeholder="email"
                 id="email"
-                className="focus:outline-none text-primary font-roboto w-full"
+                className="focus:outline-none text-primary font-roboto w-full bg-transparent"
                 required
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
@@ -77,7 +77,7 @@ export default function Sigin() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 mt-4">
             <label htmlFor="password" className="text-primary">
               Password <span className="text-red-600">*</span>
             </label>
@@ -88,7 +88,7 @@ export default function Sigin() {
                 placeholder="password"
                 id="password"
                 required
-                className="focus:outline-none text-primary font-roboto w-full"
+                className="focus:outline-none text-primary font-roboto w-full bg-transparent"
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
