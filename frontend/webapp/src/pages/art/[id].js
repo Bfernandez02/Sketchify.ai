@@ -47,10 +47,13 @@ export default function art() {
 
 	return (
 		<div className="content-container">
-			<div className="flex flex-row justify-between mb-10">
+			{/* title and categories */}
+			<div className="flex md:flex-row md:justify-between flex-col mb-10 mt-2 max-w-[1200px] mx-auto md:gap-0 gap-4">
 				<div className="flex flex-col">
-					<h2 className="font-fraunces">{art.title}</h2>
-					<div className="flex flex-row gap-2">
+					<h2 className="font-fraunces md:w-3/4 leading-[3rem] pb-4 px-4 md:text-[36px] md:text-left md:px-0 text-[30px] text-center">
+						{art.title}
+					</h2>
+					<div className="flex flex-row gap-2 md:justify-start justify-center flex-wrap">
 						{art.categories.map((category) => (
 							<div
 								key={category.id}
@@ -62,7 +65,9 @@ export default function art() {
 						))}
 					</div>
 				</div>
-				<div className="flex flex-row gap-2 items-center justify-end w-1/2">
+
+				{/* user info */}
+				<div className="flex md:flex-row flex-col gap-2 items-center md:justify-end justify-center md:w-1/2 md:px-0 px-4">
 					<div>
 						<Image
 							className="rounded-full w-[80px] h-[80px]"
@@ -85,23 +90,25 @@ export default function art() {
 					</div>
 				</div>
 			</div>
-			<div className="flex flex-row justify-between items-center max-w-[1080px] mx-auto mb-10">
+
+			{/* images */}
+			<div className="flex md:flex-row md:justify-between items-center flex-col justify-center max-w-[1200px] mx-auto mb-10">
 				<Image
-					className="w-[35%] h-auto rounded-[20px]"
+					className="md:w-[35%] w-[80vw] h-auto rounded-[20px]"
 					src={art.original}
 					alt="original sketch"
 					width={500}
 					height={500}
 				/>
 				<Image
-					className="w-[80px] h-[80px]"
+					className="w-[80px] h-[80px] md:my-0 my-8"
 					src={wand}
 					alt="wand"
 					width={500}
 					height={500}
 				/>
 				<Image
-					className="w-[35%] h-auto rounded-[20px]"
+					className="md:w-[35%] w-[80vw] h-auto rounded-[20px]"
 					src={art.enhanced}
 					alt="enhanced sketch"
 					width={500}
