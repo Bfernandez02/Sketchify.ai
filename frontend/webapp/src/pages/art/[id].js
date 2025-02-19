@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import RelatedArt from "@/components/RelatedArt";
 import pic from "../../../public/erik.png";
 import wand from "../../../public/wand.svg";
 import sketch from "../../../public/drawing.png";
@@ -115,6 +116,9 @@ export default function art() {
 					height={500}
 				/>
 			</div>
+
+			{/* related art */}
+			<RelatedArt />
 		</div>
 	);
 }
