@@ -46,7 +46,7 @@ export default function art() {
 	const dateFormatted = art.date ? timeAgo(new Date(art.date)) : "";
 
 	return (
-		<div className="content-container">
+		<div className="content-container px-4">
 			{/* title and categories */}
 			<div className="flex md:flex-row md:justify-between flex-col mb-10 mt-2 max-w-[1200px] mx-auto md:gap-0 gap-4">
 				<div className="flex flex-col">
