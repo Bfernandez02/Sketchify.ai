@@ -6,9 +6,9 @@ import SignUpForm from "@/components/auth/SignUnForm";
 export default function Signup() {
   const [formData, setFormData] = useState({
     name: "",
-    email: "bf22wk@brocku.ca",
-    password: "Testdata123",
-    confirmPassword: "Testdata123",
+    email: "",
+    password: "",
+    confirmPassword: "",
     profile : null,
     banner : null,
     bio : "",
