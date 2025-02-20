@@ -5,10 +5,13 @@ import SignUpForm from "@/components/auth/SignUnForm";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+    name: "",
+    email: "bf22wk@brocku.ca",
+    password: "Testdata123",
+    confirmPassword: "Testdata123",
+    profile : null,
+    banner : null,
+    bio : "",
   });
 
   return (
@@ -33,10 +36,10 @@ export default function Signup() {
         <SignUpForm formData={formData} setFormData={setFormData} />
 
         <div className="md:grid grid-cols-2 w-full hidden rounded-r-[20px] overflow-clip">
-          <img src="/astro.jpg" alt="signinArt" className=" h-[340px]" />
-          <img src="/bunny.jpg" alt="signinArt" className=" h-[340px]" />
-          <img src="/abstract.jpg" alt="signinArt" className=" h-[340px]" />
-          <img src="/forest.jpg" alt="signinArt" className=" h-[340px]" />
+          <img src="/astro.jpg" alt="signinArt" className=" h-[365px]" />
+          <img src="/bunny.jpg" alt="signinArt" className=" h-[365px]" />
+          <img src="/abstract.jpg" alt="signinArt" className=" h-[365px]" />
+          <img src="/forest.jpg" alt="signinArt" className=" h-[365px]" />
         </div>
       </div>
     </div>

@@ -2,6 +2,8 @@ import React from "react";
 import { NextSeo } from "next-seo";
 import { useState } from "react";
 import Link from "next/link";
+import { validateSignInForm } from "@/utils/authUtils";
+import toast from "react-hot-toast";
 
 export default function Sigin() {
   const [formData, setFormData] = useState({
@@ -19,6 +21,8 @@ export default function Sigin() {
   };
 
   const handleSubmit = () => {
+    if (!validateSignInForm(formData)) return;
+
     console.log(formData);
   };
 

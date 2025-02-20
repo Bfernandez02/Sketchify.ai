@@ -3,17 +3,18 @@ import { useState } from "react";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Confirmation from "./Confirmation";
+import { validateSignUpForm } from "@/utils/authUtils";
 
 export default function SignUpForm({ formData, setFormData }) {
+  const [step, setStep] = useState(1);
   const handleNextStep = () => {
+    if (!validateSignUpForm(formData, step)) return;
     setStep(step + 1);
   };
 
   const handlePrevStep = () => {
     console.log(formData);
   };
-
-  const [step, setStep] = useState(1);
 
   const formSteps = [
     <Step1
@@ -31,11 +32,10 @@ export default function SignUpForm({ formData, setFormData }) {
 
       <div>
         <div className="flex justify-between">
-          {step > 1 && (
+          {step > 1 && step < formSteps.length && (
             <button
               className="btn"
               onClick={() => {
-                setStep(step - 1);
                 handlePrevStep();
               }}
             >
@@ -43,11 +43,10 @@ export default function SignUpForm({ formData, setFormData }) {
             </button>
           )}
 
-          { step > 1 && step < formSteps.length && (
+          {step > 1 && step < formSteps.length && (
             <button
               className="btn"
               onClick={() => {
-                setStep(step + 1);
                 handleNextStep();
               }}
             >

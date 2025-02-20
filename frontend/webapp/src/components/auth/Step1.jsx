@@ -26,7 +26,9 @@ export default function Step1({ formData, setFormData, handleNextStep }) {
             placeholder="email"
             id="email"
             className="focus:outline-none text-primary font-roboto w-full bg-transparent text-[16px]"
+            maxLength={40}
             required
+            value={formData.email}
             onChange={(e) =>
               setFormData({ ...formData, email: e.target.value })
             }
@@ -45,7 +47,9 @@ export default function Step1({ formData, setFormData, handleNextStep }) {
             type="password"
             placeholder="password"
             id="password"
+            maxLength={30}
             required
+            value={formData.password}
             className="focus:outline-none text-primary font-roboto w-full bg-transparent text-[16px]"
             onChange={(e) =>
               setFormData({ ...formData, password: e.target.value })
@@ -109,10 +113,12 @@ export default function Step1({ formData, setFormData, handleNextStep }) {
         <div className="flex items-center justify-between border border-primary rounded-md px-2 h-[42px]">
           <i className="fa-solid fa-lock text-primary w-fit text-[16px] mr-2" />
           <input
-            type="confirmconfirmPassword"
+            type="password"
             placeholder="confirm Password"
             id="confirmPassword"
+            maxLength={40}
             required
+            value={formData.confirmPassword}
             className="focus:outline-none text-primary font-roboto w-full bg-transparent text-[16px]"
             onChange={(e) =>
               setFormData({ ...formData, confirmPassword: e.target.value })
@@ -127,13 +133,13 @@ export default function Step1({ formData, setFormData, handleNextStep }) {
         </div>
       </div>
 
-      <button className="btnRev w-full my-4 md:my-6" onClick={() => handleNextStep()}>Sign In</button>
+      <button className="btnRev w-full my-4 md:my-6" onClick={() => handleNextStep()}>Sign Up</button>
 
       <div className="flex flex-col gap-2 mt-4">
         <p className="text-primary text-center">
           Already have an account?{" "}
           <Link href="/sign-in" className="text-secondary">
-            Sign In
+            Sign Up
           </Link>
         </p>
       </div>
