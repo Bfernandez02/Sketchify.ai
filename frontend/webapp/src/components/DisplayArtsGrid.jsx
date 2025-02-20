@@ -28,6 +28,7 @@ export default function DisplayArtsGrid({ arts, simple = false }) {
 	};
 
 	return (
+		// we keep this for later maybe
 		// <Masonry
 		// 	breakpointCols={breakpointCols}
 		// 	className="flex w-auto -ml-4"
