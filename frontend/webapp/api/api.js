@@ -6,7 +6,7 @@ export const CallApi = async(ImageData)=>{
         const response = axios.post(`${BASE_URL}/generate-prompt`,{
             image: ImageData,
         });
-        return response;
+        return response.json();
     } catch (error) {
         console.error("Error:", error);
         return { error: "Something went wrong while calling the API" };
