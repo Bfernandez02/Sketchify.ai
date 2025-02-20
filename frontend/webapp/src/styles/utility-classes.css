@@ -17,7 +17,7 @@
 
 	.btnAlternate {
 		@apply text-primary font-semibold py-[6px] px-[12px] text-[16px]
-     bg-white shadow-lg rounded-[10px] hover:bg-accent transition-colors duration-300 gap-x-10 lg:py-[8px] lg:px-[16px] lg:text-[18px];
+     bg-white shadow-lg rounded-[10px] hover:bg-primary transition-colors duration-300 gap-x-10 lg:py-[8px] lg:px-[16px] lg:text-[18px];
 	}
 
 	.basicInput {
