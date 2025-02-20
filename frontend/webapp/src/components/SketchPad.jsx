@@ -41,9 +41,7 @@ const SketchPad = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentColor, setCurrentColor] = useState("#000000");
 
-  const getCanvasImage = () => {
-    return canvasRef.current.toDataURL("image/png");
-  };
+  const getCanvasImage = () => canvasRef.current.toDataURL("image/png");
 
   const HandleAPICall = async () => {
     setIsLoading(true);
@@ -54,7 +52,6 @@ const SketchPad = () => {
       console.log("Image Received");
       const img = new Image();
       img.src = `data:image/png;base64,${response.data.image}`;
-
       img.onload = () => {
         const canvas = canvasRef.current;
         ctxRef.current.clearRect(0, 0, canvas.width, canvas.height);
@@ -67,6 +64,13 @@ const SketchPad = () => {
     }
   };
 
+  // Helper function to update the canvas CSS height based on its width and aspect ratio.
+  const updateCanvasSize = () => {
+    const canvas = canvasRef.current;
+    const aspectRatio = 700 / 1080; // height / width
+    canvas.style.height = `${canvas.clientWidth * aspectRatio}px`;
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -74,16 +78,25 @@ const SketchPad = () => {
     // Set internal resolution
     canvas.width = 1080;
     canvas.height = 700;
-    // For responsiveness, set canvas style to full width with a max width
+    // For responsiveness, set the canvas to full width and update the height accordingly.
     canvas.style.width = "100%";
-    canvas.style.maxWidth = "1080px";
-    canvas.style.height = "auto";
+    updateCanvasSize();
 
     ctx.lineWidth = 2;
     ctx.lineCap = "round";
     ctx.strokeStyle = currentColor;
 
     ctxRef.current = ctx;
+
+    window.addEventListener("resize", updateCanvasSize);
+    return () => window.removeEventListener("resize", updateCanvasSize);
+  }, []); // Run once on mount
+
+  // Update the stroke style when currentColor changes.
+  useEffect(() => {
+    if (ctxRef.current) {
+      ctxRef.current.strokeStyle = currentColor;
+    }
   }, [currentColor]);
 
   const getMousePos = (e) => {
@@ -114,6 +127,29 @@ const SketchPad = () => {
     setIsDrawing(false);
   };
 
+  // Function to create a splash effect at (x, y)
+  const drawSplash = (x, y) => {
+    const ctx = ctxRef.current;
+    const splashCount = 20; // Number of circles in the splash
+    for (let i = 0; i < splashCount; i++) {
+      const angle = Math.random() * 2 * Math.PI;
+      const distance = Math.random() * 50; // Maximum distance from center
+      const offsetX = Math.cos(angle) * distance;
+      const offsetY = Math.sin(angle) * distance;
+      const radius = Math.random() * 5 + 2; // Circle radius between 2 and 7
+      ctx.beginPath();
+      ctx.arc(x + offsetX, y + offsetY, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = currentColor;
+      ctx.fill();
+    }
+  };
+
+  // On double-click, draw a splash at the clicked location.
+  const handleDoubleClick = (e) => {
+    const pos = getMousePos(e);
+    drawSplash(pos.x, pos.y);
+  };
+
   return (
     <div className="text-gray-900 flex flex-col md:flex-row items-center py-8 justify-center px-4">
       <div className="mt-6 flex flex-col md:flex-row md:gap-6 w-full">
@@ -127,10 +163,10 @@ const SketchPad = () => {
               className="w-6 h-6 cursor-pointer"
             />
           </div>
-          <button className="md:p-2 md:text-md text-sm">⭐</button>
-          <button className="md:p-2 md:text-md text-sm">T</button>
-          <button className="md:p-2 md:text-md  text-sm">⚙️</button>
-          <button className="md:p-2 md:text-md text-sm">➕</button>
+          <button className="md:p-2 md:text-lg text-sm">⭐</button>
+          <button className="md:p-2 md:text-lg text-sm">T</button>
+          <button className="md:p-2 md:text-lg text-sm">⚙️</button>
+          <button className="md:p-2 md:text-lg text-sm">➕</button>
         </div>
 
         {/* Sketchpad Canvas */}
@@ -141,12 +177,15 @@ const SketchPad = () => {
             onMouseMove={draw}
             onMouseUp={stopDrawing}
             onMouseOut={stopDrawing}
+            onDoubleClick={handleDoubleClick}
             className="rounded-lg"
           ></canvas>
           {isLoading && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-10">
               <div className="w-12 h-12 border-4 border-t-4 border-gray-200 rounded-full animate-spin mb-4"></div>
-              <span className="text-white text-6xl font-fraunces">Enhancing....</span>
+              <span className="text-white text-6xl font-fraunces">
+                Enhancing....
+              </span>
             </div>
           )}
           <button
