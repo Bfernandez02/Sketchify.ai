@@ -8,7 +8,7 @@ export default function Confirmation({ formData }) {
     <div>
       <div className="mx-auto mt-8 flex max-w-[420px] flex-col items-center justify-center gap-4 text-center">
         <h2 className="font-fraunces md:text-5xl text-3xl w-full">
-          Thank you for signing up ${formData.name}!
+          Thank you for signing up {formData.name}!
         </h2>
         <p className="text-lg">
           You are now a part of the Sketchify community.

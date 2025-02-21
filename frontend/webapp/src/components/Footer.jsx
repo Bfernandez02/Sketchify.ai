@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
-import { db } from "../firebase/firebase";
+import { db } from "../firebase/config";
 
 const quickLinks = [
   { title: "Home", url: "/" },
