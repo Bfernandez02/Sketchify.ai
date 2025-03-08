@@ -13,6 +13,7 @@ export const styles = StyleSheet.create({
     scrollContent: {
       flexGrow: 1,
     },
+
     heroSection: {
       padding: 24,
       alignItems: 'center',
