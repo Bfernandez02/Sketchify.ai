@@ -18,7 +18,6 @@ function AppContent() {
   const colorScheme = useColorScheme();
   const { user, loading } = useAuth();
 
-  // Optionally, show nothing (or a loader) until auth state is determined.
   if (loading) {
     return null;
   }
