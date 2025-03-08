@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from 'react';
 import Image from "next/image";
 import stroke from "../../public/stroke.png";
 import brushes from "../../public/brushes.png";
@@ -13,8 +13,82 @@ import Mail from "../../public/Mail.png";
 import Location from "../../public/Location.png";
 import Plane from "../../public/Plane.png";
 import Link from "next/link";
+import { db } from "../firebase/firebase";
+import { collection, addDoc } from 'firebase/firestore';
+
 
 export default function Contact() {
+	const [formData, setFormData] = useState({
+		name: '',
+		phone: '',
+		email: '',
+		subject: '',
+		message: '',
+	});
+	const [status, setStatus] = useState('');
+
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+		setFormData((prevData) => ({
+			...prevData,
+			[name]: value,
+		}));
+	};
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		setStatus('Sending...');
+
+		const { name, email, message, phone, subject } = formData;
+
+		try {
+
+			await addDoc(collection(db, 'contacts'), {
+				name,
+				email,
+				message,
+				phone,
+				subject,
+			});
+
+
+
+
+
+			const response = await fetch('/api/contact', {
+
+
+
+
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(formData),
+			});
+
+
+
+			// const data = await response.json();
+			// console.log(data);
+
+			if (response.ok) {
+				setStatus('Message sent successfully!');
+				setFormData({
+					name: '',
+					phone: '',
+					email: '',
+					subject: '',
+					message: '',
+				});
+			} else {
+				setStatus('Failed to send message.');
+			}
+		} catch (error) {
+			setStatus('An error occurred while sending the message.');
+		}
+	};
+
 	return (
 		<div>
 			<link
@@ -109,17 +183,23 @@ export default function Contact() {
 
 				{/* Right Section */}
 				<div className="w-full md:w-[65%] p-6 mt-5">
-					<form>
+					<form onSubmit={handleSubmit}>
 						<div className="flex gap-5 mb-4 flex-wrap">
 							<input
 								type="text"
 								placeholder="Full Name"
 								className="flex-1 p-4 text-lg"
+								name="name"
+								value={formData.name}
+								onChange={handleChange}
 							/>
 							<input
 								type="text"
 								placeholder="Phone Number"
 								className="flex-1 p-4 text-lg"
+								name="phone"
+								value={formData.phone}
+								onChange={handleChange}
 							/>
 						</div>
 
@@ -128,17 +208,26 @@ export default function Contact() {
 								type="email"
 								placeholder="Mail"
 								className="flex-1 p-4 text-lg"
+								name="email"
+								value={formData.email}
+								onChange={handleChange}
 							/>
 							<input
 								type="text"
 								placeholder="Subject"
 								className="flex-1 p-4 text-lg"
+								name="subject"
+								value={formData.subject}
+								onChange={handleChange}
 							/>
 						</div>
 
 						<textarea
 							placeholder="Message"
 							className="w-full h-[150px] mt-4 p-4 text-lg"
+							name="message"
+							value={formData.message}
+							onChange={handleChange}
 						></textarea>
 
 						<div className="text-center mt-4">
@@ -157,6 +246,9 @@ export default function Contact() {
 							</button>
 						</div>
 					</form>
+
+					{/* Status message */}
+					{status && <p className="mt-4 text-center text-xl">{status}</p>}
 				</div>
 			</div>
 		</div>
