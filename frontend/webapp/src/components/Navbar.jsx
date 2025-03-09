@@ -29,7 +29,7 @@ export default function Navbar() {
 	];
 
 	return (
-		<>
+		<div className="sticky top-0 z-20">
 			<div
 				className={`hidden md:flex justify-between items-center px-8 lg:px-10 py-4 z-20 sticky top-0 bg-background transition-shadow duration-300 ${
 					hasScrolled ? "shadow-md" : ""
@@ -54,7 +54,7 @@ export default function Navbar() {
 									: ""
 							}`}
 						>
-							<span className="relative pb-[4.8px] after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:bg-black after:origin-left after:scale-x-0 after:transition-transform after:duration-200 hover:after:scale-x-100">
+							<span className="relative pb-[4.8px] after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:bg-black after:origin-left after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100">
 								{name}
 							</span>
 						</Link>
@@ -94,9 +94,9 @@ export default function Navbar() {
 				{/* MOBILE NAV MENU */}
 				<nav
 					aria-description="Mobile Navbar"
-					className={`bg-background/80 backdrop-blur-2xl fixed right-0 top-0 z-[20] flex text-center h-screen w-screen origin-top-right flex-col gap-8 px-10 pt-28 transition-all md:hidden max-h-screen overflow-y-scroll ${
+					className={`z-20 bg-background/80 backdrop-blur-2xl fixed right-0 top-0 flex text-center h-screen w-screen origin-top-right flex-col gap-8 px-10 pt-28 transition-all md:hidden max-h-screen overflow-y-scroll ${
 						mobileIsOpen
-							? "visible scale-100 opacity-100"
+							? "visible scale-100 opacity-100 z-20"
 							: "invisible scale-0 opacity-0"
 					}
                 `}
@@ -127,6 +127,6 @@ export default function Navbar() {
 					</Link>
 				</nav>
 			</div>
-		</>
+		</div>
 	);
 }
