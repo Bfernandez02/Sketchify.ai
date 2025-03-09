@@ -155,17 +155,19 @@ export default function Contact() {
 						123 placeholder drive, city, province, postal code
 					</p>
 
-					<div className="flex flex-row pt-3 gap-x-6 items-center">
+					<div className="flex flex-col lg:flex-row pt-3 gap-x-6 gap-4 items-start lg:items-center">
 						<Link
 							href={"/team"}
 							className="text-[18px] hover:underline"
 						>
 							OUR TEAM
 						</Link>
-						<i className="fa-brands fa-facebook text-secondary fa-2x"></i>
-						<i className="fa-brands fa-twitter text-primary text-xl bg-secondary rounded-full flex items-center justify-center w-[34px] h-[34px]"></i>
-						<i className="fa-brands fa-pinterest-p text-primary text-xl bg-secondary rounded-full flex items-center justify-center w-[34px] h-[34px]"></i>
-						<i className="fa-brands fa-instagram text-primary text-xl bg-secondary rounded-full flex items-center justify-center w-[34px] h-[34px]"></i>
+						<div className="flex gap-4">
+							<i className="fa-brands fa-facebook text-secondary fa-2x"></i>
+							<i className="fa-brands fa-twitter text-primary text-xl bg-secondary rounded-full flex items-center justify-center w-[34px] h-[34px]"></i>
+							<i className="fa-brands fa-pinterest-p text-primary text-xl bg-secondary rounded-full flex items-center justify-center w-[34px] h-[34px]"></i>
+							<i className="fa-brands fa-instagram text-primary text-xl bg-secondary rounded-full flex items-center justify-center w-[34px] h-[34px]"></i>
+						</div>
 					</div>
 				</div>
 
