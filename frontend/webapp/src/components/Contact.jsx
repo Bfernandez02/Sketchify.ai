@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import Image from "next/image";
 import stroke from "../../public/stroke.png";
 import brushes from "../../public/brushes.png";
@@ -13,19 +13,18 @@ import Mail from "../../public/Mail.png";
 import Location from "../../public/Location.png";
 import Plane from "../../public/Plane.png";
 import Link from "next/link";
-import { db } from "../firebase/firebase";
-import { collection, addDoc } from 'firebase/firestore';
-
+import { db } from "../firebase/config";
+import { collection, addDoc } from "firebase/firestore";
 
 export default function Contact() {
 	const [formData, setFormData] = useState({
-		name: '',
-		phone: '',
-		email: '',
-		subject: '',
-		message: '',
+		name: "",
+		phone: "",
+		email: "",
+		subject: "",
+		message: "",
 	});
-	const [status, setStatus] = useState('');
+	const [status, setStatus] = useState("");
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -37,13 +36,12 @@ export default function Contact() {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setStatus('Sending...');
+		setStatus("Sending...");
 
 		const { name, email, message, phone, subject } = formData;
 
 		try {
-
-			await addDoc(collection(db, 'contacts'), {
+			await addDoc(collection(db, "contacts"), {
 				name,
 				email,
 				message,
@@ -51,63 +49,40 @@ export default function Contact() {
 				subject,
 			});
 
-
-
-
-
-			const response = await fetch('/api/contact', {
-
-
-
-
-				method: 'POST',
+			const response = await fetch("/api/contact", {
+				method: "POST",
 				headers: {
-					'Content-Type': 'application/json',
+					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(formData),
 			});
-
-
 
 			// const data = await response.json();
 			// console.log(data);
 
 			if (response.ok) {
-				setStatus('Message sent successfully!');
+				setStatus("Message sent successfully!");
 				setFormData({
-					name: '',
-					phone: '',
-					email: '',
-					subject: '',
-					message: '',
+					name: "",
+					phone: "",
+					email: "",
+					subject: "",
+					message: "",
 				});
 			} else {
-				setStatus('Failed to send message.');
+				setStatus("Failed to send message.");
 			}
 		} catch (error) {
-			setStatus('An error occurred while sending the message.');
+			setStatus("An error occurred while sending the message.");
 		}
 	};
 
 	return (
 		<div>
-			<link
-				href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap"
-				rel="stylesheet"
-			/>
-			<link
-				href="https://fonts.googleapis.com/css2?family=Fraunces&display=swap"
-				rel="stylesheet"
-			/>
-			<link
-				href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap"
-				rel="stylesheet"
-			/>
-
 			<div className="w-full flex flex-wrap">
 				{/* Left Section */}
 				<div className="w-full md:w-2/3 p-5 flex items-center justify-start">
-					<h1 className="font-fraunces xl:text-8xl md:text-7xl text-5xl">
+					<h1 className="font-fraunces xl:text-7xl text-7xl text-5xl">
 						Have Questions? <br /> Get in Touch With Us!
 					</h1>
 				</div>
@@ -117,8 +92,8 @@ export default function Contact() {
 					<Image
 						src={Contact_Person.src}
 						alt="Contact Image"
-						width={400}
-						height={520}
+						width={340}
+						height={460}
 						className="mx-auto"
 					/>
 				</div>
@@ -129,24 +104,24 @@ export default function Contact() {
 				<div className="w-full md:w-[35%] bg-[#2e3547] p-10 text-white rounded-tl-lg rounded-bl-lg mb-5">
 					<h2 className="font-playfair text-4xl mb-10">Contact Us</h2>
 
-					<p className="flex items-center mb-8 text-xl pl-10">
+					<p className="flex items-center mb-8 text-md xl:text-xl pl-0 lg:pl-10">
 						<Image
 							src={Phone}
 							alt="Phone"
 							width={20}
 							height={20}
-							className="object-contain mr-8"
+							className="object-contain mr-4 lg:mr-8"
 						/>
 						(123) 456-7890
 					</p>
 
-					<p className="flex items-center mb-8 text-xl pl-10">
+					<p className="flex items-center mb-8 text-md xl:text-xl pl-0 lg:pl-10">
 						<Image
 							src={Mail}
 							alt="Mail"
 							width={20}
 							height={20}
-							className="object-contain mr-8"
+							className="object-contain mr-4 lg:mr-8"
 						/>
 						<a
 							href="mailto:placeholder@email.com"
@@ -156,28 +131,30 @@ export default function Contact() {
 						</a>
 					</p>
 
-					<p className="flex items-center mb-8 text-xl pl-10">
+					<p className="flex items-center mb-8 text-md xl:text-xl pl-0 lg:pl-10">
 						<Image
 							src={Location}
 							alt="Location"
 							width={20}
 							height={20}
-							className="object-contain mr-8"
+							className="object-contain mr-4 lg:mr-8"
 						/>
 						123 placeholder drive, city, province, postal code
 					</p>
 
-					<div className="flex flex-row pt-3 gap-x-6 items-center">
+					<div className="flex flex-col lg:flex-row pt-3 gap-x-6 gap-4 items-start lg:items-center">
 						<Link
 							href={"/team"}
 							className="text-[18px] hover:underline"
 						>
 							OUR TEAM
 						</Link>
-						<i className="fa-brands fa-facebook text-secondary fa-2x"></i>
-						<i className="fa-brands fa-twitter text-primary text-xl bg-secondary rounded-full flex items-center justify-center w-[34px] h-[34px]"></i>
-						<i className="fa-brands fa-pinterest-p text-primary text-xl bg-secondary rounded-full flex items-center justify-center w-[34px] h-[34px]"></i>
-						<i className="fa-brands fa-instagram text-primary text-xl bg-secondary rounded-full flex items-center justify-center w-[34px] h-[34px]"></i>
+						<div className="flex gap-4">
+							<i className="fa-brands fa-facebook text-secondary fa-2x"></i>
+							<i className="fa-brands fa-twitter text-primary text-xl bg-secondary rounded-full flex items-center justify-center w-[34px] h-[34px]"></i>
+							<i className="fa-brands fa-pinterest-p text-primary text-xl bg-secondary rounded-full flex items-center justify-center w-[34px] h-[34px]"></i>
+							<i className="fa-brands fa-instagram text-primary text-xl bg-secondary rounded-full flex items-center justify-center w-[34px] h-[34px]"></i>
+						</div>
 					</div>
 				</div>
 
@@ -248,7 +225,9 @@ export default function Contact() {
 					</form>
 
 					{/* Status message */}
-					{status && <p className="mt-4 text-center text-xl">{status}</p>}
+					{status && (
+						<p className="mt-4 text-center text-xl">{status}</p>
+					)}
 				</div>
 			</div>
 		</div>

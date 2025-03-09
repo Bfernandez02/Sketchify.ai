@@ -1,5 +1,6 @@
 import React from "react";
 import painters from "../../public/painters.png";
+import Link from "next/link";
 
 export default function LandingHero() {
 	return (
@@ -14,13 +15,19 @@ export default function LandingHero() {
 						<br /> Let your creativity flow and see where it takes
 						you!
 					</h4>
-					<div className="flex md:flex-row gap-4 pt-8 md:justify-start justify-center flex-col ">
-						<button className="bg-secondary text-white font-fraunces text-2xl rounded-[20px]">
+					<div className="flex md:flex-row gap-4 pt-8 md:justify-start justify-center flex-col z-10">
+						<Link
+							href="/explore"
+							className="bg-secondary text-white font-fraunces text-2xl rounded-[20px] px-4 py-2 inline-block text-center hover:bg-opacity-90"
+						>
 							Explore
-						</button>
-						<button className="bg-primary text-white font-fraunces text-2xl rounded-[20px]">
+						</Link>
+						<Link
+							href="/sketch"
+							className="bg-primary text-white font-fraunces text-2xl rounded-[20px] px-4 py-2 inline-block text-center hover:bg-opacity-90"
+						>
 							Start Sketching
-						</button>
+						</Link>
 					</div>
 				</div>
 				<div className="md:w-[860px] w-[100%]">
