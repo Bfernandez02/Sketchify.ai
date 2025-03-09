@@ -117,24 +117,24 @@ export default function Contact() {
 				<div className="w-full md:w-[35%] bg-[#2e3547] p-10 text-white rounded-tl-lg rounded-bl-lg mb-5">
 					<h2 className="font-playfair text-4xl mb-10">Contact Us</h2>
 
-					<p className="flex items-center mb-8 text-xl pl-10">
+					<p className="flex items-center mb-8 text-md xl:text-xl pl-0 lg:pl-10">
 						<Image
 							src={Phone}
 							alt="Phone"
 							width={20}
 							height={20}
-							className="object-contain mr-8"
+							className="object-contain mr-4 lg:mr-8"
 						/>
 						(123) 456-7890
 					</p>
 
-					<p className="flex items-center mb-8 text-xl pl-10">
+					<p className="flex items-center mb-8 text-md xl:text-xl pl-0 lg:pl-10">
 						<Image
 							src={Mail}
 							alt="Mail"
 							width={20}
 							height={20}
-							className="object-contain mr-8"
+							className="object-contain mr-4 lg:mr-8"
 						/>
 						<a
 							href="mailto:placeholder@email.com"
@@ -144,13 +144,13 @@ export default function Contact() {
 						</a>
 					</p>
 
-					<p className="flex items-center mb-8 text-xl pl-10">
+					<p className="flex items-center mb-8 text-md xl:text-xl pl-0 lg:pl-10">
 						<Image
 							src={Location}
 							alt="Location"
 							width={20}
 							height={20}
-							className="object-contain mr-8"
+							className="object-contain mr-4 lg:mr-8"
 						/>
 						123 placeholder drive, city, province, postal code
 					</p>
