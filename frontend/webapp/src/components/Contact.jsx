@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import Image from "next/image";
 import stroke from "../../public/stroke.png";
 import brushes from "../../public/brushes.png";
@@ -13,19 +13,18 @@ import Mail from "../../public/Mail.png";
 import Location from "../../public/Location.png";
 import Plane from "../../public/Plane.png";
 import Link from "next/link";
-import { db } from "../firebase/firebase";
-import { collection, addDoc } from 'firebase/firestore';
-
+import { db } from "../firebase/config";
+import { collection, addDoc } from "firebase/firestore";
 
 export default function Contact() {
 	const [formData, setFormData] = useState({
-		name: '',
-		phone: '',
-		email: '',
-		subject: '',
-		message: '',
+		name: "",
+		phone: "",
+		email: "",
+		subject: "",
+		message: "",
 	});
-	const [status, setStatus] = useState('');
+	const [status, setStatus] = useState("");
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -37,13 +36,12 @@ export default function Contact() {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setStatus('Sending...');
+		setStatus("Sending...");
 
 		const { name, email, message, phone, subject } = formData;
 
 		try {
-
-			await addDoc(collection(db, 'contacts'), {
+			await addDoc(collection(db, "contacts"), {
 				name,
 				email,
 				message,
@@ -51,41 +49,31 @@ export default function Contact() {
 				subject,
 			});
 
-
-
-
-
-			const response = await fetch('/api/contact', {
-
-
-
-
-				method: 'POST',
+			const response = await fetch("/api/contact", {
+				method: "POST",
 				headers: {
-					'Content-Type': 'application/json',
+					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(formData),
 			});
-
-
 
 			// const data = await response.json();
 			// console.log(data);
 
 			if (response.ok) {
-				setStatus('Message sent successfully!');
+				setStatus("Message sent successfully!");
 				setFormData({
-					name: '',
-					phone: '',
-					email: '',
-					subject: '',
-					message: '',
+					name: "",
+					phone: "",
+					email: "",
+					subject: "",
+					message: "",
 				});
 			} else {
-				setStatus('Failed to send message.');
+				setStatus("Failed to send message.");
 			}
 		} catch (error) {
-			setStatus('An error occurred while sending the message.');
+			setStatus("An error occurred while sending the message.");
 		}
 	};
 
@@ -248,7 +236,9 @@ export default function Contact() {
 					</form>
 
 					{/* Status message */}
-					{status && <p className="mt-4 text-center text-xl">{status}</p>}
+					{status && (
+						<p className="mt-4 text-center text-xl">{status}</p>
+					)}
 				</div>
 			</div>
 		</div>

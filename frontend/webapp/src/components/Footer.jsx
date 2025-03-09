@@ -240,7 +240,7 @@ export default function Footer() {
 			</div>
 			<div className="pt-5 w-full flex flex-col px-3 gap-1 content-center items-center justify-center md:px-[80px] h-auto">
 				<div className="order-2 content-center text-[11px] py-2 md:lg:text-[14px] md:lg:order-1">
-					2025 © Skethchify.ai . All rights reserved. Privacy Policy |
+					2025 © Sketchify.ai. All rights reserved. Privacy Policy |
 					Terms of Service | Sitemap
 				</div>
 			</div>
