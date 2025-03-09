@@ -79,23 +79,10 @@ export default function Contact() {
 
 	return (
 		<div>
-			<link
-				href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap"
-				rel="stylesheet"
-			/>
-			<link
-				href="https://fonts.googleapis.com/css2?family=Fraunces&display=swap"
-				rel="stylesheet"
-			/>
-			<link
-				href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap"
-				rel="stylesheet"
-			/>
-
 			<div className="w-full flex flex-wrap">
 				{/* Left Section */}
 				<div className="w-full md:w-2/3 p-5 flex items-center justify-start">
-					<h1 className="font-fraunces xl:text-8xl md:text-7xl text-5xl">
+					<h1 className="font-fraunces xl:text-7xl text-7xl text-5xl">
 						Have Questions? <br /> Get in Touch With Us!
 					</h1>
 				</div>
@@ -105,8 +92,8 @@ export default function Contact() {
 					<Image
 						src={Contact_Person.src}
 						alt="Contact Image"
-						width={400}
-						height={520}
+						width={340}
+						height={460}
 						className="mx-auto"
 					/>
 				</div>
