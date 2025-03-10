@@ -18,6 +18,31 @@ CORS(app)
 stable_diffusion_api_url = 'https://api.stability.ai/v2beta/stable-image/generate/ultra'
 stable_diffusion_apiKey = os.getenv("STABILITY_API_KEY")
 
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({
+        "message": "Welcome to Sketchify.ai API",
+        "endpoints": [
+            {"path": "/generate-prompt", "method": "POST", "description": "Generate an image from a sketch"},
+            {"path": "/get-image", "method": "POST", "description": "Process an uploaded image"}
+        ]
+    })
+
+@app.before_request
+def log_request_info():
+    app.logger.debug('Headers: %s', request.headers)
+    app.logger.debug('Body: %s', request.get_data())
+    app.logger.debug('Path: %s', request.path)
+
+@app.after_request
+def log_response_info(response):
+    app.logger.debug('Response Status: %s', response.status)
+    return response
+
+@app.route('/test', methods=['GET', 'POST'])
+def test():
+    return jsonify({"status": "connected"})
+
 @app.route('/get-image', methods = ['POST'])
 def get_photo():     
     data = request.json
@@ -29,8 +54,6 @@ def get_photo():
       
     print('recieved image')
     return image_data
-
-    
 
 @app.route('/generate-prompt', methods =['POST'])
 def generate_prompt():
@@ -90,4 +113,4 @@ def generate_prompt():
         return json.jsonify({"error": str(e)}), 500
     
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

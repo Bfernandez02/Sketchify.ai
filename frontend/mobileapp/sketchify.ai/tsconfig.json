@@ -5,7 +5,8 @@
    "paths": {
       "@/*": [ "./*"],
       "@screens/*" : ["./screens/*"],
-      "@assets/*": ["./assets/*"]
+      "@assets/*": ["./assets/*"],
+      "@types/*" : ["./types"]
     }
   },
   "include": [
