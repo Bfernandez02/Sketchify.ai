@@ -69,13 +69,33 @@ def generate_prompt():
 
         response = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Your job is to describe the sketch in as much detail as possible and present every single detail without losing any context."},
-                {"role": "user", "content": [
-                    {"type": "text", "text": "I want a detailed  description of this sketch, do not lose context and be specific to what you see. Do not include any response details like \"Description:\"."
-                     },
-                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_base64}"}}
-                ]}
+            messages = [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an expert visual descriptor tasked with analyzing sketches for an AI image generation pipeline. "
+                        "Your job is to describe the sketch in vivid, precise detail, capturing every visible element—shapes, lines, textures, objects, and composition—without losing context. "
+                        "Focus on what is explicitly present, avoiding assumptions or embellishments beyond the sketch itself. "
+                        "Structure the description as a concise, natural paragraph optimized for an image generation model like Stable Diffusion, using evocative yet specific language."
+                    )
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": (
+                                "Provide a detailed, vivid description of this sketch as a single paragraph. "
+                                "Include all visible elements—shapes, lines, objects, and their arrangement—using precise, evocative language suitable for generating a high-quality AI image. "
+                                "Do not add labels like 'Description:' or interpret beyond what is shown."
+                            )
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/png;base64,{image_base64}"}
+                        }
+                    ]
+                }
             ]
             )
         api_response  =  response.choices[0].message.content
