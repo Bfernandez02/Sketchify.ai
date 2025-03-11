@@ -28,7 +28,6 @@ function AppContent() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="show-image" options={{ headerShown: false }} />
-          <Stack.Screen name="gallery" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
       ) : (
