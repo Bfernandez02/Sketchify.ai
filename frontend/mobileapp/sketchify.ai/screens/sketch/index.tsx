@@ -39,7 +39,6 @@ export default function SketchScreen() {
     handleStrokeWidthChange,
   } = useDrawing();
   
-  // Image processing
   const { isLoading, handleProcess } = useImageProcessing(
     viewShotRef, 
     paths, 
@@ -95,10 +94,7 @@ export default function SketchScreen() {
         isDark={isDark}
       />
     </View>
-      
-      {/* Conditionally render the color panel */}
 
-      {/* Toolbar always visible */}
       <Toolbar
         isDark={isDark}
         paths={paths}

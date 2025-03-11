@@ -9,7 +9,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthProvider, useAuth } from '@/firebase/AuthContext';
-import PreLoginPage from '@/screens/intro/PreLoginPage'; 
+import PreLoginPage from '@/screens/intro/PreLoginPage';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -27,6 +27,8 @@ function AppContent() {
       {user ? (
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="show-image" options={{ headerShown: false }} />
+          <Stack.Screen name="gallery" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
       ) : (

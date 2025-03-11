@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import axios from "axios";
+import { useRouter } from 'expo-router';
 import { DrawingPath, ApiResponse, ApiErrorResponse } from '../types';
 import { API_BASE_URL } from '../constants';
 
@@ -10,9 +11,15 @@ import { API_BASE_URL } from '../constants';
  */
 const callApi = async (imageData: string): Promise<ApiResponse | ApiErrorResponse> => {
   try {
+    // Add the appropriate data URL prefix to the base64 string
+    const formattedImage = `data:image/png;base64,${imageData}`;
+    
+    console.log("Calling API with formatted image data");
+    
     const response = await axios.post<ApiResponse>(`${API_BASE_URL}/generate-prompt`, {
-      image: imageData,
+      image: formattedImage,
     });
+    
     return response.data;
   } catch (error) {
     console.error("Error:", error);
@@ -52,6 +59,8 @@ const saveToGallery = async (base64Image: string, prompt: string): Promise<strin
     ).catch(() => JSON.stringify({ items: [] }));
     
     const metadata = JSON.parse(galleryData);
+    metadata.items = metadata.items || [];
+    
     metadata.items.push({
       id: timestamp.toString(),
       filename,
@@ -80,6 +89,7 @@ const useImageProcessing = (
   currentPath: DrawingPath | null
 ) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   /**
    * Process the sketch drawing and enhance it with AI
@@ -107,22 +117,29 @@ const useImageProcessing = (
         encoding: FileSystem.EncodingType.Base64,
       });
       
-      // Call the API
       const response = await callApi(base64);
       
       if (isErrorResponse(response)) {
         throw new Error(response.error);
       }
       
-      // Save to gallery
-      await saveToGallery(response.image, response.prompt);
+      // Get the description from the response, or use a default
+      const promptText =  "Enhanced sketch";
       
-      // Success feedback
+      // Save to gallery in background
+      saveToGallery(response.image, promptText)
+        .catch(error => console.error("Error saving to gallery:", error));
+      
+      router.push({
+        pathname: '/show-image',
+        params: {
+          imageData: response.image,
+          promptText: promptText
+        }
+      });
+      
       setIsLoading(false);
-      Alert.alert(
-        "Success!", 
-        "Your sketch has been enhanced and saved to the gallery."
-      );
+      
     } catch (error) {
       setIsLoading(false);
       console.error("Error processing sketch:", error);

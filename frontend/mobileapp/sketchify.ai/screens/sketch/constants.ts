@@ -15,7 +15,7 @@ export const AVAILABLE_COLORS: ColorOption[] = [
 ];
 
 // API endpoints
-export const API_BASE_URL = "http://localhost:5000";
+export const API_BASE_URL = "http://localhost:5001";
 
 // Canvas settings
 export const DEFAULT_STROKE_WIDTH = 5;
