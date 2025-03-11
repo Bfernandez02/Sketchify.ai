@@ -1,8 +1,9 @@
-import { initializeApp } from "firebase/app"; 
+import { initializeApp, getApps, getApp, FirebaseApp} from "firebase/app"; 
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
+// Firebase Config (Loaded from .env.local)
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -13,7 +14,7 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 const db = getFirestore(app);
 
