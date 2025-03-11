@@ -4,8 +4,12 @@ import ExploreHero from "@/components/ExploreHero";
 import Trending from "@/components/Trending";
 import DisplayArtsGrid from "@/components/DisplayArtsGrid";
 import artsData from "@/utils/artsData";
+import { db } from "../firebase/config";
+import { collection, getDocs } from "firebase/firestore";
 
-export default function explore() {
+export default function explore({arts}) {
+
+	console.log(arts);
 	return (
 		<>
 			<NextSeo title="Explore | Sketchify" />
@@ -20,3 +24,16 @@ export default function explore() {
 		</>
 	);
 }
+
+export async function getServerSideProps() {
+	const artsCollection = collection(db, "posts");
+	const artsSnapshot = await getDocs(artsCollection);
+	const arts = artsSnapshot.docs.map(doc => doc.data());
+
+	return {
+		props: {
+			arts,
+		},
+	};
+}
+

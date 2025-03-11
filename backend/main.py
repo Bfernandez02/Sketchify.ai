@@ -96,7 +96,7 @@ def generate_prompt():
                         }
                     ]
                 }
-            ]
+            ] 
             )
         api_response  =  response.choices[0].message.content
         print(f"AI Response: {api_response}")
