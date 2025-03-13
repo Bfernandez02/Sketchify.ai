@@ -11,17 +11,27 @@ import { API_BASE_URL } from '../constants';
  */
 const callApi = async (imageData: string): Promise<ApiResponse | ApiErrorResponse> => {
   try {
-    // Add the appropriate data URL prefix to the base64 string
-    const formattedImage = `data:image/png;base64,${imageData}`;
+    const cleanImageData = imageData.includes('base64,') 
+      ? imageData
+      : `data:image/png;base64,${imageData}`;
     
-    console.log("Calling API with formatted image data");
+    console.log("Calling API with image data");
+
+    // console.log(imageData.substring(0,100))
+    // console.log(imageData.substring(-100))
+
     
     const response = await axios.post<ApiResponse>(`${API_BASE_URL}/generate-prompt`, {
-      image: formattedImage,
+      image: cleanImageData,
     });
+
     
     return response.data;
   } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      console.error("API Error:", error.response.status, error.response.data);
+      return { error: `API Error: ${JSON.stringify(error.response.data)}` };
+    }
     console.error("Error:", error);
     return { error: "Something went wrong while calling the API" };
   }
