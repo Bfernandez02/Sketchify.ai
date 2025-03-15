@@ -57,7 +57,7 @@ function ImageSelector({ type, setFormData, image }) {
                }`}
       >
         <input {...getInputProps()} />
-        {image ? (
+        {image ? ( 
           <div className="flex justify-center relative">
             {type === "profile" ? (
               <img
