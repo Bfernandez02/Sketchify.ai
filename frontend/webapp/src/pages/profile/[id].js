@@ -5,6 +5,7 @@ import ArtCard from "@/components/ArtCard";
 import { useRouter } from "next/router";
 import { db } from "@/firebase/config";
 import { getDoc, doc } from "firebase/firestore";
+import { useAuth } from "@/context/authContext";
 
 export default function profile() {
 	// ex of user object we will use from firebase**
@@ -103,6 +104,7 @@ export default function profile() {
 	const { id } = router.query;
 	const [user, setUser] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const { currentUser } = useAuth();
 
 	useEffect(() => {
 		if (!id) return; // Prevent unnecessary Firestore queries
@@ -143,13 +145,18 @@ export default function profile() {
 				/>
 				<div className="flex flex-col py-4 w-full">
 					<div>
-						<h2 className="font-fraunces leading-9">
-							{/* {user.username} */}
-						</h2>
-						{/**Edit only if you are the user**/}
-						<a className="font-roboto text-[16px] text-gray-700 pl-1 hover:underline hover:cursor-pointer">
-							Edit profile
-						</a>
+						<h2 className="font-fraunces leading-9">{user.name}</h2>
+						<p>{user.bio}</p>
+
+						{/* Edit Profile link will only render if currentUser = profile/user */}
+						{currentUser.email === user.email && (
+							<a
+								className="font-roboto text-[16px] text-gray-700 pl-1 hover:underline hover:cursor-pointer"
+								href="/profile/edit"
+							>
+								Edit profile
+							</a>
+						)}
 					</div>
 					{/*Themes - users most common themes? can also serve as filtering for their artworks maybe.*/}
 					<div className="flex flex-row justify-between pt-4">

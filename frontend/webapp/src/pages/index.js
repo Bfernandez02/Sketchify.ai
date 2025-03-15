@@ -7,7 +7,6 @@ import { useAuth } from "@/context/authContext";
 
 export default function Index() {
 	const { currentUser } = useAuth();
-	console.log(currentUser);
 	return (
 		<>
 			<NextSeo title="Home | Sketchify" />
