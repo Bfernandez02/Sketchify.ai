@@ -57,4 +57,3 @@ THEMES = {
 def get_theme_prompt (theme_name ):
     theme_data = THEMES.get(theme_name, THEMES["Default"])
     return theme_data["system_content"], theme_data["user_text"]
-
