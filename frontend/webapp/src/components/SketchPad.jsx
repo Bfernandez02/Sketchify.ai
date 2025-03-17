@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { CallApi } from "../../api/api";
 
 
-const DropdownMenu = ({ id, label, options, openDropdown, setOpenDropdown }) => {
+const DropdownMenu = ({ id, label, options, openDropdown, setOpenDropdown, onThemeChange }) => {
   const [selected, setSelected] = useState("");
   const isOpen = openDropdown === id;
 
@@ -29,6 +29,11 @@ const DropdownMenu = ({ id, label, options, openDropdown, setOpenDropdown }) => 
               onClick={() => {
                 setSelected(option);
                 setOpenDropdown(null);
+
+                if(onThemeChange){
+                  onThemeChange(option);
+                }
+                //onThemeChange && onThemeChange(option); // Call parent handler
               }}
             >
               {option}
@@ -47,13 +52,25 @@ const SketchPad = () => {
   const ctxRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentColor, setCurrentColor] = useState("#000000");
+  const [ThemeData,Setheme] = useState("Default");
+
 
   const getCanvasImage = () => canvasRef.current.toDataURL("image/png");
+
+  const handleThemeChange = (theme) => { // Function to handle theme change
+    Setheme(theme);
+
+    console.log(ThemeData)
+  }
+
+  useEffect(() =>{ 
+    console.log("Current theme:",ThemeData);
+  },[ThemeData]);
 
   const HandleAPICall = async () => {
     setIsLoading(true);
     const ImageData = getCanvasImage();
-    const response = await CallApi(ImageData);
+    const response = await CallApi(ImageData,ThemeData);
 
     if (response) {
       console.log("Image Received");
@@ -222,6 +239,7 @@ const SketchPad = () => {
             options={["Realism", "Minimalism", "Nature"]}
             openDropdown={openDropdown}
             setOpenDropdown={setOpenDropdown}
+            onThemeChange={handleThemeChange}
           />
           <DropdownMenu
             id="option1"

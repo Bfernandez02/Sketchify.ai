@@ -18,6 +18,8 @@ CORS(app)
 stable_diffusion_api_url = 'https://api.stability.ai/v2beta/stable-image/generate/ultra'
 stable_diffusion_apiKey = os.getenv("STABILITY_API_KEY")
 
+
+
 @app.route('/', methods=['GET'])
 def home():
     return jsonify({
