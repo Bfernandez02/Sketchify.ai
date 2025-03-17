@@ -9,6 +9,7 @@ import openai
 from dotenv import load_dotenv
 load_dotenv()
 from io import BytesIO
+from themes import get_theme_prompt
 
 app = Flask(__name__)
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -57,6 +58,15 @@ def get_photo():
     print('recieved image')
     return image_data
 
+
+@app.route('/GetTheme', methods =['POST'])
+def getTheme():
+    data = request.json
+    theme_data = data.get('theme')
+    print(theme_data)
+    return jsonify({"theme": theme_data}), 200
+
+
 @app.route('/generate-prompt', methods =['POST'])
 def generate_prompt():
     try:        
@@ -85,6 +95,7 @@ def generate_prompt():
                     "role": "user",
                     "content": [
                         {
+               
                             "type": "text",
                             "text": (
                                 "Provide a detailed, vivid description of this sketch as a single paragraph. "
