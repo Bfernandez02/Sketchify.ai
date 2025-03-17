@@ -3,8 +3,10 @@ import LandingHero from "../components/LandingHero";
 import FeaturedArtwork from "@/components/FeaturedArtwork";
 import Overview from "@/components/Overview";
 import { NextSeo } from "next-seo";
+import { useAuth } from "@/context/authContext";
 
-export default function index() {
+export default function Index() {
+	const { currentUser } = useAuth();
 	return (
 		<>
 			<NextSeo title="Home | Sketchify" />

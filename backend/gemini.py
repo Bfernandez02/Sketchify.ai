@@ -193,9 +193,6 @@ def generate_prompt():
         return jsonify({"error": str(e)}), 500
         
 if __name__ == '__main__':
-<<<<<<< Updated upstream
-    app.run(debug=True, port=5001)
-=======
     if not os.path.exists(SERVICE_ACCOUNT_KEY_PATH):
         print(f"WARNING: Service account key file not found at {SERVICE_ACCOUNT_KEY_PATH}")
         print("Make sure to include the key file in the project directory")
@@ -209,4 +206,3 @@ if __name__ == '__main__':
     
     # Run the app
     app.run(debug=True, port=5001, threaded=True)
->>>>>>> Stashed changes
