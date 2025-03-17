@@ -82,7 +82,7 @@ export default function Contact() {
 			<div className="w-full flex flex-wrap">
 				{/* Left Section */}
 				<div className="w-full md:w-2/3 p-5 flex items-center justify-start">
-					<h1 className="font-fraunces xl:text-7xl text-7xl text-5xl">
+					<h1 className="font-fraunces xl:text-7xl text-5xl">
 						Have Questions? <br /> Get in Touch With Us!
 					</h1>
 				</div>
