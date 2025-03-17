@@ -5,13 +5,10 @@ from flask_cors import CORS
 import logging
 from dotenv import load_dotenv
 from io import BytesIO
+import binascii
 from PIL import Image
-from google import genai
-from google.genai import types
-import requests
 from openai import OpenAI
-import openai
-load_dotenv()
+import traceback
 
 # Load environment variables
 load_dotenv()
@@ -23,11 +20,26 @@ CORS(app)
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
-# Gemini API setup
-api_key = os.getenv("GEMINI_ENDPOINT_ID")
+# Path to service account key file (relative to this script)
+# This makes it easy for team members to run the app as long as they have the key file
+SERVICE_ACCOUNT_KEY_PATH = os.path.join(os.path.dirname(__file__), "sketchify-service-key.json")
 
-gemini_model = "gemini-2.0-flash-exp"  # For sketch description (multimodal input)
+# Set environment variable for Google authentication
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = SERVICE_ACCOUNT_KEY_PATH
+
+# Gemini API setup
+api_key = os.getenv("GEMINI_API_KEY")
+
+# Models
+gemini_model = "gemini-2.0-flash"  # For sketch description
 imagen_model = "imagen-3.0-generate-002"  # For image generation
+
+# Initialize OpenAI client with Gemini API base URL
+def get_client():
+    return OpenAI(
+        api_key=api_key,
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+    )
 
 # Endpoints
 @app.route('/', methods=['GET'])
@@ -53,7 +65,11 @@ def log_response_info(response):
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
-    return jsonify({"status": "connected"})
+    return jsonify({
+        "status": "connected", 
+        "service_account": os.path.exists(SERVICE_ACCOUNT_KEY_PATH),
+        "api_key": api_key is not None
+    })
 
 @app.route('/get-image', methods=['POST'])
 def get_photo():
@@ -65,7 +81,7 @@ def get_photo():
         return jsonify({"error": "No image provided"}), 400
       
     print('Received image')
-    return image_data
+    return jsonify({"status": "received image"}), 200
 
 @app.route('/generate-prompt', methods=['POST'])
 def generate_prompt():
@@ -85,10 +101,6 @@ def generate_prompt():
             
         # Process the image through PIL to ensure clean data
         try:
-            from PIL import Image
-            from io import BytesIO
-            import binascii
-            
             # Add any needed padding
             missing_padding = len(image_base64) % 4
             if missing_padding:
@@ -115,15 +127,12 @@ def generate_prompt():
             
             print(f"Successfully processed image, size: {len(image_bytes)} bytes")
             
-            # Initialize OpenAI client with Gemini API base URL
-            client = OpenAI(
-                api_key=api_key,
-                base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
-            )
+            # Get client with API key
+            client = get_client()
             
             # Generate description using Gemini through OpenAI compatibility
             response = client.chat.completions.create(
-                model="gemini-2.0-flash",
+                model=gemini_model,
                 messages=[
                     {
                         "role": "system",
@@ -159,7 +168,7 @@ def generate_prompt():
             
             # Generate image using Imagen
             imagen_response = client.images.generate(
-                model="imagen-3.0-generate-002",
+                model=imagen_model,
                 prompt=description,
                 response_format='b64_json',
                 n=1,
@@ -170,20 +179,34 @@ def generate_prompt():
             
             return jsonify({
                 "image": img_base64,
-                "Description": description
+                "description": description
             }), 200
             
         except Exception as e:
             print(f"Error processing image: {e}")
-            import traceback
             traceback.print_exc()
             return jsonify({"error": f"Image processing error: {str(e)}"}), 500
             
     except Exception as e:
         logging.error(f"Error: {e}")
-        import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
         
 if __name__ == '__main__':
+<<<<<<< Updated upstream
     app.run(debug=True, port=5001)
+=======
+    if not os.path.exists(SERVICE_ACCOUNT_KEY_PATH):
+        print(f"WARNING: Service account key file not found at {SERVICE_ACCOUNT_KEY_PATH}")
+        print("Make sure to include the key file in the project directory")
+    else:
+        print(f"Using service account credentials from: {SERVICE_ACCOUNT_KEY_PATH}")
+    
+    # Check if API key is set
+    if not api_key:
+        print("WARNING: GEMINI_API_KEY environment variable not set")
+        print("Set this in your .env file or environment variables")
+    
+    # Run the app
+    app.run(debug=True, port=5001, threaded=True)
+>>>>>>> Stashed changes
