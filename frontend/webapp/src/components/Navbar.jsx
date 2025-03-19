@@ -46,7 +46,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-4 lg:space-x-8 font-fraunces font-normal text-xl lg:text-2xl uppercase">
+        <nav className="hidden md:flex items-center space-x-4 lg:space-x-8 font-fraunces font-normal text-xl lg:text-2xl ">
           {menuItems.map(({ name, path }) => (
             <Link
               key={path}
@@ -55,7 +55,7 @@ export default function Navbar() {
                 router.pathname === path ? "border-b-2 border-black" : ""
               }`}
             >
-              <span className="relative pb-[4.8px] after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:bg-black after:origin-left after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100">
+              <span className="relative uppercase pb-[4.8px] after:absolute after:inset-x-0 after:bottom-0 after:h-[2px] after:bg-black after:origin-left after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100">
                 {name}
               </span>
             </Link>
@@ -96,7 +96,7 @@ export default function Navbar() {
         {/* MOBILE NAV MENU */}
         <nav
           aria-description="Mobile Navbar"
-          className={`z-20 bg-background/80 backdrop-blur-2xl fixed right-0 top-0 flex text-center h-screen w-screen origin-top-right flex-col gap-8 px-10 pt-28 transition-all md:hidden max-h-screen overflow-y-scroll ${
+          className={`z-20 bg-background/80 backdrop-blur-2xl fixed right-0 top-0 flex text-center h-screen w-screen origin-top-right flex-col gap-8 px-10 pt-28 transition-all md:hidden max-h-screen overflow-y-scroll items-center ${
             mobileIsOpen
               ? "visible scale-100 opacity-100 z-20"
               : "invisible scale-0 opacity-0"
