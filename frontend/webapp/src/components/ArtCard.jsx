@@ -1,13 +1,11 @@
-// import UserIcon from "@/components/shared/UserIcon";
 import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
-import Spinner from "./Spinner";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { db } from "@/firebase/config";
+import { doc, getDoc } from "firebase/firestore";
 import CategoryTag from "./CategoryTag";
 import TagCarousel from "./TagCarousel";
 
-// simple only shows the image
-// noPreview disables video preview, instead shows a static image
 export default function ArtCard({
 	art,
 	grid = true,
@@ -15,8 +13,28 @@ export default function ArtCard({
 	className, // for fixed carousel heights
 }) {
 	const [loading, setLoading] = useState("init");
+	const [artist, setArtist] = useState(null); // Store user data
 
-	const { id, title, image, categories, user, date } = art;
+	const { id, title, image, categories, themes, userID, date } = art;
+
+	useEffect(() => {
+		if (!userID) return;
+
+		const fetchUser = async () => {
+			try {
+				const userDoc = await getDoc(doc(db, "users", userID));
+				if (userDoc.exists()) {
+					setArtist(userDoc.data());
+				} else {
+					console.error("User not found");
+				}
+			} catch (error) {
+				console.error("Error fetching user:", error);
+			}
+		};
+
+		fetchUser();
+	}, [userID]);
 
 	const heightClasses = [
 		"h-[170px]",
@@ -45,24 +63,6 @@ export default function ArtCard({
 					href={`/art/${id}`}
 					className="relative overflow-hidden h-full"
 				>
-					{loading === "loading" && (
-						<Spinner containerClassName="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-					)}
-					{/* <Image
-						alt={title}
-						src={image}
-						width={500}
-						height={500}
-						placeholder="empty"
-						onError={(e) => {
-							setLoading("loaded");
-							e.target.remove();
-						}}
-						onLoad={() => setLoading("loaded")}
-						data-loading={loading}
-						className={`data-[loading=true]:bg-background_darkened object-cover max-h-[400px] min-h-[200px] w-full rounded-t group-data-[simple=true]:rounded bg-white ${className}`}
-					/> */}
-
 					<Image
 						alt={title}
 						src={image}
@@ -90,16 +90,18 @@ export default function ArtCard({
 						href={`/art/${id}`}
 						className="w-full h-full absolute top-0 left-0"
 					/>
-					{categories.length > 0 && (
+
+					{/* Categories */}
+					{categories?.length > 0 && (
 						<div className="-translate-x-0.5">
 							<TagCarousel
 								tags={categories}
 								tagClassName="h-fit text-sm"
 							>
-								{categories.map((catergory) => (
+								{categories.map((category) => (
 									<CategoryTag
-										key={catergory.id}
-										id={catergory.name}
+										key={category.id}
+										id={category.name}
 										className="text-sm transition-all duration-200 ease-in-out text-primary hover:bg-primary"
 									/>
 								))}
@@ -107,26 +109,43 @@ export default function ArtCard({
 						</div>
 					)}
 
+					{/* Themes */}
+					{themes?.length > 0 && (
+						<TagCarousel tags={themes} tagClassName="text-sm">
+							{themes.map((theme) => (
+								<CategoryTag
+									key={theme}
+									id={theme}
+									className="text-sm transition-all duration-200 ease-in-out text-primary hover:bg-primary"
+								/>
+							))}
+						</TagCarousel>
+					)}
+
+					{/* Title */}
 					<p className="font-bold z-0 text-wrap h-fit text-md text-black mb-1 pointer-events-none">
 						{title}
 					</p>
 
+					{/* User Details */}
 					<div className="flex items-center gap-2">
 						<div
 							className={`flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ${className}`}
 						>
 							<Image
-								src={user?.profile}
-								alt={user?.name || "null user"}
+								src={
+									artist?.profileImage ||
+									"/default-avatar.png"
+								}
+								alt={artist?.name || "Unknown User"}
 								width={100}
 								height={100}
-								className="w-full h-full"
-								style={{ objectFit: "cover" }}
+								className="w-full h-full object-cover"
 							/>
 						</div>
-						<div className="">
-							<p className="text-[16px] text-black font-fraunces ">
-								{user?.name || "null user"}
+						<div>
+							<p className="text-[16px] text-black font-fraunces">
+								{artist?.name || "Unknown User"}
 							</p>
 							<p className="text-[12px] text-gray-500">
 								Posted {date}
