@@ -16,7 +16,7 @@ export default function ArtCard({
 }) {
 	const [loading, setLoading] = useState("init");
 
-	const { id, title, image, categories, user, date } = art;
+	const { id, title, image, categories, themes, user, date } = art;
 
 	const heightClasses = [
 		"h-[170px]",
@@ -105,6 +105,19 @@ export default function ArtCard({
 								))}
 							</TagCarousel>
 						</div>
+					)}
+
+					{/* From firebase backend use the themes array field from a post for this, instead of categories above. */}
+					{themes?.length > 0 && (
+						<TagCarousel tags={themes} tagClassName="text-sm">
+							{themes.map((theme) => (
+								<CategoryTag
+									key={theme}
+									id={theme}
+									className="text-sm transition-all duration-200 ease-in-out text-primary hover:bg-primary"
+								/>
+							))}
+						</TagCarousel>
 					)}
 
 					<p className="font-bold z-0 text-wrap h-fit text-md text-black mb-1 pointer-events-none">
