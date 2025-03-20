@@ -1,113 +1,32 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import pic from "../../../public/erik.png";
-import ArtCard from "@/components/ArtCard";
 import { useRouter } from "next/router";
 import { db } from "@/firebase/config";
-import { getDoc, doc } from "firebase/firestore";
+import {
+	getDoc,
+	doc,
+	collection,
+	query,
+	where,
+	getDocs,
+} from "firebase/firestore";
 import { useAuth } from "@/context/authContext";
+import ArtCard from "@/components/ArtCard";
 
-export default function profile() {
-	// ex of user object we will use from firebase**
-	// const user = {
-	// 	username: "EHansen100",
-	// 	profilePic: pic,
-	// 	themes: ["Nature", "Landscape", "Minimalism", "Urban", "Tranquility"],
-	// };
-
-	// // temp artData for testing
-	// const artsData = [
-	// 	{
-	// 		id: 1,
-	// 		title: "Sunset Over the Hills",
-	// 		image: "/astro.jpg",
-	// 		date: "2023-08-15",
-	// 		categories: [
-	// 			{ id: 1, name: "Nature" },
-	// 			{ id: 3, name: "Landscape" },
-	// 		],
-	// 		user: {
-	// 			id: 1,
-	// 			name: user.username,
-	// 			profile: user.profilePic,
-	// 		},
-	// 	},
-	// 	{
-	// 		id: 1,
-	// 		title: "Urban Exploration",
-	// 		image: "/abstract.jpg",
-	// 		date: "2023-07-22",
-	// 		categories: [
-	// 			{ id: 2, name: "Minimalism" },
-	// 			{ id: 4, name: "Urban" },
-	// 		],
-	// 		user: {
-	// 			id: 1,
-	// 			name: user.username,
-	// 			profile: user.profilePic,
-	// 		},
-	// 	},
-	// 	{
-	// 		id: 3,
-	// 		title: "Forest Tranquility",
-	// 		image: "/forest.jpg",
-	// 		date: "2023-06-10",
-	// 		categories: [
-	// 			{ id: 1, name: "Nature" },
-	// 			{ id: 5, name: "Tranquility" },
-	// 		],
-	// 		user: {
-	// 			id: 1,
-	// 			name: user.username,
-	// 			profile: user.profilePic,
-	// 		},
-	// 	},
-
-	// 	{
-	// 		id: 5,
-	// 		title: "Mountain Majesty",
-	// 		image: "/bunny.jpg",
-	// 		date: "2023-04-18",
-	// 		categories: [
-	// 			{ id: 1, name: "Nature" },
-	// 			{ id: 3, name: "Landscape" },
-	// 		],
-	// 		user: {
-	// 			id: 1,
-	// 			name: user.username,
-	// 			profile: user.profilePic,
-	// 		},
-	// 	},
-	// ];
-
-	// const [arts, setArts] = useState(artsData);
+export default function Profile() {
 	const [filter, setFilter] = useState("All");
 	const [selectedOption, setSelectedOption] = useState("My Artwork");
-
-	const filterArts = (theme) => {
-		if (theme === "All") {
-			setArts(artsData);
-			setFilter("All");
-		} else {
-			const filteredArts = artsData.filter((art) => {
-				const categories = art.categories.map(
-					(category) => category.name
-				);
-				return categories.includes(theme);
-			});
-			setArts(filteredArts);
-			setFilter(theme);
-		}
-	};
+	const [user, setUser] = useState(null);
+	const [loading, setLoading] = useState(true);
+	const [posts, setPosts] = useState([]); // Store user's posts
 
 	const router = useRouter();
 	const { id } = router.query;
-	const [user, setUser] = useState(null);
-	const [loading, setLoading] = useState(true);
 	const { currentUser } = useAuth();
 
+	// Fetch user data
 	useEffect(() => {
-		if (!id) return; // Prevent unnecessary Firestore queries
+		if (!id) return;
 
 		const fetchUser = async () => {
 			setLoading(true);
@@ -127,7 +46,27 @@ export default function profile() {
 		fetchUser();
 	}, [id]);
 
-	console.log(user);
+	// Fetch user's posts from posts userID field
+	useEffect(() => {
+		if (!id) return;
+
+		const fetchUserPosts = async () => {
+			try {
+				const postsRef = collection(db, "posts");
+				const q = query(postsRef, where("userID", "==", id));
+				const postSnap = await getDocs(q);
+				setPosts(
+					postSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+				);
+			} catch (error) {
+				console.error("Error fetching posts:", error);
+			}
+		};
+
+		fetchUserPosts();
+	}, [id]);
+
+	console.log(posts);
 
 	if (loading) return <p>Loading...</p>;
 	if (!user) return <p>User not found</p>;
@@ -135,11 +74,10 @@ export default function profile() {
 	return (
 		<div className="max-w-[1280px] mx-auto px-4">
 			<div className="flex gap-6 justify-center items-center">
-				{/*User profile pic Desktop*/}
 				<Image
 					className="rounded-full w-[164px] h-[164px] md:flex hidden object-cover"
 					src={user.profileImage}
-					alt="alt text"
+					alt="Profile picture"
 					width={500}
 					height={500}
 				/>
@@ -148,8 +86,7 @@ export default function profile() {
 						<h2 className="font-fraunces leading-9">{user.name}</h2>
 						<p>{user.bio}</p>
 
-						{/* Edit Profile link will only render if currentUser = profile/user */}
-						{currentUser.email === user.email && (
+						{currentUser?.email === user.email && (
 							<a
 								className="font-roboto text-[16px] text-gray-700 pl-1 hover:underline hover:cursor-pointer"
 								href="/profile/edit"
@@ -157,36 +94,6 @@ export default function profile() {
 								Edit profile
 							</a>
 						)}
-					</div>
-					{/*Themes - users most common themes? can also serve as filtering for their artworks maybe.*/}
-					<div className="flex flex-row justify-between pt-4">
-						<div className="flex flex-wrap gap-2">
-							<button
-								className={` ${
-									filter === "All"
-										? "font-roboto text-[18px] border-2 border-black"
-										: "font-roboto text-[18px] border-2 border-transparent"
-								}`}
-								onClick={() => filterArts("All")}
-							>
-								All
-							</button>
-							{/* {user.themes.map((theme, index) => (
-								<button
-									key={index}
-									className={` ${
-										filter === theme
-											? "font-roboto text-[18px] border-2 border-black"
-											: "font-roboto text-[18px] border-2 border-transparent"
-									}`}
-									onClick={() => filterArts(theme)}
-								>
-									{theme}
-								</button>
-							))} */}
-						</div>
-						{/*Only if you are the user*/}
-						{/* <button className="btnRev h-fit">My Saved</button> */}
 					</div>
 				</div>
 			</div>
@@ -202,12 +109,17 @@ export default function profile() {
 					<option value="My Saved">Favourites</option>
 				</select>
 			</div>
+
 			<div className="flex flex-wrap gap-4 mb-4">
-				{/* {arts.map((art, index) => (
-					<div key={index} className="w-[300px]">
-						<ArtCard art={art} grid={true} />
-					</div>
-				))} */}
+				{posts.length === 0 ? (
+					<p>No artwork posted yet.</p>
+				) : (
+					posts.map((post) => (
+						<div key={post.id} className="w-[300px]">
+							<ArtCard art={post} grid={true} />
+						</div>
+					))
+				)}
 			</div>
 		</div>
 	);

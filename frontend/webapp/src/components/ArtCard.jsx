@@ -90,7 +90,7 @@ export default function ArtCard({
 						href={`/art/${id}`}
 						className="w-full h-full absolute top-0 left-0"
 					/>
-					{categories.length > 0 && (
+					{categories?.length > 0 && (
 						<div className="-translate-x-0.5">
 							<TagCarousel
 								tags={categories}
