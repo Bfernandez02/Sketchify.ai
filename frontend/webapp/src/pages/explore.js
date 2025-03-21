@@ -7,7 +7,7 @@ import { db } from "../firebase/config";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 
 export default function Explore({ arts }) {
-	console.log("Fetched Arts:", arts);
+	// console.log("Fetched Arts:", arts);
 
 	return (
 		<>
@@ -44,7 +44,7 @@ export async function getServerSideProps() {
 			};
 		});
 
-		console.log("Fetched arts:", arts);
+		// console.log("Fetched arts:", arts);
 
 		return { props: { arts } };
 	} catch (error) {

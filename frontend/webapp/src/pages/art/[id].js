@@ -1,28 +1,62 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import RelatedArt from "@/components/RelatedArt";
-import pic from "../../../public/erik.png";
 import wand from "../../../public/wand.svg";
-import sketch from "../../../public/drawing.png";
-import enhanced from "../../../public/drawingEnh.png";
+import { db } from "@/firebase/config";
+import { getDoc, doc } from "firebase/firestore";
+import { useRouter } from "next/router";
 
-export default function art() {
-	// example of art object we will use from firebase**
-	const art = {
-		id: 1,
-		title: "Swing hanging from tree on a beach, during a sunset",
-		categories: [
-			{ id: 1, name: "Surrealism" },
-			{ id: 2, name: "Nature" },
-		],
-		user: { id: 1, username: "EHansen100", profilePic: pic },
-		date: "2025-02-14",
-		original: sketch,
-		enhanced: enhanced,
-	};
+export default function Art() {
+	const [art, setArt] = useState(null); // Store post data
+	const [user, setUser] = useState(null); // Store user data
+	const [loading, setLoading] = useState(true);
 
-	// we might not actually need this help fnc depending on firebase date data I guess?
+	const router = useRouter();
+	const { id } = router.query; // Get the post ID from the URL
+
+	// Fetch post data
+	useEffect(() => {
+		if (!id) return;
+
+		const fetchArt = async () => {
+			setLoading(true);
+			try {
+				const artRef = doc(db, "posts", id); // ref to post document
+				const artSnap = await getDoc(artRef);
+
+				if (artSnap.exists()) {
+					const artData = artSnap.data();
+					setArt({
+						id: artSnap.id,
+						...artData,
+						postedAt:
+							artData.postedAt?.toDate()?.toISOString() || null, // Converts Firestore timestamp to ISO string
+					});
+
+					// Fetch user data using the userID field
+					const userRef = doc(db, "users", artData.userID); // ref to user document
+					const userSnap = await getDoc(userRef);
+
+					if (userSnap.exists()) {
+						setUser(userSnap.data());
+					}
+				} else {
+					console.log("No such document!");
+				}
+			} catch (error) {
+				console.error("Error fetching art or user:", error);
+			}
+			setLoading(false);
+		};
+
+		fetchArt();
+	}, [id]);
+
+	if (loading) return <p>Loading...</p>;
+	if (!art || !user) return <p>Art or user not found</p>;
+
+	// Time ago function for formatting the date
 	const timeAgo = (date) => {
 		const now = new Date();
 		const diff = now - date;
@@ -44,7 +78,7 @@ export default function art() {
 		return format(seconds, "second");
 	};
 
-	const dateFormatted = art.date ? timeAgo(new Date(art.date)) : "";
+	const dateFormatted = art.postedAt ? timeAgo(new Date(art.postedAt)) : "";
 
 	return (
 		<div className="content-container px-4">
@@ -55,13 +89,12 @@ export default function art() {
 						{art.title}
 					</h2>
 					<div className="flex flex-row gap-2 md:justify-start justify-center flex-wrap">
-						{art.categories.map((category) => (
+						{art.themes.map((category, index) => (
 							<div
-								key={category.id}
-								id={category.name}
+								key={index}
 								className="text-white bg-primary px-[16px] py-[8px] rounded-[20px]"
 							>
-								{category.name}
+								{category}
 							</div>
 						))}
 					</div>
@@ -72,7 +105,7 @@ export default function art() {
 					<div>
 						<Image
 							className="rounded-full w-[80px] h-[80px]"
-							src={pic}
+							src={user.profileImage}
 							alt="profile picture"
 							width={500}
 							height={500}
@@ -81,9 +114,9 @@ export default function art() {
 					<div className="flex flex-col">
 						<Link
 							className="font-fraunces text-[24px] leading-6 hover:underline"
-							href={`/profile/${art.user.id}`}
+							href={`/profile/${user.uid}`}
 						>
-							{art?.user?.username}
+							{user.name}
 						</Link>
 						<p className="text-gray-500 text-[16px]">
 							{dateFormatted}
@@ -96,7 +129,7 @@ export default function art() {
 			<div className="flex md:flex-row md:justify-between items-center flex-col justify-center max-w-[1200px] mx-auto mb-10">
 				<Image
 					className="md:w-[35%] w-[80vw] h-auto rounded-[20px]"
-					src={art.original}
+					src={art.drawing}
 					alt="original sketch"
 					width={500}
 					height={500}
@@ -110,7 +143,7 @@ export default function art() {
 				/>
 				<Image
 					className="md:w-[35%] w-[80vw] h-auto rounded-[20px]"
-					src={art.enhanced}
+					src={art.image}
 					alt="enhanced sketch"
 					width={500}
 					height={500}
@@ -118,7 +151,7 @@ export default function art() {
 			</div>
 
 			{/* related art */}
-			<RelatedArt />
+			{/* <RelatedArt /> --- can add this back in later? maybe find and show other posts by user or other posts with same themes? */}
 		</div>
 	);
 }
