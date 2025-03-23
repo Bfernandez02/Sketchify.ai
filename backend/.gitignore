@@ -18,5 +18,7 @@ __pycache__/
 .pytest_cache/
 
 # Generated files
+generated_image.jpegsketchify-service-key.json
+echo "*-service-key.json" >> .gitignore*-service-key.json
 generated_image.jpeg
 sketchify-service-key.json
