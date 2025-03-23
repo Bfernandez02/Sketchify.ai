@@ -105,7 +105,8 @@ def generate_prompt():
                         }
                     ]
                 }
-            ] 
+            ],
+            temperature= 0.6,
             )
         api_response  =  response.choices[0].message.content
         print(f"AI Response: {api_response}")
@@ -121,7 +122,9 @@ def generate_prompt():
             },
             data={
                 "prompt": api_response,
-                "output_format": "jpeg"
+                "output_format": "jpeg",
+                "style_preset": "photographic",
+                "steps": 40
             },
         )
         if stability_response.status_code !=200:
