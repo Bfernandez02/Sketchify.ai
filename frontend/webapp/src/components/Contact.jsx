@@ -53,41 +53,41 @@ export default function Contact() {
 
 		setStatus("Sending...");
 
-		// try {
-		// 	await addDoc(collection(db, "contacts"), {
-		// 		name,
-		// 		email,
-		// 		message,
-		// 		phone,
-		// 		subject,
-		// 	});
-		//
-		// 	const response = await fetch("/api/contact", {
-		// 		method: "POST",
-		// 		headers: {
-		// 			"Content-Type": "application/json",
-		// 		},
-		// 		body: JSON.stringify(formData),
-		// 	});
-		//
-		// 	// const data = await response.json();
-		// 	// console.log(data);
-		//
-		// 	if (response.ok) {
-		// 		setStatus("Message sent successfully!");
-		// 		setFormData({
-		// 			name: "",
-		// 			phone: "",
-		// 			email: "",
-		// 			subject: "",
-		// 			message: "",
-		// 		});
-		// 	} else {
-		// 		setStatus("Failed to send message.");
-		// 	}
-		// } catch (error) {
-		// 	setStatus("An error occurred while sending the message.");
-		// }
+		try {
+			await addDoc(collection(db, "contacts"), {
+				name,
+				email,
+				message,
+				phone,
+				subject,
+			});
+
+			const response = await fetch("/api/contact", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(formData),
+			});
+
+			// const data = await response.json();
+			// console.log(data);
+
+			if (response.ok) {
+				setStatus("Message sent successfully!");
+				setFormData({
+					name: "",
+					phone: "",
+					email: "",
+					subject: "",
+					message: "",
+				});
+			} else {
+				setStatus("Failed to send message.");
+			}
+		} catch (error) {
+			setStatus("An error occurred while sending the message.");
+		}
 	};
 
 	return (
