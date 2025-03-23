@@ -2,13 +2,13 @@ import React from "react";
 import { useAuth } from "@/context/authContext";
 import { redirect } from "next/dist/server/api-utils";
 
-export default function edit() {
+export default function Edit() {
 	const { currentUser } = useAuth();
 
-	// if user is not logged in, redirect to login page probably? --test when logout is implemented.
-	// if (!currentUser) {
-	// 	return redirect("/login");
-	// }
+	if (!currentUser) {
+		return null;
+	}
+
 
 	return (
 		<div className="max-w-[1280px] mx-auto px-4">

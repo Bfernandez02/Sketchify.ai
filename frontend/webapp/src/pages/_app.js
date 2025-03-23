@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/context/authContext";
+import ACL from "@/components/ACL";
 
 export default function App({ Component, pageProps }) {
   return (
@@ -11,9 +12,11 @@ export default function App({ Component, pageProps }) {
       <Toaster />
 
       <AuthProvider>
-        <Navbar />
-        <Component {...pageProps} />
-        <Footer />
+        <ACL>
+          <Navbar />
+          <Component {...pageProps} />
+          <Footer />
+        </ACL>
       </AuthProvider>
     </>
   );

@@ -9,7 +9,6 @@ import openai
 from dotenv import load_dotenv
 load_dotenv()
 from io import BytesIO
-from themes import get_theme_prompt
 
 app = Flask(__name__)
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -18,8 +17,6 @@ CORS(app)
 
 stable_diffusion_api_url = 'https://api.stability.ai/v2beta/stable-image/generate/ultra'
 stable_diffusion_apiKey = os.getenv("STABILITY_API_KEY")
-
-
 
 @app.route('/', methods=['GET'])
 def home():
@@ -58,31 +55,16 @@ def get_photo():
     print('recieved image')
     return image_data
 
-
-@app.route('/GetTheme', methods =['POST'])
-def getTheme():
-    data = request.json
-    theme_data = data.get('theme')
-    print(f"Theme: {theme_data}")
-    theme_context,theme_text = get_theme_prompt(theme_data) # Call the Theme function
-    print(f"ThemeContext: {theme_context}")
-    print(f"ThemeText: {theme_text}")
-    return jsonify({"theme": theme_data}), 200
-
-
 @app.route('/generate-prompt', methods =['POST'])
 def generate_prompt():
     try:        
         data = request.json
         image_data = data.get("image")
-        theme_data = data.get('theme') # fetch the current theme from the request
 
         if not image_data:
             print("No image found !")
             return jsonify({"error": "No image provided"}), 400
         
-        theme_content,theme_text = get_theme_prompt(theme_data) # Call the Theme function
-
         image_base64 = image_data.split(",")[1]
 
         response = client.chat.completions.create(
@@ -90,14 +72,23 @@ def generate_prompt():
             messages = [
                 {
                     "role": "system",
-                    "content": theme_content
+                    "content": (
+                        "You are an expert visual descriptor tasked with analyzing sketches for an AI image generation pipeline. "
+                        "Your job is to describe the sketch in vivid, precise detail, capturing every visible element—shapes, lines, textures, objects, and composition—without losing context. "
+                        "Focus on what is explicitly present, avoiding assumptions or embellishments beyond the sketch itself. "
+                        "Structure the description as a concise, natural paragraph optimized for an image generation model like Stable Diffusion, using evocative yet specific language."
+                    )
                 },
                 {
                     "role": "user",
                     "content": [
                         {
                             "type": "text",
-                            "text": theme_text
+                            "text": (
+                                "Provide a detailed, vivid description of this sketch as a single paragraph. "
+                                "Include all visible elements—shapes, lines, objects, and their arrangement—using precise, evocative language suitable for generating a high-quality AI image. "
+                                "Do not add labels like 'Description:' or interpret beyond what is shown."
+                            )
                         },
                         {
                             "type": "image_url",
@@ -105,8 +96,7 @@ def generate_prompt():
                         }
                     ]
                 }
-            ],
-            temperature= 0.6,
+            ] 
             )
         api_response  =  response.choices[0].message.content
         print(f"AI Response: {api_response}")
@@ -122,9 +112,7 @@ def generate_prompt():
             },
             data={
                 "prompt": api_response,
-                "output_format": "jpeg",
-                "style_preset": "photographic",
-                "steps": 40
+                "output_format": "jpeg"
             },
         )
         if stability_response.status_code !=200:
