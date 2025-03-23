@@ -15,6 +15,7 @@ import Plane from "../../public/Plane.png";
 import Link from "next/link";
 import { db } from "../firebase/config";
 import { collection, addDoc } from "firebase/firestore";
+import { flushSync } from "react-dom";
 
 export default function Contact() {
 	const [formData, setFormData] = useState({
@@ -34,11 +35,23 @@ export default function Contact() {
 		}));
 	};
 
+	const isValidEmail  = (email) => {
+  		const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  		return re.test(email);
+	};
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setStatus("Sending...");
 
 		const { name, email, message, phone, subject } = formData;
+
+		if (!isValidEmail(email)) {
+  		  console.log("Invalid email hit");
+		  flushSync(() => setStatus("Invalid email address."));
+    	  return;
+		}
+
+		setStatus("Sending...");
 
 		try {
 			await addDoc(collection(db, "contacts"), {
@@ -225,9 +238,16 @@ export default function Contact() {
 					</form>
 
 					{/* Status message */}
-					{status && (
-						<p className="mt-4 text-center text-xl">{status}</p>
-					)}
+
+					<p
+					  aria-live="polite"
+					  className="mt-4 text-center text-xl"
+					  data-testid="form-status"
+					  key={status} // force rerender when status changes
+					>
+
+					  {status}
+					</p>
 				</div>
 			</div>
 		</div>
