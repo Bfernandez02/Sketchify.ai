@@ -1,5 +1,6 @@
 import useEmblaCarousel from "embla-carousel-react";
 import { useEffect, useRef } from "react";
+import React from "react";
 
 export default function TagCarousel({ children }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, dragFree: true, align: "start" });
