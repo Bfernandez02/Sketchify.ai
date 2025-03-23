@@ -31,7 +31,15 @@ export default function SignIn() {
 			toast.success("Signed in successfully!");
 			window.location.href = "/"; // Redirect after login
 		} catch (error) {
-			toast.error(error.message);
+			if (error.code === "auth/invalid-credential") {
+				toast.error("Invalid credentials. Please try again.", { id: "invalid-credentials" });
+			}
+			else if (error.code === "auth/too-many-requests") {
+				toast.error("Too many requests. Try again later.", { id: "too-many-requests" });
+			}
+			else{
+				toast.error(error.message, { id: "auth-error" });
+			}
 		}
 		setLoading(false);
 	};
