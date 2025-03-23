@@ -95,6 +95,7 @@ export default function Navbar() {
         {/* Mobile Menu Overlay */}
         {/* MOBILE NAV MENU */}
         <nav
+          data-testid="mobile-nav"
           aria-description="Mobile Navbar"
           className={`z-20 bg-background/80 backdrop-blur-2xl fixed right-0 top-0 flex text-center h-screen w-screen origin-top-right flex-col gap-8 px-10 pt-28 transition-all md:hidden max-h-screen overflow-y-scroll items-center ${
             mobileIsOpen
