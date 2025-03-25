@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { CallApi } from "../../api/api";
 
-const DropdownMenu = ({ id, label, options, openDropdown, setOpenDropdown }) => {
+const DropdownMenu = ({ id, label, options, openDropdown, setOpenDropdown, onThemeChange }) => {
   const [selected, setSelected] = useState("");
   const isOpen = openDropdown === id;
 
@@ -10,31 +10,36 @@ const DropdownMenu = ({ id, label, options, openDropdown, setOpenDropdown }) => 
   };
 
   return (
-      <div className="relative w-full md:w-[300px]">
-        <button
-            className="w-full bg-primary text-white px-4 py-2 rounded-lg flex items-center font-fraunces text-center justify-center"
-            onClick={handleToggle}
-        >
-          {selected || label}
-          <span className="ml-2">▼</span>
-        </button>
-        {isOpen && (
-            <ul className="absolute left-0 mt-1 w-full border border-gray-300 rounded-lg shadow-lg z-50 font-fraunces bg-primary text-white text-center">
-              {options.map((option, index) => (
-                  <li
-                      key={index}
-                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer hover:text-black text-lg"
-                      onClick={() => {
-                        setSelected(option);
-                        setOpenDropdown(null);
-                      }}
-                  >
-                    {option}
-                  </li>
-              ))}
-            </ul>
-        )}
-      </div>
+    <div className="relative w-full md:w-[300px]">
+      <button
+        className="w-full bg-primary text-white px-4 py-2 rounded-lg flex items-center font-fraunces text-center justify-center"
+        onClick={handleToggle}
+      >
+        {selected || label}
+        <span className="ml-2">▼</span>
+      </button>
+      {isOpen && (
+        <ul className="absolute left-0 mt-1 w-full border border-gray-300 rounded-lg shadow-lg z-50 font-fraunces bg-primary text-white text-center">
+          {options.map((option, index) => (
+            <li
+              key={index}
+              className="px-4 py-2 hover:bg-gray-200 cursor-pointer hover:text-black text-lg"
+              onClick={() => {
+                setSelected(option);
+                setOpenDropdown(null);
+
+                if(onThemeChange){
+                  onThemeChange(option);
+                }
+                //onThemeChange && onThemeChange(option); // Call parent handler
+              }}
+            >
+              {option}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 };
 
@@ -49,13 +54,26 @@ const SketchPad = () => {
   const ctxRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentColor, setCurrentColor] = useState("#000000");
+  const [ThemeData,Setheme] = useState("Default");
+
 
   const getCanvasImage = () => canvasRef.current.toDataURL("image/png");
+
+  const handleThemeChange = (theme) => { // Function to handle theme change
+    Setheme(theme);
+
+    console.log(ThemeData)
+  }
+
+  useEffect(() =>{ 
+    console.log("Current theme:",ThemeData);
+  },[ThemeData]);
 
   const HandleAPICall = async () => {
     setIsLoading(true);
     const ImageData = getCanvasImage();
-    const response = await CallApi(ImageData);
+    const response = await CallApi(ImageData,ThemeData);
+
     if (response) {
       const img = new Image();
       img.src = `data:image/png;base64,${response.data.image}`;
@@ -322,27 +340,28 @@ const SketchPad = () => {
                 placeholder="Additional Prompts..."
             ></textarea>
 
-            <DropdownMenu
-                id="theme"
-                label="Theme"
-                options={["Realism", "Minimalism", "Nature"]}
-                openDropdown={openDropdown}
-                setOpenDropdown={setOpenDropdown}
-            />
-            <DropdownMenu
-                id="option1"
-                label="Option"
-                options={["Option 1", "Option 2", "Option 3"]}
-                openDropdown={openDropdown}
-                setOpenDropdown={setOpenDropdown}
-            />
-            <DropdownMenu
-                id="option2"
-                label="Option"
-                options={["Option A", "Option B", "Option C"]}
-                openDropdown={openDropdown}
-                setOpenDropdown={setOpenDropdown}
-            />
+          <DropdownMenu
+            id="theme"
+            label="Theme"
+            options={["Realism", "Minimalism", "Nature"]}
+            openDropdown={openDropdown}
+            setOpenDropdown={setOpenDropdown}
+            onThemeChange={handleThemeChange}
+          />
+          <DropdownMenu
+            id="option1"
+            label="Option"
+            options={["Option 1", "Option 2", "Option 3"]}
+            openDropdown={openDropdown}
+            setOpenDropdown={setOpenDropdown}
+          />
+          <DropdownMenu
+            id="option2"
+            label="Option"
+            options={["Option A", "Option B", "Option C"]}
+            openDropdown={openDropdown}
+            setOpenDropdown={setOpenDropdown}
+          />
 
             <div className="pt-8">
               <button
