@@ -1,97 +1,128 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/context/authContext";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/firebase/config";
+import toast from "react-hot-toast";
+import ImageSelector from "@/components/auth/ImageSelector";
+import { useRouter } from "next/router";
 
 export default function Edit() {
-	const { currentUser } = useAuth();
+	const router = useRouter();
+    const { currentUser } = useAuth();
+    const [formData, setFormData] = useState({
+        name: currentUser?.name || "",
+        email: currentUser?.email || "",
+        bio: currentUser?.bio || "",
+        profile: null,
+    });
 
-	if (!currentUser) {
-		return null;
-	}
+    if (!currentUser) {
+        return null;
+    }
 
-	async function handleFormSubmit(e) {
-		e.preventDefault();
-		const form = e.target;
-		const formData = new FormData(form);
+    const validateForm = () => {
+        if (!formData.name) {
+            toast.error("Name is required", { id: "name" });
+            return false;
+        }
+        if (!formData.email || !formData.email.includes("@")) {
+            toast.error("Valid email is required", { id: "email" });
+            return false;
+        }
+        return true;
+    };
 
-		const name = formData.get("username");
-		const email = formData.get("email");
-		const bio = formData.get("bio");
-		const profilePic = formData.get("profilePic"); // File input
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+        if (!validateForm()) return;
 
-		// Update user profile
-		const updatedUser = {
-			name,
-			email,
-			bio,
-		};
+        const { name, email, bio } = formData;
+        const updatedUser = { name, email, bio };
 
-		// Update user in Firestore
-		const userRef = doc(db, "users", currentUser.uid);
-		await setDoc(userRef, updatedUser, { merge: true });
+        try {
+            const userRef = doc(db, "users", currentUser.uid);
+            await setDoc(userRef, updatedUser, { merge: true });
+            toast.success("Profile updated successfully!");
+			router.push(`/profile/${currentUser.uid}`);
+        } catch (error) {
+            toast.error("Failed to update profile");
+        }
+    };
 
-		console.log("Profile updated successfully!");
+    return (
+        <div className="max-w-3xl mx-auto p-8 bg-white shadow-lg rounded-2xl mt-10">
+            <h2 className="font-fraunces md:text-7xl text-5xl text-center mb-6">Edit Profile</h2>
+            <form onSubmit={handleFormSubmit} className="flex flex-col gap-6">
+                <div className="flex flex-col gap-2">
+                    <label htmlFor="name" className="text-primary">
+                        Full Name <span className="text-red-600">*</span>
+                    </label>
+                    <div className="flex items-center justify-between border border-primary rounded-md p-2">
+                        <input
+                            type="text"
+                            placeholder="Full Name"
+                            id="name"
+                            value={formData.name}
+                            maxLength={40}
+                            className="focus:outline-none text-primary font-roboto w-full bg-transparent text-[16px]"
+                            required
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        />
+                        <i className="fa-solid fa-user text-primary w-fit text-[18px]" />
+                    </div>
+                </div>
 
-		// Handle file upload (if needed)
-		if (profilePic && profilePic.size > 0) {
-			console.log("Profile picture selected:", profilePic.name);
-			// You need to upload the image to Firebase Storage (not handled here)
-		}
-	}
+                <div className="flex flex-col gap-2">
+                    <label htmlFor="email" className="text-primary">
+                        Email <span className="text-red-600">*</span>
+                    </label>
+                    <div className="flex items-center justify-between border border-primary rounded-md p-2">
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            id="email"
+                            value={formData.email}
+                            className="focus:outline-none text-primary font-roboto w-full bg-transparent text-[16px]"
+                            required
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        />
+                        <i className="fa-solid fa-envelope text-primary w-fit text-[18px]" />
+                    </div>
+                </div>
 
-	return (
-		<div className="max-w-[1280px] mx-auto px-4">
-			<h3 className="text-center">Edit Profile</h3>
-			<div className="my-8 w-[400px] mx-auto">
-				<form onSubmit={handleFormSubmit} className="flex flex-col gap-4 w-full">
-					<div className="flex space-between items-center">
-						<label htmlFor="username" className="w-[80px]">
-							Name
-						</label>
-						<input
-							className="border border-gray-300 rounded-md p-2 text-gray-600 w-full"
-							type="text"
-							id="username"
-							name="username"
-							defaultValue={currentUser.name}
-						/>
-					</div>
-					<div className="flex space-between items-center">
-						<label htmlFor="email" className="w-[80px]">
-							Email
-						</label>
-						<input
-							className="border border-gray-300 rounded-md p-2 text-gray-600 w-full"
-							type="email"
-							id="email"
-							name="email"
-							defaultValue={currentUser.email}
-						/>
-					</div>
-					<div className="flex space-between items-center">
-						<label htmlFor="bio" className="w-[80px]">
-							Bio
-						</label>
-						<input
-							className="border border-gray-300 rounded-md p-2 text-gray-600 w-full"
-							type="text"
-							id="bio"
-							name="bio"
-							defaultValue={currentUser.bio}
-						/>
-					</div>
-					<div className="flex gap-4">
-						<label htmlFor="profilePic">Profile Picture</label>
-						<input type="file" id="profilePic" name="profilePic" accept="image/*" />
-					</div>
-					<div className="flex justify-end">
-						<button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-							Save
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	);
+                <div className="flex flex-col gap-2">
+                    <label htmlFor="bio" className="text-primary">
+                        Bio <span className="text-red-600">*</span>
+                    </label>
+                    <div className="flex items-center justify-between border border-primary rounded-md p-2">
+                        <input
+                            type="text"
+                            placeholder="Bio"
+                            id="bio"
+                            value={formData.bio}
+                            maxLength={60}
+                            className="focus:outline-none text-primary font-roboto w-full bg-transparent text-[16px]"
+                            required
+                            onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                        />
+                        <i className="fa-solid fa-user text-primary w-fit text-[18px]" />
+                    </div>
+                </div>
+
+                <div className="flex flex-col">
+                    <label className="text-primary">
+                        Upload Profile Image <span className="text-red-600">*</span>
+                    </label>
+                    <ImageSelector type="profile" setFormData={setFormData} image={formData.profile} />
+                </div>
+
+                <button
+                    type="submit"
+                    className="w-full py-4 bg-blue-600 text-white text-lg font-semibold rounded-md hover:bg-blue-700 transition"
+                >
+                    Save Changes
+                </button>
+            </form>
+        </div>
+    );
 }
