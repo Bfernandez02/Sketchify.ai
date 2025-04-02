@@ -6,13 +6,15 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import Fontawesome from '@expo/vector-icons/FontAwesome5';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const size = 28;
 
   return (
     <Tabs
-      initialRouteName="sketch" 
+      initialRouteName="sketch"
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
@@ -25,7 +27,8 @@ export default function TabLayout() {
           default: {},
         }),
       }}>
-       <Tabs.Screen
+
+      <Tabs.Screen
         name="index"
         options={{
           href: null,
@@ -35,14 +38,23 @@ export default function TabLayout() {
         name="sketch"
         options={{
           title: 'Sketch',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="pencil.tip" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={size} name="pencil.tip" color={color} />,
         }}
       />
       <Tabs.Screen
         name="gallery"
         options={{
           title: 'Gallery',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="photo.on.rectangle" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={size} name="photo.on.rectangle" color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          headerShown: false,
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <Fontawesome name="user" size={size} color={color} />,
         }}
       />
     </Tabs>
