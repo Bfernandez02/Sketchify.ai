@@ -9,10 +9,12 @@ import binascii
 from PIL import Image
 from openai import OpenAI
 import traceback
+import requests
+import json
+from themes import get_theme_prompt
 
-# Load environment variables
+
 load_dotenv()
-
 # Flask app setup
 app = Flask(__name__)
 CORS(app)
@@ -88,6 +90,11 @@ def generate_prompt():
     try:
         data = request.json
         image_data = data.get("image")
+        theme_data = data.get("theme")
+        print(f"Theme: {theme_data}")
+
+
+        theme_context,theme_prompt,temperature = get_theme_prompt(theme_data)
 
         if not image_data:
             print("No image found!")
@@ -133,14 +140,16 @@ def generate_prompt():
             # Generate description using Gemini through OpenAI compatibility
             response = client.chat.completions.create(
                 model=gemini_model,
+                temperature= temperature,
                 messages=[
                     {
                         "role": "system",
                         "content": (
-                            "You are an expert visual descriptor tasked with analyzing sketches for an AI image generation pipeline. "
-                            "Your job is to describe the sketch in vivid, precise detail, capturing every visible element—shapes, lines, textures, objects, and composition—without losing context. "
-                            "Focus on what is explicitly present, avoiding assumptions or embellishments beyond the sketch itself. "
-                            "Structure the description as a concise, natural paragraph optimized for an image generation model, using evocative yet specific language."
+                            theme_context
+                            # "You are an expert visual descriptor tasked with analyzing sketches for an AI image generation pipeline. "
+                            # "Your job is to describe the sketch in vivid, precise detail, capturing every visible element—shapes, lines, textures, objects, and composition—without losing context. "
+                            # "Focus on what is explicitly present, avoiding assumptions or embellishments beyond the sketch itself. "
+                            # "Structure the description as a concise, natural paragraph optimized for an image generation model, using evocative yet specific language."
                         )
                     },
                     {
@@ -149,9 +158,10 @@ def generate_prompt():
                             {
                                 "type": "text",
                                 "text": (
-                                    "Provide a detailed, vivid description of this sketch as a single paragraph. "
-                                    "Include all visible elements—shapes, lines, objects, and their arrangement—using precise, evocative language suitable for generating a high-quality AI image. "
-                                    "Do not add labels like 'Description:' or interpret beyond what is shown."
+                                    theme_prompt
+                                    # "Provide a detailed, vivid description of this sketch as a single paragraph. "
+                                    # "Include all visible elements—shapes, lines, objects, and their arrangement—using precise, evocative language suitable for generating a high-quality AI image. "
+                                    # "Do not add labels like 'Description:' or interpret beyond what is shown."
                                 )
                             },
                             {
