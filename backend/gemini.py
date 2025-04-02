@@ -5,10 +5,12 @@ from flask_cors import CORS
 import logging
 from dotenv import load_dotenv
 from io import BytesIO
-import binascii
 from PIL import Image
+import requests
 from openai import OpenAI
 import traceback
+import binascii
+from themes import get_theme_prompt 
 
 # Load environment variables
 load_dotenv()
@@ -20,11 +22,8 @@ CORS(app)
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
-# Path to service account key file (relative to this script)
-# This makes it easy for team members to run the app as long as they have the key file
+# Path to service account key file
 SERVICE_ACCOUNT_KEY_PATH = os.path.join(os.path.dirname(__file__), "sketchify-service-key.json")
-
-# Set environment variable for Google authentication
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = SERVICE_ACCOUNT_KEY_PATH
 
 # Gemini API setup
@@ -66,7 +65,7 @@ def log_response_info(response):
 @app.route('/test', methods=['GET', 'POST'])
 def test():
     return jsonify({
-        "status": "connected", 
+        "status": "connected",
         "service_account": os.path.exists(SERVICE_ACCOUNT_KEY_PATH),
         "api_key": api_key is not None
     })
@@ -79,7 +78,7 @@ def get_photo():
     if not image_data:
         print("No image found!")
         return jsonify({"error": "No image provided"}), 400
-      
+    
     print('Received image')
     return jsonify({"status": "received image"}), 200
 
@@ -88,6 +87,7 @@ def generate_prompt():
     try:
         data = request.json
         image_data = data.get("image")
+        theme_data = data.get("theme", "Default")  # Default theme if none provided
 
         if not image_data:
             print("No image found!")
@@ -101,63 +101,43 @@ def generate_prompt():
             
         # Process the image through PIL to ensure clean data
         try:
-            # Add any needed padding
+            # Add padding if needed
             missing_padding = len(image_base64) % 4
             if missing_padding:
                 image_base64 += "=" * (4 - missing_padding)
                 
-            # Try to decode with various approaches
+            # Decode base64
             try:
-                # Try standard decoding
                 image_binary = base64.b64decode(image_base64)
             except binascii.Error:
-                # If that fails, try with validate=False
                 image_binary = base64.b64decode(image_base64, validate=False)
                 
-            # Process through PIL for reliable image handling
+            # Process through PIL
             image = Image.open(BytesIO(image_binary))
-            
-            # Save image to a BytesIO object
             buffered = BytesIO()
             image.save(buffered, format="PNG")
             image_bytes = buffered.getvalue()
-            
-            # Convert to base64 for API
             clean_base64 = base64.b64encode(image_bytes).decode("utf-8")
             
             print(f"Successfully processed image, size: {len(image_bytes)} bytes")
             
-            # Get client with API key
+            # Get theme-specific prompts from themes.py
+            theme_content, theme_text = get_theme_prompt(theme_data)
+            logging.info(f"Using theme: {theme_data}")
+            
+            # Get client
             client = get_client()
             
-            # Generate description using Gemini through OpenAI compatibility
+            # Generate description using Gemini
             response = client.chat.completions.create(
                 model=gemini_model,
                 messages=[
-                    {
-                        "role": "system",
-                        "content": (
-                            "You are an expert visual descriptor tasked with analyzing sketches for an AI image generation pipeline. "
-                            "Your job is to describe the sketch in vivid, precise detail, capturing every visible element—shapes, lines, textures, objects, and composition—without losing context. "
-                            "Focus on what is explicitly present, avoiding assumptions or embellishments beyond the sketch itself. "
-                            "Structure the description as a concise, natural paragraph optimized for an image generation model, using evocative yet specific language."
-                        )
-                    },
+                    {"role": "system", "content": theme_content},
                     {
                         "role": "user",
                         "content": [
-                            {
-                                "type": "text",
-                                "text": (
-                                    "Provide a detailed, vivid description of this sketch as a single paragraph. "
-                                    "Include all visible elements—shapes, lines, objects, and their arrangement—using precise, evocative language suitable for generating a high-quality AI image. "
-                                    "Do not add labels like 'Description:' or interpret beyond what is shown."
-                                )
-                            },
-                            {
-                                "type": "image_url",
-                                "image_url": {"url": f"data:image/png;base64,{clean_base64}"}
-                            }
+                            {"type": "text", "text": theme_text},
+                            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{clean_base64}"}}
                         ]
                     }
                 ]
@@ -174,7 +154,7 @@ def generate_prompt():
                 n=1,
             )
             
-            # Extract the image from the response
+            # Extract the image
             img_base64 = imagen_response.data[0].b64_json
             
             return jsonify({
@@ -191,7 +171,7 @@ def generate_prompt():
         logging.error(f"Error: {e}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-        
+
 if __name__ == '__main__':
     if not os.path.exists(SERVICE_ACCOUNT_KEY_PATH):
         print(f"WARNING: Service account key file not found at {SERVICE_ACCOUNT_KEY_PATH}")
@@ -199,10 +179,8 @@ if __name__ == '__main__':
     else:
         print(f"Using service account credentials from: {SERVICE_ACCOUNT_KEY_PATH}")
     
-    # Check if API key is set
     if not api_key:
         print("WARNING: GEMINI_API_KEY environment variable not set")
         print("Set this in your .env file or environment variables")
     
-    # Run the app
     app.run(debug=True, port=5001, threaded=True)

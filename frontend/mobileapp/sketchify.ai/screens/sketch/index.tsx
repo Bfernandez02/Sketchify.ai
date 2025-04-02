@@ -3,7 +3,6 @@ import { SafeAreaView, View, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
-// Components
 import Header from './components/Header';
 import Canvas from './components/Canvas';
 import ToolsPanel from './components/ToolsPanel';
@@ -14,7 +13,6 @@ import Toolbar from './components/Toolbar';
 import useDrawing from './hooks/useDrawing';
 import useImageProcessing from './hooks/useImageProcessing';
 
-// Styles
 import { styles } from './styles';
 
 export default function SketchScreen() {
@@ -22,11 +20,9 @@ export default function SketchScreen() {
   const isDark = colorScheme === 'dark';
   const viewShotRef = useRef<any>(null);
   
-  // UI panel states
   const [isColorPanelOpen, setIsColorPanelOpen] = useState(false);
   const [isBrushSettingsOpen, setIsBrushSettingsOpen] = useState(false);
   
-  // Core drawing functionality
   const {
     paths,
     currentPath,
@@ -39,11 +35,8 @@ export default function SketchScreen() {
     handleStrokeWidthChange,
   } = useDrawing();
   
-  const { isLoading, handleProcess } = useImageProcessing(
-    viewShotRef, 
-    paths, 
-    currentPath
-  );
+  const { isLoading, handleProcess } = useImageProcessing(viewShotRef, paths, currentPath);
+
 
   // Toggle color panel
   const toggleColorPanel = () => {
@@ -83,7 +76,6 @@ export default function SketchScreen() {
         end={{ x: 1, y: 1 }}
       />
       
-      <Header colorScheme={colorScheme} />
       
       <View style={[styles.canvasWrapper]}>
       <Canvas

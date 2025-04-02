@@ -4,7 +4,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { signOut, signInWithCredential, OAuthProvider, GoogleAuthProvider } from 'firebase/auth';
-import { auth, db } from './firebaseConfig';
+import { auth, db } from './config';
 import { router } from 'expo-router';
 import { AuthContextType, User } from '@/types/auth';
 

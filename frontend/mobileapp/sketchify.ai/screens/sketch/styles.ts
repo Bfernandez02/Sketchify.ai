@@ -28,6 +28,6 @@ export const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 50,
-    backgroundColor: 'transparent', // Invisible overlay
+    backgroundColor: 'transparent',
   },
 });

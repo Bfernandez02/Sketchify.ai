@@ -6,7 +6,8 @@
       "@/*": [ "./*"],
       "@screens/*" : ["./screens/*"],
       "@assets/*": ["./assets/*"],
-      "@types/*" : ["./types"]
+      "@types/*" : ["./types"],
+      "@firebase/*": ["./firebase"]
     }
   },
   "include": [
