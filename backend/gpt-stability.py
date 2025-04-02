@@ -110,7 +110,7 @@ def generate_prompt():
                 }
             ],
             n=1,
-            temperature= 0.2,
+            temperature= temperature,
             )
         api_response  =  response.choices[0].message.content
         print(f"AI Response: {api_response}")
