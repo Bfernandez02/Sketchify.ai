@@ -2,43 +2,45 @@ import React, { useRef, useState } from 'react';
 import { 
   View, 
   Text, 
+  StyleSheet, 
   Image, 
+  Dimensions, 
   TouchableOpacity,
   Animated 
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import PagerView from 'react-native-pager-view';
 import { styles } from './styles';
 
+const { width } = Dimensions.get('window');
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
 interface ThemeSelectorProps {
   selectedTheme: string;
   onSelectTheme: (theme: 'minimalism' | 'realism' | 'nature') => void;
-  isDark: boolean;
 }
 
 const themes = [
   {
     id: 'minimalism',
     label: 'Minimalism',
-    image: require('@/assets/images/theme-minimalism.png'), // Make sure to add these images to your assets
+    image: require('@/assets/images/min.jpg'),
   },
   {
     id: 'realism',
     label: 'Realism',
-    image: require('@/assets/images/theme-realism.png'),
+    image: require('@/assets/images/rea.jpg'),
   },
   {
     id: 'nature',
     label: 'Nature',
-    image: require('@/assets/images/theme-nature.png'),
+    image: require('@/assets/images/abs.jpg'),
   },
 ];
 
-export default function CarouselThemeSelector({
+export default function ThemeSelector({
   selectedTheme,
   onSelectTheme,
-  isDark
 }: ThemeSelectorProps) {
   const pagerRef = useRef<PagerView>(null);
   const [activePage, setActivePage] = useState(
@@ -52,7 +54,7 @@ export default function CarouselThemeSelector({
   };
 
   return (
-    <View style={[styles.container, isDark && styles.containerDark]}>
+    <View style={styles.container}>
       <AnimatedPagerView
         ref={pagerRef}
         style={styles.pagerView}
@@ -71,7 +73,6 @@ export default function CarouselThemeSelector({
         ))}
       </AnimatedPagerView>
 
-      {/* Pagination indicators */}
       <View style={styles.paginationContainer}>
         {themes.map((theme, index) => (
           <TouchableOpacity
@@ -89,3 +90,4 @@ export default function CarouselThemeSelector({
     </View>
   );
 }
+

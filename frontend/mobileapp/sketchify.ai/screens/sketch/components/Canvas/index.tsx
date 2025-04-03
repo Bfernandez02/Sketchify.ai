@@ -20,7 +20,6 @@ const Canvas: React.FC<CanvasProps> = ({
   currentPath,
   isDark
 }) => {
-  // console.log("Canvas rendering with panResponder handlers:", Object.keys(panResponder.panHandlers));
 
   return (
     <>
