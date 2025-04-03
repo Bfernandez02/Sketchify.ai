@@ -7,15 +7,10 @@ import {
   StatusBar,
   Platform,
   ActivityIndicator,
-  Alert,
-  Share,
   Dimensions,
 } from 'react-native';
 import { UserData } from '@/types/auth';
 import { BlurView } from 'expo-blur';
-import { doc, getDoc, collection, query, where, limit, getDocs, DocumentData } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { db } from '@/firebase/config';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -29,6 +24,9 @@ import Animated, {
   Extrapolate,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { fetchUserData, handleShare, handleEditProfile, handleFollowUser } from './functions';
+import { useNavigation } from '@react-navigation/native';
+import { RecentSketches } from './components/RecentSketches';
 
 // Core constants with integer values
 const HEADER_MAX_HEIGHT = 280;
@@ -38,11 +36,11 @@ const PROFILE_IMAGE_MIN_SIZE = 40;
 const SCROLL_RANGE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
 export default function ProfileScreen({ userId }: { userId?: string }) {
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const scrollY = useSharedValue(0);
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [sketches, setSketches] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isCurrentUser, setIsCurrentUser] = useState<boolean>(true);
@@ -112,83 +110,69 @@ export default function ProfileScreen({ userId }: { userId?: string }) {
     ),
   }));
 
+  // Configure the stack header
   useEffect(() => {
-    fetchUserData();
+    navigation.setOptions({
+      headerShown: true,
+      headerTransparent: true,
+      headerTitleStyle: { 
+        opacity: 0 // Hide the default title
+      },
+      headerBackground: () => (
+        <Animated.View
+          style={{
+            flex: 1,
+            backgroundColor: 'transparent'
+          }}
+        />
+      ),
+      // Right header button
+      headerRight: () => (
+        <TouchableOpacity
+          style={{
+            marginRight: 16
+          }}
+          onPress={isCurrentUser ? handleEditProfile : () => handleShare(userData)}
+        >
+          <BlurView
+            intensity={80}
+            tint={isDark ? 'dark' : 'light'}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden'
+            }}
+          >
+            <IconSymbol
+              size={20}
+              name={isCurrentUser ? "pencil" : "square.and.arrow.up"}
+              color={textColor}
+            />
+          </BlurView>
+        </TouchableOpacity>
+      )
+    });
+  }, [navigation, userData, isCurrentUser, isDark, textColor]);
+
+  useEffect(() => {
+    // Use the imported function
+    fetchUserData(
+      userId, 
+      setLoading, 
+      setIsCurrentUser, 
+      setUserData, 
+      () => {}, // We're not using this setSketches anymore
+      setError
+    );
   }, [userId]);
-  
-  // Extracted fetch logic into a separate function for clarity
-  const fetchUserData = async (): Promise<void> => {
-    try {
-      setLoading(true);
-      const auth = getAuth();
-      const currentUser = auth.currentUser;
-      
-      // Determine if we're viewing our own profile or someone else's
-      const targetUserId = userId || (currentUser ? currentUser.uid : null);
-      setIsCurrentUser(!userId || (currentUser && userId === currentUser.uid));
-      
-      if (!targetUserId) {
-        throw new Error('No user to display');
-      }
-      
-      // Fetch user data
-      const userRef = doc(db, "users", targetUserId);
-      const userSnap = await getDoc(userRef);
-      
-      if (userSnap.exists()) {
-        const data = userSnap.data() as UserData;
-        setUserData(data);
-      } else {
-        throw new Error('User data not found');
-      }
-      
-      const sketchesQuery = query(
-        collection(db, "sketches"),
-        where("userId", "==", targetUserId),
-        limit(6)
-      );
-      
-      const sketchesSnapshot = await getDocs(sketchesQuery);
-      const sketchesData: any[] = [];
-      sketchesSnapshot.forEach((doc) => {
-        sketchesData.push({ id: doc.id, ...doc.data() });
-      });
-      
-      setSketches(sketchesData);
-    } catch (err: any) {
-      console.error('Error fetching data:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleShare = async (): Promise<void> => {
-    if (!userData) return;
-    
-    try {
-      await Share.share({
-        message: `Check out ${userData.name}'s profile on SketchApp!`,
-        url: `https://yourapp.com/profile/${userData.uid}`,
-      });
-    } catch (error) {
-      console.error('Error sharing profile:', error);
-    }
-  };
-
-  const handleEditProfile = (): void => {
-    router.push('/edit-profile');
-  };
-
-  const handleFollowUser = (): void => {
-    Alert.alert("Success", "You are now following this user");
-  };
 
   // Loading state
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor }}>
-        <StatusBar style={isDark ? 'light' : 'dark'} />
         <ActivityIndicator size="large" color={accentColor} />
         <Text style={{ marginTop: 12, color: textColor }}>Loading profile...</Text>
       </View>
@@ -219,8 +203,6 @@ export default function ProfileScreen({ userId }: { userId?: string }) {
 
   return (
     <View style={{ flex: 1, backgroundColor }}>
-      {/* <StatusBar style={isDark ? 'light' : 'dark'} /> */}
-
       {/* Animated Header */}
       <Animated.View 
         style={[
@@ -230,7 +212,8 @@ export default function ProfileScreen({ userId }: { userId?: string }) {
             left: 0, 
             right: 0, 
             backgroundColor: 'transparent',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            marginTop: insets.top + 44 // Adjust for the stack header
           }, 
           headerAnimatedStyle
         ]}
@@ -256,97 +239,36 @@ export default function ProfileScreen({ userId }: { userId?: string }) {
           />
         </Animated.View>
         
-        {/* Header Bar */}
-        {Platform.OS === 'ios' ? (
-          <BlurView
-            intensity={100}
-            tint={isDark ? 'dark' : 'light'}
-            style={{ 
-              position: 'absolute', 
-              top: 0, 
-              left: 0, 
-              right: 0, 
+        {/* Custom Header Title (visible on scroll) */}
+        <Animated.View
+          style={[
+            { 
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              paddingTop: 10,
               height: HEADER_MIN_HEIGHT,
-              paddingTop: insets.top,
               justifyContent: 'center',
-              alignItems: 'center'
-            }}
-          >
-            <Animated.Text
-              style={[
-                { 
-                  fontSize: 18, 
-                  fontWeight: 'bold', 
-                  color: textColor 
-                }, 
-                headerTitleStyle
-              ]}
-              numberOfLines={1}
-            >
-              {userData?.name}
-            </Animated.Text>
-          </BlurView>
-        ) : (
-          <Animated.View
+              alignItems: 'center',
+              backgroundColor: 'transparent'
+            }
+          ]}
+        >
+          <Animated.Text
             style={[
               { 
-                position: 'absolute', 
-                top: 0, 
-                left: 0, 
-                right: 0, 
-                height: HEADER_MIN_HEIGHT,
-                paddingTop: insets.top,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: backgroundColor + 'F0'
-              }
+                fontSize: 18, 
+                fontWeight: 'bold', 
+                color: textColor 
+              }, 
+              headerTitleStyle
             ]}
+            numberOfLines={1}
           >
-            <Animated.Text
-              style={[
-                { 
-                  fontSize: 18, 
-                  fontWeight: 'bold', 
-                  color: textColor 
-                }, 
-                headerTitleStyle
-              ]}
-              numberOfLines={1}
-            >
-              {userData?.name}
-            </Animated.Text>
-          </Animated.View>
-        )}
-        
-        {/* Action Button */}
-        <TouchableOpacity
-          style={{
-            position: 'absolute',
-            top: insets.top + 10,
-            right: 16,
-            zIndex: 10
-          }}
-          onPress={isCurrentUser ? handleEditProfile : handleShare}
-        >
-          <BlurView
-            intensity={80}
-            tint={isDark ? 'dark' : 'light'}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden'
-            }}
-          >
-            <IconSymbol
-              size={20}
-              name={isCurrentUser ? "pencil" : "square.and.arrow.up"}
-              color={textColor}
-            />
-          </BlurView>
-        </TouchableOpacity>
+            {userData?.name}
+          </Animated.Text>
+        </Animated.View>
       </Animated.View>
       
       {/* Profile Image */}
@@ -355,6 +277,7 @@ export default function ProfileScreen({ userId }: { userId?: string }) {
           {
             position: 'absolute',
             left: 20,
+            top: 44 + insets.top, // Adjust for the stack header
             borderRadius: PROFILE_IMAGE_MAX_SIZE / 2,
             borderWidth: 4,
             borderColor: backgroundColor,
@@ -387,7 +310,10 @@ export default function ProfileScreen({ userId }: { userId?: string }) {
 
       {/* Main Content */}
       <Animated.ScrollView
-        contentContainerStyle={{ paddingTop: HEADER_MAX_HEIGHT + 60, paddingBottom: 30 }}
+        contentContainerStyle={{ 
+          paddingTop: HEADER_MAX_HEIGHT + 60 + insets.top + 44, // Adjust for the stack header
+          paddingBottom: 30 
+        }}
         scrollEventThrottle={16}
         onScroll={scrollHandler}
         showsVerticalScrollIndicator={false}
@@ -425,7 +351,8 @@ export default function ProfileScreen({ userId }: { userId?: string }) {
           }}>
             <View style={{ alignItems: 'center' }}>
               <Text style={{ fontSize: 18, fontWeight: 'bold', color: textColor }}>
-                {sketches.length}
+                {/* This will be updated by the RecentSketches component */}
+                -
               </Text>
               <Text style={{ fontSize: 14, color: textColor + '99', marginTop: 4 }}>
                 Sketches
@@ -484,115 +411,17 @@ export default function ProfileScreen({ userId }: { userId?: string }) {
           </TouchableOpacity>
         </View>
         
-        {/* Recent Sketches */}
-        <View style={{ marginBottom: 24 }}>
-          <View style={{ 
-            flexDirection: 'row', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            paddingHorizontal: 20,
-            marginBottom: 16 
-          }}>
-            <Text style={{ fontSize: 20, fontWeight: 'bold', color: textColor }}>
-              Recent Sketches
-            </Text>
-            
-            {sketches.length > 0 && (
-              <TouchableOpacity
-                onPress={() => router.push(`/user/${userData?.uid}/sketches`)}
-              >
-                <Text style={{ fontSize: 16, color: accentColor }}>
-                  See All
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          
-          {sketches.length > 0 ? (
-            <View style={{ paddingHorizontal: 16 }}>
-              {/* Sketches Grid - simplified layout */}
-              <View style={{ 
-                flexDirection: 'row', 
-                flexWrap: 'wrap', 
-                justifyContent: 'space-between' 
-              }}>
-                {sketches.map((sketch) => (
-                  <TouchableOpacity
-                    key={sketch.id}
-                    style={{
-                      width: (Dimensions.get('window').width - 40) / 2,
-                      backgroundColor: cardBackgroundColor,
-                      borderRadius: 12,
-                      marginBottom: 12,
-                      overflow: 'hidden',
-                      elevation: 2,
-                      shadowColor: '#000',
-                      shadowOffset: { width: 0, height: 1 },
-                      shadowOpacity: 0.1,
-                      shadowRadius: 2,
-                    }}
-                    onPress={() => router.push(`/sketch/${sketch.id}`)}
-                  >
-                    <Image
-                      source={{ uri: sketch.imageUrl }}
-                      style={{ width: '100%', aspectRatio: 1, backgroundColor: '#f0f0f0' }}
-                      resizeMode="cover"
-                    />
-                    <View style={{ padding: 12 }}>
-                      <Text
-                        style={{ fontSize: 16, fontWeight: '600', color: textColor }}
-                        numberOfLines={1}
-                      >
-                        {sketch.title || 'Untitled'}
-                      </Text>
-                      <Text style={{ fontSize: 14, color: textColor + '80', marginTop: 4 }}>
-                        {new Date(sketch.createdAt).toLocaleDateString()}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          ) : (
-            <View style={{
-              margin: 16,
-              padding: 24,
-              backgroundColor: cardBackgroundColor,
-              borderRadius: 12,
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <IconSymbol
-                size={48}
-                name="pencil.tip"
-                color={textColor + '50'}
-              />
-              <Text style={{ 
-                fontSize: 16, 
-                color: textColor + '99',
-                marginTop: 12,
-                marginBottom: isCurrentUser ? 16 : 0
-              }}>
-                No sketches yet
-              </Text>
-              {isCurrentUser && (
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: accentColor,
-                    paddingHorizontal: 20,
-                    paddingVertical: 10,
-                    borderRadius: 8
-                  }}
-                  onPress={() => router.push('/sketch')}
-                >
-                  <Text style={{ color: '#FFFFFF', fontWeight: '600' }}>
-                    Create a Sketch
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
-        </View>
+        {/* Recent Sketches - using the modular component */}
+        {userData?.uid && (
+          <RecentSketches
+            userId={userData.uid}
+            isCurrentUser={isCurrentUser}
+            textColor={textColor}
+            accentColor={accentColor}
+            cardBackgroundColor={cardBackgroundColor}
+            maxSketches={6}
+          />
+        )}
         
         {/* Activity Section - simplified */}
         <View>

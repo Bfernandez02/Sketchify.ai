@@ -9,12 +9,11 @@ from PIL import Image
 import requests
 from openai import OpenAI
 import traceback
+import binascii
 
 import requests
 import json
 from themes import get_theme_prompt
-
-
 
 load_dotenv()
 # Flask app setup
@@ -58,6 +57,8 @@ def log_request_info():
     app.logger.debug('Headers: %s', request.headers)
     app.logger.debug('Body: %s', request.get_data())
     app.logger.debug('Path: %s', request.path)
+    if request.path == '/generate-prompt' and request.method == 'POST':
+        app.logger.debug('Theme: %s', request.json.get('theme'))
 
 @app.after_request
 def log_response_info(response):
@@ -89,13 +90,13 @@ def generate_prompt():
     try:
         data = request.json
         image_data = data.get("image")
-
-        theme_data = data.get("theme")
+        theme_data = data.get("theme", "minimalism")  # Default to minimalism if no theme provided
+        
         print(f"Theme: {theme_data}")
 
-
-        theme_context,theme_prompt,temperature = get_theme_prompt(theme_data)
-
+        # Get theme info ONCE and use it consistently
+        theme_context, theme_prompt, temperature = get_theme_prompt(theme_data)
+        logging.info(f"Using theme: {theme_data} with temperature: {temperature}")
 
         if not image_data:
             print("No image found!")
@@ -129,44 +130,29 @@ def generate_prompt():
             
             print(f"Successfully processed image, size: {len(image_bytes)} bytes")
             
-            theme_content, theme_text = get_theme_prompt(theme_data)
-            logging.info(f"Using theme: {theme_data}")
-            
             # Get client
             client = get_client()
             
             # Generate description using Gemini
             response = client.chat.completions.create(
                 model=gemini_model,
-                temperature= temperature,
+                temperature=temperature,
                 messages=[
                     {
                         "role": "system",
-                        "content": (
-                            theme_context
-                            # "You are an expert visual descriptor tasked with analyzing sketches for an AI image generation pipeline. "
-                            # "Your job is to describe the sketch in vivid, precise detail, capturing every visible element—shapes, lines, textures, objects, and composition—without losing context. "
-                            # "Focus on what is explicitly present, avoiding assumptions or embellishments beyond the sketch itself. "
-                            # "Structure the description as a concise, natural paragraph optimized for an image generation model, using evocative yet specific language."
-                        )
+                        "content": theme_context
                     },
                     {
                         "role": "user",
                         "content": [
                             {
                                 "type": "text",
-                                "text": (
-                                    theme_prompt
-                                    # "Provide a detailed, vivid description of this sketch as a single paragraph. "
-                                    # "Include all visible elements—shapes, lines, objects, and their arrangement—using precise, evocative language suitable for generating a high-quality AI image. "
-                                    # "Do not add labels like 'Description:' or interpret beyond what is shown."
-                                )
+                                "text": theme_prompt
                             },
                             {
                                 "type": "image_url",
                                 "image_url": {"url": f"data:image/png;base64,{clean_base64}"}
                             }
-
                         ]
                     }
                 ]
@@ -186,9 +172,14 @@ def generate_prompt():
             # Extract the image
             img_base64 = imagen_response.data[0].b64_json
             
+            # Optional: include title and prompt based on the description
+            title = f"AI Enhanced Sketch ({theme_data.capitalize()})"
+            
             return jsonify({
                 "image": img_base64,
-                "description": description
+                "description": description,
+                "prompt": description[:100] + "...",  # Shortened version as prompt
+                "title": title
             }), 200
             
         except Exception as e:

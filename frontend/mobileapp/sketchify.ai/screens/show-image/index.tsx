@@ -160,9 +160,8 @@ export default function ShowImageScreen() {
           onPageSelected={handlePageChange}
           // transitionStyle="scroll" // Smooth scrolling transition
         >
-          {/* Page 0: Original Sketch */}
           <View key="0" style={styles.page}>
-            {encodedDrawingUrl ? (
+            (
               <View style={[styles.drawingContainer, { width: imageWidth, height: imageWidth * 0.7 }]}>
                 {originalLoading && (
                   <ActivityIndicator size="small" color="#666" style={styles.loader} />
@@ -180,12 +179,7 @@ export default function ShowImageScreen() {
                   }}
                 />
               </View>
-            ) : (
-              <View style={styles.noImageContainer}>
-                <Ionicons name="image-outline" size={48} color="#CCCCCC" />
-                <Text style={styles.noImageText}>No sketch available</Text>
-              </View>
-            )}
+            )
             <Text style={styles.sectionTitle}>Original Sketch</Text>
           </View>
 
