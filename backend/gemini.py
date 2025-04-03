@@ -30,8 +30,8 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = SERVICE_ACCOUNT_KEY_PATH
 api_key = os.getenv("GEMINI_API_KEY")
 
 # Models
-gemini_model = "gemini-2.0-flash"  # For sketch description
-imagen_model = "imagen-3.0-generate-002"  # For image generation
+gemini_model = "gemini-2.0-flash" 
+imagen_model = "imagen-3.0-generate-002" 
 
 # Initialize OpenAI client with Gemini API base URL
 def get_client():
