@@ -78,7 +78,8 @@ def generate_prompt():
             print("No image found !")
             return jsonify({"error": "No image provided"}), 400
         
-        theme_content,theme_text = get_theme_prompt(theme_data) # Call the Theme function
+        theme_content,theme_text, temperature = get_theme_prompt(theme_data) # Call the Theme function
+
         print(f"ThemeContent: {theme_content}")
         print(f"ThemeText: {theme_text}")
 
@@ -105,11 +106,12 @@ def generate_prompt():
                     ]
                 }
             ],
-            temperature= 0.6,
+            n=1,
+            temperature= temperature,
             )
         api_response  =  response.choices[0].message.content
         print(f"AI Response: {api_response}")
-
+        
         stability_response = requests.post(
             stable_diffusion_api_url,
             headers={

@@ -9,12 +9,14 @@ from PIL import Image
 import requests
 from openai import OpenAI
 import traceback
-import binascii
-from themes import get_theme_prompt 
 
-# Load environment variables
+import requests
+import json
+from themes import get_theme_prompt
+
+
+
 load_dotenv()
-
 # Flask app setup
 app = Flask(__name__)
 CORS(app)
@@ -87,7 +89,13 @@ def generate_prompt():
     try:
         data = request.json
         image_data = data.get("image")
-        theme_data = data.get("theme", "Default")  # Default theme if none provided
+
+        theme_data = data.get("theme")
+        print(f"Theme: {theme_data}")
+
+
+        theme_context,theme_prompt,temperature = get_theme_prompt(theme_data)
+
 
         if not image_data:
             print("No image found!")
@@ -131,13 +139,35 @@ def generate_prompt():
             # Generate description using Gemini
             response = client.chat.completions.create(
                 model=gemini_model,
+                temperature= temperature,
                 messages=[
-                    {"role": "system", "content": theme_content},
+                    {
+                        "role": "system",
+                        "content": (
+                            theme_context
+                            # "You are an expert visual descriptor tasked with analyzing sketches for an AI image generation pipeline. "
+                            # "Your job is to describe the sketch in vivid, precise detail, capturing every visible element—shapes, lines, textures, objects, and composition—without losing context. "
+                            # "Focus on what is explicitly present, avoiding assumptions or embellishments beyond the sketch itself. "
+                            # "Structure the description as a concise, natural paragraph optimized for an image generation model, using evocative yet specific language."
+                        )
+                    },
                     {
                         "role": "user",
                         "content": [
-                            {"type": "text", "text": theme_text},
-                            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{clean_base64}"}}
+                            {
+                                "type": "text",
+                                "text": (
+                                    theme_prompt
+                                    # "Provide a detailed, vivid description of this sketch as a single paragraph. "
+                                    # "Include all visible elements—shapes, lines, objects, and their arrangement—using precise, evocative language suitable for generating a high-quality AI image. "
+                                    # "Do not add labels like 'Description:' or interpret beyond what is shown."
+                                )
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:image/png;base64,{clean_base64}"}
+                            }
+
                         ]
                     }
                 ]
