@@ -70,13 +70,6 @@ THEMES = {
             "Describe the elements as they would appear in a high-resolution photograph."
         ),
         "temperature": 0.2,
-
-            "You are a realism specialist for an AI image generation system, tasked with translating sketches into photorealistic descriptions. Focus on exact proportions, detailed textures, and lifelike lighting effects. Describe the sketch as a high-fidelity scene, emphasizing physical accuracy and tangible qualities in a concise, vivid paragraph suitable for Stable Diffusion."
-        ),
-        "user_text": (
-            "Describe this sketch in one paragraph as a photorealistic scene. Detail precise proportions, lifelike textures, and realistic lighting, painting a clear, tangible picture based solely on the sketch’s visible elements."
-        )
-
     }
 }
 
