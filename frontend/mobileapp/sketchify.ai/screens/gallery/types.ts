@@ -1,12 +1,13 @@
-
 interface GalleryItem {
-    id: string;
-    filename: string;
-    prompt: string;
-    createdAt: string;
-    filepath: string;
-  }
+  id: string;
+  title: string;
+  prompt: string;
+  theme: "minimalism" | "realism" | "nature";
+  createdAt: string;
+  imageUrl: string;
+  drawingUrl: string;
+}
   
-  interface GalleryMetadata {
-    items: GalleryItem[];
-  }
+interface GalleryMetadata {
+  items: GalleryItem[];
+}

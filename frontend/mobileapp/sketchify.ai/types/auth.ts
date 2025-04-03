@@ -1,14 +1,18 @@
-export interface User {
+export interface UserData {
     uid: string;
-    email: string | null;
-    displayName: string | null;
-    photoURL: string | null;
-}
-
+    name: string;
+    email: string;
+    bio: string;
+    profileImage: string;
+    bannerImage: string;
+    createdAt: string;
+    updatedAt: string;
+  }
 export interface AuthContextType {
-    user: User | null;
+    user: UserData | null;
     loading: boolean;
     signInWithGoogle: () => Promise<void>;
     signInWithApple: () => Promise<void>;
     logout: () => Promise<void>;
 }
+

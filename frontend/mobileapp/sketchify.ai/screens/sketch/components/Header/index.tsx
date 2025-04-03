@@ -12,12 +12,12 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ colorScheme }) => {
   return (
     <View style={styles.header}>
-      <TouchableOpacity 
+      {/* <TouchableOpacity 
         style={styles.backButton}
         onPress={() => router.back()}
       >
         <IconSymbol size={24} name="arrow.left" color={Colors[colorScheme ?? 'light'].text} />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <Text style={[styles.title, { color: Colors[colorScheme ?? 'light'].text }]}>
         Sketch Creator
       </Text>

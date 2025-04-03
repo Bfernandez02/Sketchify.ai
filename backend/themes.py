@@ -11,6 +11,7 @@ class Theme:
 THEMES = {
     "Default": {
         "system_content": (
+
             "You are an expert visual descriptor tasked with analyzing sketches for an AI image generation pipeline. "
             "Your job is to describe the sketch in vivid, precise detail, capturing every visible element—shapes, lines, textures, objects, and composition—without losing context. "
             "Focus on what is explicitly present, avoiding assumptions or embellishments beyond the sketch itself. "
@@ -48,15 +49,15 @@ THEMES = {
             "Connect the visual elements to natural phenomena, textures, and patterns found in the natural world. "
             "Directly describe the sketch in a way that evokes the beauty and complexity of nature in one or two sentences."
             "Maintain the sketch's essence while enhancing its natural qualities these are instructions for a diffusion model."
+
         ),
         "user_text": (
-            "Describe this sketch with nature-inspired language. "
-            "Emphasize organic shapes, natural textures, and flowing forms. "
-            "Connect the visual elements to patterns and phenomena found in nature."
+            "Describe this sketch in one paragraph using nature-inspired language. Highlight organic shapes, flowing lines, and textures reminiscent of natural patterns—like leaves, waves, or bark—while grounding the description in the sketch’s visible elements."
         )
     },
     "Realism": {
         "system_content": (
+
             "You are a realism expert focusing on precise, photographic details. "
             "Your goal is to translate sketches into highly detailed, true-to-life descriptions. "
             "Focus on accurate proportions, lighting, textures, and physical characteristics. "
@@ -69,10 +70,16 @@ THEMES = {
             "Describe the elements as they would appear in a high-resolution photograph."
         ),
         "temperature": 0.2,
+
+            "You are a realism specialist for an AI image generation system, tasked with translating sketches into photorealistic descriptions. Focus on exact proportions, detailed textures, and lifelike lighting effects. Describe the sketch as a high-fidelity scene, emphasizing physical accuracy and tangible qualities in a concise, vivid paragraph suitable for Stable Diffusion."
+        ),
+        "user_text": (
+            "Describe this sketch in one paragraph as a photorealistic scene. Detail precise proportions, lifelike textures, and realistic lighting, painting a clear, tangible picture based solely on the sketch’s visible elements."
+        )
+
     }
 }
 
-
-def get_theme_prompt (theme_name ):
+def get_theme_prompt(theme_name):
     theme_data = THEMES.get(theme_name, THEMES["Default"])
     return theme_data["system_content"], theme_data["user_text"], theme_data["temperature"]

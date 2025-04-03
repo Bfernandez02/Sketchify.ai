@@ -20,7 +20,6 @@ stable_diffusion_api_url = 'https://api.stability.ai/v2beta/stable-image/generat
 stable_diffusion_apiKey = os.getenv("STABILITY_API_KEY")
 
 
-
 @app.route('/', methods=['GET'])
 def home():
     return jsonify({
@@ -58,7 +57,6 @@ def get_photo():
     print('recieved image')
     return image_data
 
-
 @app.route('/GetTheme', methods =['POST'])
 def getTheme():
     data = request.json
@@ -68,7 +66,6 @@ def getTheme():
     print(f"ThemeContext: {theme_context}")
     print(f"ThemeText: {theme_text}")
     return jsonify({"theme": theme_data}), 200
-
 
 @app.route('/generate-prompt', methods =['POST'])
 def generate_prompt():
