@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'sketchify.ai'
+rootProject.name = 'Sketchify'
 
 dependencyResolutionManagement {
   versionCatalogs {

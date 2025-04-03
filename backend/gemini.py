@@ -129,7 +129,6 @@ def generate_prompt():
             
             print(f"Successfully processed image, size: {len(image_bytes)} bytes")
             
-            # Get theme-specific prompts from themes.py
             theme_content, theme_text = get_theme_prompt(theme_data)
             logging.info(f"Using theme: {theme_data}")
             

@@ -8,6 +8,7 @@ import Canvas from './components/Canvas';
 import ToolsPanel from './components/ToolsPanel';
 import BrushSettings from './components/BrushSettings';
 import Toolbar from './components/Toolbar';
+import ThemeSelector from './components/ThemeSelector';
 
 // Hooks
 import useDrawing from './hooks/useDrawing';
@@ -20,9 +21,12 @@ export default function SketchScreen() {
   const isDark = colorScheme === 'dark';
   const viewShotRef = useRef<any>(null);
   
+  // UI panel states
   const [isColorPanelOpen, setIsColorPanelOpen] = useState(false);
   const [isBrushSettingsOpen, setIsBrushSettingsOpen] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState<'minimalism' | 'realism' | 'nature'>('minimalism');
   
+  // Core drawing functionality
   const {
     paths,
     currentPath,
@@ -35,9 +39,13 @@ export default function SketchScreen() {
     handleStrokeWidthChange,
   } = useDrawing();
   
-  const { isLoading, handleProcess } = useImageProcessing(viewShotRef, paths, currentPath);
-
-
+  // Modified image processing to include the theme
+  const { isLoading, handleProcess } = useImageProcessing(
+    viewShotRef, 
+    paths, 
+    currentPath, 
+  );
+  
   // Toggle color panel
   const toggleColorPanel = () => {
     setIsColorPanelOpen(!isColorPanelOpen);
@@ -54,6 +62,12 @@ export default function SketchScreen() {
     }
   };
 
+  // Handle theme selection
+  const handleThemeSelect = (theme: 'minimalism' | 'realism' | 'nature') => {
+    setSelectedTheme(theme);
+    console.log(`Theme selected: ${theme}`);
+  };
+
   // Dismiss all panels
   const dismissPanels = () => {
     setIsColorPanelOpen(false);
@@ -68,7 +82,6 @@ export default function SketchScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style={isDark ? 'light' : 'dark'} />
       <LinearGradient
         colors={['#F9F9F9', '#FFFFFF']}
         style={styles.background}
@@ -76,17 +89,21 @@ export default function SketchScreen() {
         end={{ x: 1, y: 1 }}
       />
       
+      <ThemeSelector
+        selectedTheme={selectedTheme}
+        onSelectTheme={handleThemeSelect}
+      />
       
       <View style={[styles.canvasWrapper]}>
-      <Canvas
-        viewShotRef={viewShotRef}
-        panResponder={panResponder}
-        paths={paths}
-        currentPath={currentPath}
-        isDark={isDark}
-      />
-    </View>
-
+        <Canvas
+          viewShotRef={viewShotRef}
+          panResponder={panResponder}
+          paths={paths}
+          currentPath={currentPath}
+          isDark={isDark}
+        />
+      </View>
+    
       <Toolbar
         isDark={isDark}
         paths={paths}
@@ -100,8 +117,8 @@ export default function SketchScreen() {
         isBrushSettingsOpen={isBrushSettingsOpen}
         isColorPanelOpen={isColorPanelOpen}
       />
-
-    {isColorPanelOpen && (
+      
+      {isColorPanelOpen && (
         <ToolsPanel
           isDark={isDark}
           strokeColor={strokeColor}
@@ -122,7 +139,6 @@ export default function SketchScreen() {
           onClose={dismissPanels}
         />
       )}
-      
     </SafeAreaView>
   );
 }
