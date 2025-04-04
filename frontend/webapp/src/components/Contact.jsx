@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import Image from "next/image";
 import Contact_Person from "../../public/Contact_Person.png";
 import Phone from "../../public/Phone.png";
@@ -8,6 +8,7 @@ import Plane from "../../public/Plane.png";
 import Link from "next/link";
 import { db } from "../firebase/config";
 import { collection, addDoc } from "firebase/firestore";
+import {flushSync} from "react-dom";
 import toast from "react-hot-toast";
 import { emailIsValid } from "@/utils/authUtils";
 
@@ -39,8 +40,6 @@ function contactValidation (formData) {
 }
 
 
-
-
 export default function Contact() {
 	const [formData, setFormData] = useState({
 		name: "",
@@ -59,11 +58,23 @@ export default function Contact() {
 		}));
 	};
 
+	const isValidEmail  = (email) => {
+  		const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  		return re.test(email);
+	};
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		setStatus("Sending...");
 
 		const { name, email, message, phone, subject } = formData;
+
+		if (!isValidEmail(email)) {
+  		  	console.log("Invalid email hit");
+			setStatus("Invalid email address.");
+			return;
+		}
+
+		setStatus("Sending...");
 
 		const isValid = contactValidation(formData);
 		if (!isValid) {
@@ -259,6 +270,18 @@ export default function Contact() {
 							</button>
 						</div>
 					</form>
+
+					{/* Status message */}
+
+					<p
+					  aria-live="polite"
+					  className="mt-4 text-center text-xl"
+					  data-testid="form-status"
+					  key={status}
+					>
+
+					  {status}
+					</p>
 				</div>
 			</div>
 		</div>
