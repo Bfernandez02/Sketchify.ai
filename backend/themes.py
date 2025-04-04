@@ -53,7 +53,8 @@ THEMES = {
         ),
         "user_text": (
             "Describe this sketch in one paragraph using nature-inspired language. Highlight organic shapes, flowing lines, and textures reminiscent of natural patterns—like leaves, waves, or bark—while grounding the description in the sketch’s visible elements."
-        )
+        ),
+        "temperature": 0.3,
     },
     "Realism": {
         "system_content": (

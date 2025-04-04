@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/context/authContext";
 import ACL from "@/components/ACL";
+import React from "react";
 
 export default function App({ Component, pageProps }) {
   return (
