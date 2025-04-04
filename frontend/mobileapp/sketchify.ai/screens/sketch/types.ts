@@ -1,5 +1,3 @@
-// Common types shared across multiple components
-
 export interface Point {
   x: number;
   y: number;
@@ -19,6 +17,7 @@ export interface ColorOption {
 // API responses
 export interface ApiResponse {
   image: string;
+  title: string;
   prompt: string;
 }
 
@@ -26,7 +25,6 @@ export interface ApiErrorResponse {
   error: string;
 }
 
-// Gallery data types
 export interface GalleryItem {
   id: string;
   filename: string;

@@ -1,12 +1,5 @@
 import React, {useState} from "react";
 import Image from "next/image";
-import stroke from "../../public/stroke.png";
-import brushes from "../../public/brushes.png";
-import abstract from "../../public/abstract.jpg";
-import astro from "../../public/astro.jpg";
-import bunny from "../../public/bunny.jpg";
-import cake from "../../public/cake.jpg";
-import forest from "../../public/forest.jpg";
 import Contact_Person from "../../public/Contact_Person.png";
 import Phone from "../../public/Phone.png";
 import Mail from "../../public/Mail.png";
@@ -16,6 +9,36 @@ import Link from "next/link";
 import { db } from "../firebase/config";
 import { collection, addDoc } from "firebase/firestore";
 import {flushSync} from "react-dom";
+import toast from "react-hot-toast";
+import { emailIsValid } from "@/utils/authUtils";
+
+function contactValidation (formData) {
+	if (!formData.name) {
+		toast.error("Name is required", { id: "name" });
+		return false;
+	} 
+	if (!formData.email) {
+		const isValid = emailIsValid(formData.email);
+		if (!isValid) {
+			toast.error("Email is invalid", { id: "email2" });
+			return false;
+		}
+	}
+	if (!formData.phone) {
+		toast.error("Phone is required", { id: "phone" });
+		return false;
+	}
+	if (!formData.subject) {
+		toast.error("Subject is required", { id: "subject" });
+		return false;
+	}
+	if (!formData.message) {
+		toast.error("Message is required", { id: "message" });
+		return false;
+	}
+	return true;
+}
+
 
 export default function Contact() {
 	const [formData, setFormData] = useState({
@@ -53,6 +76,11 @@ export default function Contact() {
 
 		setStatus("Sending...");
 
+		const isValid = contactValidation(formData);
+		if (!isValid) {
+			return;
+		}
+
 		try {
 			await addDoc(collection(db, "contacts"), {
 				name,
@@ -60,15 +88,21 @@ export default function Contact() {
 				message,
 				phone,
 				subject,
-			});
-
-			const response = await fetch("/api/contact", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(formData),
-			});
+			}); 
+			const response = await toast.promise(
+				fetch("/api/contact", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(formData),
+				}),
+				{
+					loading: "Sending message...",
+					success: "Message sent successfully!",
+					error: "Failed to send message.",
+				}
+			);
 
 			// const data = await response.json();
 			// console.log(data);
@@ -112,9 +146,9 @@ export default function Contact() {
 				</div>
 			</div>
 
-			<div className="w-full flex flex-wrap bg-[#f8f6eb] p-5 rounded-lg mt-5 mb-[100px]">
+			<div className="w-full flex flex-wrap bg-black rounded-lg mt-5 mb-[100px]">
 				{/* Left Section */}
-				<div className="w-full md:w-[35%] bg-[#2e3547] p-10 text-white rounded-tl-lg rounded-bl-lg mb-5">
+				<div className="w-full md:w-[35%] bg-[#2e3547] p-10 text-white rounded-tl-lg rounded-bl-lg ">
 					<h2 className="font-playfair text-4xl mb-10">Contact Us</h2>
 
 					<p className="flex items-center mb-8 text-md xl:text-xl pl-0 lg:pl-10">
@@ -172,7 +206,7 @@ export default function Contact() {
 				</div>
 
 				{/* Right Section */}
-				<div className="w-full md:w-[65%] p-6 mt-5">
+				<div className="w-full md:w-[65%] p-6 h-full bg-white">
 					<form onSubmit={handleSubmit}>
 						<div className="flex gap-5 mb-4 flex-wrap">
 							<input

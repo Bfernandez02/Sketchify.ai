@@ -1,74 +1,53 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import { db } from "@/firebase/config";
-import {
-	getDoc,
-	doc,
-	collection,
-	query,
-	where,
-	getDocs,
-} from "firebase/firestore";
+import { getDoc, doc, collection, query, where, getDocs } from "firebase/firestore";
 import { useAuth } from "@/context/authContext";
 import ArtCard from "@/components/ArtCard";
 
-export default function Profile() {
-	const [filter, setFilter] = useState("All");
-	const [selectedOption, setSelectedOption] = useState("My Artwork");
-	const [user, setUser] = useState(null);
-	const [loading, setLoading] = useState(true);
-	const [posts, setPosts] = useState([]); // Store user's posts
+export async function getServerSideProps(context) {
+	const { id } = context.params;
 
-	const router = useRouter();
-	const { id } = router.query;
+	let user = null;
+	let posts = [];
+
+	try {
+		// Fetch user data
+		const userDoc = await getDoc(doc(db, "users", id));
+		if (userDoc.exists()) {
+			user = { id: userDoc.id, ...userDoc.data() };
+		}
+
+		// Fetch user's posts
+		const postsRef = collection(db, "posts");
+		const q = query(postsRef, where("userID", "==", id));
+		const postSnap = await getDocs(q);
+		posts = postSnap.docs.map((doc) => {
+			const data = doc.data();
+			return {
+				id: doc.id,
+				...data,
+				createdAt: data.createdAt?.toDate().toISOString() || null, // Convert Firestore Timestamp
+				postedAt: data.postedAt?.toDate().toISOString() || null,  // Ensure all timestamps are converted
+			};
+		});
+	} catch (error) {
+		console.error("Error fetching data:", error);
+	}
+
+	return {
+		props: {
+			user,
+			posts,
+		},
+	};
+}
+
+
+export default function Profile({ user, posts }) {
+	const [selectedOption, setSelectedOption] = useState("My Artwork");
 	const { currentUser } = useAuth();
 
-	// Fetch user data
-	useEffect(() => {
-		if (!id) return;
-
-		const fetchUser = async () => {
-			setLoading(true);
-			try {
-				const userDoc = await getDoc(doc(db, "users", id));
-				if (userDoc.exists()) {
-					setUser(userDoc.data());
-				} else {
-					console.error("User not found");
-				}
-			} catch (error) {
-				console.error("Error fetching user:", error);
-			}
-			setLoading(false);
-		};
-
-		fetchUser();
-	}, [id]);
-
-	// Fetch user's posts from posts userID field
-	useEffect(() => {
-		if (!id) return;
-
-		const fetchUserPosts = async () => {
-			try {
-				const postsRef = collection(db, "posts");
-				const q = query(postsRef, where("userID", "==", id));
-				const postSnap = await getDocs(q);
-				setPosts(
-					postSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-				);
-			} catch (error) {
-				console.error("Error fetching posts:", error);
-			}
-		};
-
-		fetchUserPosts();
-	}, [id]);
-
-	console.log(posts);
-
-	if (loading) return <p>Loading...</p>;
 	if (!user) return <p>User not found</p>;
 
 	return (
@@ -82,19 +61,13 @@ export default function Profile() {
 					height={500}
 				/>
 				<div className="flex flex-col py-4 w-full">
-					<div>
-						<h2 className="font-fraunces leading-9">{user.name}</h2>
-						<p>{user.bio}</p>
-
-						{currentUser?.email === user.email && (
-							<a
-								className="font-roboto text-[16px] text-gray-700 pl-1 hover:underline hover:cursor-pointer"
-								href="/profile/edit"
-							>
-								Edit profile
-							</a>
-						)}
-					</div>
+					<h2 className="font-fraunces leading-9">{user.name}</h2>
+					<p>{user.bio}</p>
+					{currentUser?.email === user.email && (
+						<a className="font-roboto text-[16px] text-gray-700 pl-1 hover:underline hover:cursor-pointer" href="/profile/edit">
+							Edit profile
+						</a>
+					)}
 				</div>
 			</div>
 
