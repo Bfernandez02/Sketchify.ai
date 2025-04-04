@@ -1,25 +1,31 @@
-// src/screens/sketch/components/Canvas/styles.ts
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
+  canvasOuterContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
   canvasContainer: {
     width: '100%',
     aspectRatio: 1,
-    maxHeight: '75%',
-    borderRadius: 20,
+    maxHeight: '90%',
+    borderRadius: 16,
     overflow: 'hidden',
+    borderWidth: 1,
   },
   canvas: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderRadius: 16,
   },
   drawingStatusContainer: {
-    marginTop: 8,
+    marginTop: 12,
     paddingHorizontal: 16,
     alignItems: 'center',
   },
   drawingStatus: {
     fontSize: 14,
-    opacity: 0.7,
+    fontFamily: 'System', 
+    opacity: 0.8,
   },
 });

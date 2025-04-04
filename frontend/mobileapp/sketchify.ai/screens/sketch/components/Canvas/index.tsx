@@ -18,11 +18,10 @@ const Canvas: React.FC<CanvasProps> = ({
   panResponder,
   paths,
   currentPath,
-  isDark
+  isDark,
 }) => {
-
   return (
-    <>
+    <View style={styles.canvasOuterContainer}>
       <ViewShot
         ref={viewShotRef}
         options={{ format: 'png', quality: 0.9 }}
@@ -31,28 +30,35 @@ const Canvas: React.FC<CanvasProps> = ({
         <View
           style={[
             styles.canvas,
-            { backgroundColor: isDark ? '#2C2C2E' : '#FFFFFF' }
+            {
+              backgroundColor: isDark ? '#2C2C2E' : '#FFFFFF',
+              borderColor: isDark ? '#3A3A3C' : '#E0E0E0',
+            },
           ]}
-          pointerEvents="auto" // Explicitly enable pointer events
-          collapsable={false} // Important for panResponder
-          {...panResponder.panHandlers} // Apply pan handlers
+          pointerEvents="auto"
+          collapsable={false}
+          {...panResponder.panHandlers}
         >
-          {/* Drawing paths */}
           {paths.map((path, index) => (
             <DrawPath key={`path-${index}`} path={path} />
           ))}
           {currentPath && <DrawPath key="current-path" path={currentPath} />}
         </View>
       </ViewShot>
-      
+
       <View style={styles.drawingStatusContainer}>
-        <Text style={[styles.drawingStatus, { color: isDark ? '#E0E0E0' : '#555555' }]}>
+        <Text
+          style={[
+            styles.drawingStatus,
+            { color: isDark ? '#B0B0B0' : '#666666' },
+          ]}
+        >
           {paths.length > 0
             ? `${paths.length} stroke${paths.length !== 1 ? 's' : ''} drawn`
-            : 'Start drawing...'} 
+            : 'Start sketching...'}
         </Text>
       </View>
-    </>
+    </View>
   );
 };
 

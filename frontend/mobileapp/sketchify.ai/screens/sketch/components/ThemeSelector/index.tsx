@@ -1,18 +1,15 @@
 import React, { useRef, useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Image, 
-  Dimensions, 
+import {
+  View,
+  Text,
+  Image,
+  Dimensions,
   TouchableOpacity,
-  Animated 
+  Animated,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import PagerView from 'react-native-pager-view';
 import { styles } from './styles';
 
-const { width } = Dimensions.get('window');
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
 interface ThemeSelectorProps {
@@ -44,7 +41,7 @@ export default function ThemeSelector({
 }: ThemeSelectorProps) {
   const pagerRef = useRef<PagerView>(null);
   const [activePage, setActivePage] = useState(
-    themes.findIndex(theme => theme.id === selectedTheme) || 0
+    themes.findIndex((theme) => theme.id === selectedTheme) || 0
   );
 
   const handlePageChange = (event: any) => {
@@ -59,7 +56,7 @@ export default function ThemeSelector({
         ref={pagerRef}
         style={styles.pagerView}
         initialPage={activePage}
-        orientation="horizontal"
+        orientation='horizontal'
         onPageSelected={handlePageChange}
       >
         {themes.map((theme) => (
@@ -79,7 +76,7 @@ export default function ThemeSelector({
             key={theme.id}
             style={[
               styles.paginationDot,
-              activePage === index && styles.activePaginationDot
+              activePage === index && styles.activePaginationDot,
             ]}
             onPress={() => {
               pagerRef.current?.setPage(index);
@@ -90,4 +87,3 @@ export default function ThemeSelector({
     </View>
   );
 }
-

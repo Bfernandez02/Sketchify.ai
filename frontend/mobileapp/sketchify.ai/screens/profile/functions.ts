@@ -5,12 +5,9 @@ import { Share, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { UserData } from '@/types/auth';
 
-/**
- * Fetches user data and sketches from Firebase
- */
 export const fetchUserData = async (
-  userId: string | undefined,
   setLoading: (value: boolean) => void,
+  setUserID: (value: string | null) => void,
   setIsCurrentUser: (value: boolean) => void,
   setUserData: (data: UserData | null) => void,
   setSketches: (sketches: any[]) => void,
@@ -20,42 +17,43 @@ export const fetchUserData = async (
     setLoading(true);
     const auth = getAuth();
     const currentUser = auth.currentUser;
-    
-    // Determine if we're viewing our own profile or someone else's
-    const targetUserId = userId || (currentUser ? currentUser.uid : null);
-    setIsCurrentUser(!userId || (currentUser && userId === currentUser.uid));
-    
-    if (!targetUserId) {
-      throw new Error('No user to display');
+
+    if (!currentUser) {
+      throw new Error('No authenticated user found');
     }
-    
+
+    const targetUserId = currentUser.uid; 
+    setUserID(targetUserId);
+    setIsCurrentUser(true); // Since we're using currentUser.uid, this is always true
+
     // Fetch user data
     const userRef = doc(db, "users", targetUserId);
     const userSnap = await getDoc(userRef);
-    
+
     if (userSnap.exists()) {
       const data = userSnap.data() as UserData;
       setUserData(data);
     } else {
       throw new Error('User data not found');
     }
-    
+
+    // Fetch sketches
     const sketchesQuery = query(
       collection(db, "sketches"),
       where("userId", "==", targetUserId),
       limit(6)
     );
-    
+
     const sketchesSnapshot = await getDocs(sketchesQuery);
     const sketchesData: any[] = [];
     sketchesSnapshot.forEach((doc) => {
       sketchesData.push({ id: doc.id, ...doc.data() });
     });
-    
+
     setSketches(sketchesData);
   } catch (err: any) {
     console.error('Error fetching data:', err);
-    setError(err.message);
+    setError(err.message || 'Failed to fetch user data');
   } finally {
     setLoading(false);
   }
@@ -66,7 +64,7 @@ export const fetchUserData = async (
  */
 export const handleShare = async (userData: UserData | null): Promise<void> => {
   if (!userData) return;
-  
+
   try {
     await Share.share({
       message: `Check out ${userData.name}'s profile on SketchApp!`,
