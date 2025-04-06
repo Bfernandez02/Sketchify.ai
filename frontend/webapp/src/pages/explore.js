@@ -38,7 +38,7 @@ export async function getServerSideProps() {
 
 			if (!userID) {
 				console.warn(
-					"⚠️ Could not extract userID from path:",
+					"Could not extract userID from path:",
 					docSnap.ref.path
 				);
 			}
@@ -80,7 +80,7 @@ export async function getServerSideProps() {
 								userData.profileImage || "/default-avatar.png",
 						};
 					} else {
-						console.warn(`⚠️ No user found for ID: ${userID}`);
+						console.warn(`No user found for ID: ${userID}`);
 					}
 				} catch (err) {
 					console.error(
