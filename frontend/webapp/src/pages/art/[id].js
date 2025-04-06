@@ -4,7 +4,7 @@ import Link from "next/link";
 import RelatedArt from "@/components/RelatedArt";
 import wand from "../../../public/wand.svg";
 import { db } from "@/firebase/config";
-import { getDoc, doc } from "firebase/firestore";
+import { getDoc, doc, collection, getDocs } from "firebase/firestore";
 import { useRouter } from "next/router";
 
 export default function Art() {
@@ -22,27 +22,45 @@ export default function Art() {
 		const fetchArt = async () => {
 			setLoading(true);
 			try {
-				const artRef = doc(db, "posts", id); // ref to post document
-				const artSnap = await getDoc(artRef);
+				// Fetch all users to find the user who created the post
+				const usersRef = collection(db, "users");
+				const usersSnapshot = await getDocs(usersRef);
 
-				if (artSnap.exists()) {
-					const artData = artSnap.data();
-					setArt({
-						id: artSnap.id,
-						...artData,
-						postedAt:
-							artData.postedAt?.toDate()?.toISOString() || null, // Converts Firestore timestamp to ISO string
+				let foundUser = null;
+				let postData = null;
+				let userID = null; // Declare userID outside the loop
+
+				// Search through each user to find the post
+				for (const userDoc of usersSnapshot.docs) {
+					const postsRef = collection(userDoc.ref, "posts"); // Get the posts subcollection for each user
+					const postSnap = await getDocs(postsRef);
+
+					postSnap.forEach((post) => {
+						if (post.id === id) {
+							postData = post.data();
+							foundUser = userDoc.data();
+							userID = userDoc.id; // Capture the user ID when the post is found
+						}
 					});
 
-					// Fetch user data using the userID field
-					const userRef = doc(db, "users", artData.userID); // ref to user document
-					const userSnap = await getDoc(userRef);
+					// If the post is found, stop iterating
+					if (foundUser && postData) break;
+				}
 
-					if (userSnap.exists()) {
-						setUser(userSnap.data());
-					}
+				if (postData && foundUser) {
+					setArt({
+						id: id,
+						...postData,
+						postedAt:
+							postData.postedAt?.toDate()?.toISOString() || null, // Converts Firestore timestamp to ISO string
+					});
+
+					setUser({
+						...foundUser,
+						uid: userID, // Use captured user ID here
+					});
 				} else {
-					console.log("No such document!");
+					console.log("No such post found!");
 				}
 			} catch (error) {
 				console.error("Error fetching art or user:", error);
@@ -89,14 +107,14 @@ export default function Art() {
 						{art.title}
 					</h2>
 					<div className="flex flex-row gap-2 md:justify-start justify-center flex-wrap">
-						{art.themes.map((category, index) => (
+						{art.theme && (
 							<div
-								key={index}
+								key={art.theme}
 								className="text-white bg-primary px-[16px] py-[8px] rounded-[20px]"
 							>
-								{category}
+								{art.theme}
 							</div>
-						))}
+						)}
 					</div>
 				</div>
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { db } from "@/firebase/config";
-import { getDoc, doc, collection, query, where, getDocs } from "firebase/firestore";
+import { getDoc, doc, collection, getDocs } from "firebase/firestore";
 import { useAuth } from "@/context/authContext";
 import ArtCard from "@/components/ArtCard";
 
@@ -18,19 +18,51 @@ export async function getServerSideProps(context) {
 			user = { id: userDoc.id, ...userDoc.data() };
 		}
 
-		// Fetch user's posts
-		const postsRef = collection(db, "posts");
-		const q = query(postsRef, where("userID", "==", id));
-		const postSnap = await getDocs(q);
+		// Get all posts from the user's "posts" subcollection
+		const postsRef = collection(db, "users", id, "posts"); // User's posts subcollection
+		const postSnap = await getDocs(postsRef);
 		posts = postSnap.docs.map((doc) => {
 			const data = doc.data();
+			const postId = doc.id;
+
 			return {
-				id: doc.id,
+				id: postId,
+				userID: id, // We know the userID is the user's ID here
 				...data,
 				createdAt: data.createdAt?.toDate().toISOString() || null, // Convert Firestore Timestamp
-				postedAt: data.postedAt?.toDate().toISOString() || null,  // Ensure all timestamps are converted
+				postedAt: data.postedAt?.toDate().toISOString() || null, // Ensure all timestamps are converted
 			};
 		});
+
+		// Attach user data to each post (same method as in Explore page)
+		posts = await Promise.all(
+			posts.map(async (post) => {
+				try {
+					const userRef = doc(db, "users", post.userID);
+					const userDoc = await getDoc(userRef);
+					if (userDoc.exists()) {
+						const userData = userDoc.data();
+						post.user = {
+							name: userData.name || "Unknown User",
+							profileImage:
+								userData.profileImage || "/default-avatar.png",
+						};
+					} else {
+						console.warn(`No user found for ID: ${post.userID}`);
+						post.user = {
+							name: "Unknown User",
+							profileImage: "/default-avatar.png",
+						};
+					}
+				} catch (err) {
+					console.error(
+						`Error fetching user ${post.userID}:`,
+						err.message
+					);
+				}
+				return post;
+			})
+		);
 	} catch (error) {
 		console.error("Error fetching data:", error);
 	}
@@ -42,7 +74,6 @@ export async function getServerSideProps(context) {
 		},
 	};
 }
-
 
 export default function Profile({ user, posts }) {
 	const [selectedOption, setSelectedOption] = useState("My Artwork");
@@ -64,7 +95,10 @@ export default function Profile({ user, posts }) {
 					<h2 className="font-fraunces leading-9">{user.name}</h2>
 					<p>{user.bio}</p>
 					{currentUser?.email === user.email && (
-						<a className="font-roboto text-[16px] text-gray-700 pl-1 hover:underline hover:cursor-pointer" href="/profile/edit">
+						<a
+							className="font-roboto text-[16px] text-gray-700 pl-1 hover:underline hover:cursor-pointer"
+							href="/profile/edit"
+						>
 							Edit profile
 						</a>
 					)}
@@ -89,7 +123,12 @@ export default function Profile({ user, posts }) {
 				) : (
 					posts.map((post) => (
 						<div key={post.id} className="w-[300px]">
-							<ArtCard art={post} grid={true} />
+							<ArtCard
+								art={post}
+								grid={true}
+								artist={post.user}
+							/>{" "}
+							{/* Pass the user data to ArtCard */}
 						</div>
 					))
 				)}

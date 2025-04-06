@@ -15,7 +15,7 @@ export default function ArtCard({
 	const [loading, setLoading] = useState("init");
 	const [artist, setArtist] = useState(null); // Store user data
 
-	const { id, title, image, categories, themes, userID, date } = art;
+	const { id, title, image, theme, userID, date } = art; // Changed `categories` to `theme`
 
 	useEffect(() => {
 		if (!userID) return;
@@ -37,11 +37,11 @@ export default function ArtCard({
 	}, [userID]);
 
 	const heightClasses = [
-		"h-[170px]",
-		"h-[200px]",
-		"h-[230px]",
-		"h-[260px]",
-		"h-[290px]",
+		"h-[160px]",
+		"h-[190px]",
+		"h-[220px]",
+		"h-[250px]",
+		"h-[280px]",
 	];
 	const randomHeightClass =
 		heightClasses[Math.floor(Math.random() * heightClasses.length)];
@@ -91,34 +91,14 @@ export default function ArtCard({
 						className="w-full h-full absolute top-0 left-0"
 					/>
 
-					{/* Categories */}
-					{categories?.length > 0 && (
-						<div className="-translate-x-0.5">
-							<TagCarousel
-								tags={categories}
-								tagClassName="h-fit text-sm"
-							>
-								{categories.map((category) => (
-									<CategoryTag
-										key={category.id}
-										id={category.name}
-										className="text-sm transition-all duration-200 ease-in-out text-primary hover:bg-primary"
-									/>
-								))}
-							</TagCarousel>
-						</div>
-					)}
-
 					{/* Themes */}
-					{themes?.length > 0 && (
-						<TagCarousel tags={themes} tagClassName="text-sm">
-							{themes.map((theme) => (
-								<CategoryTag
-									key={theme}
-									id={theme}
-									className="text-sm transition-all duration-200 ease-in-out text-primary hover:bg-primary"
-								/>
-							))}
+					{theme && (
+						<TagCarousel tags={[theme]} tagClassName="text-sm">
+							<CategoryTag
+								key={theme}
+								id={theme}
+								className="text-sm transition-all duration-200 ease-in-out text-primary hover:bg-primary"
+							/>
 						</TagCarousel>
 					)}
 
