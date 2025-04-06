@@ -1,8 +1,6 @@
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { db } from "@/firebase/config";
-import { doc, getDoc } from "firebase/firestore";
 import CategoryTag from "./CategoryTag";
 import TagCarousel from "./TagCarousel";
 
@@ -12,29 +10,7 @@ export default function ArtCard({
 	simple = false,
 	className, // for fixed carousel heights
 }) {
-	const [loading, setLoading] = useState("init");
-	const [artist, setArtist] = useState(null); // Store user data
-
-	const { id, title, image, categories, themes, userID, date } = art;
-
-	useEffect(() => {
-		if (!userID) return;
-
-		const fetchUser = async () => {
-			try {
-				const userDoc = await getDoc(doc(db, "users", userID));
-				if (userDoc.exists()) {
-					setArtist(userDoc.data());
-				} else {
-					console.error("User not found");
-				}
-			} catch (error) {
-				console.error("Error fetching user:", error);
-			}
-		};
-
-		fetchUser();
-	}, [userID]);
+	const { id, title, image, categories, themes, userID, date, user } = art;
 
 	const heightClasses = [
 		"h-[170px]",
@@ -51,9 +27,6 @@ export default function ArtCard({
 			data-simple={simple}
 			className="group/art relative rounded-[20px] bg-white overflow-hidden"
 		>
-			{loading === "init" && (
-				<div className="bg-white w-full h-full absolute" />
-			)}
 			<div
 				data-simple={simple}
 				data-grid={grid}
@@ -67,16 +40,11 @@ export default function ArtCard({
 						alt={title}
 						src={image}
 						width={500}
-						height={0} //dynamic height
+						height={0}
 						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
 						placeholder="empty"
-						onError={(e) => {
-							setLoading("loaded");
-							e.target.remove();
-						}}
-						onLoad={() => setLoading("loaded")}
-						data-loading={loading}
-						className={`data-[loading=true]:bg-background_darkened object-cover w-full rounded-t group-data-[simple=true]:rounded bg-white ${className} ${randomHeightClass}`}
+						onError={(e) => e.target.remove()}
+						className={`object-cover w-full rounded-t group-data-[simple=true]:rounded bg-white ${className} ${randomHeightClass}`}
 					/>
 				</Link>
 				<div
@@ -134,10 +102,9 @@ export default function ArtCard({
 						>
 							<Image
 								src={
-									artist?.profileImage ||
-									"/default-avatar.png"
+									user?.profileImage || "/default-avatar.png"
 								}
-								alt={artist?.name || "Unknown User"}
+								alt={user?.name || "Unknown User"}
 								width={100}
 								height={100}
 								className="w-full h-full object-cover"
@@ -145,7 +112,7 @@ export default function ArtCard({
 						</div>
 						<div>
 							<p className="text-[16px] text-black font-fraunces">
-								{artist?.name || "Unknown User"}
+								{user?.name || "Unknown User"}
 							</p>
 							<p className="text-[12px] text-gray-500">
 								Posted {date}
