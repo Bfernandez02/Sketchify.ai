@@ -25,4 +25,4 @@ function formatDate(date) {
     return new Date(date).toLocaleDateString(undefined, options);
 }
 
-export {formatTimeAgo};
+export {formatTimeAgo, formatDate};
