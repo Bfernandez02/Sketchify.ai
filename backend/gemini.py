@@ -90,8 +90,10 @@ def generate_prompt():
     try:
         data = request.json
         image_data = data.get("image")
-        theme_data = data.get("theme", "minimalism")  # Default to minimalism if no theme provided
+        theme_data = data.get("theme", "Default")  # Default to minimalism if no theme provided
+        prompt_data = data.get("prompt","") # Retrive the additional prompt from the json data
         
+        print(f"Received prompt: {prompt_data}")
         print(f"Theme: {theme_data}")
 
         # Get theme info ONCE and use it consistently
@@ -147,7 +149,9 @@ def generate_prompt():
                         "content": [
                             {
                                 "type": "text",
-                                "text": theme_prompt
+                                "text": (theme_prompt)
+                              
+                                
                             },
                             {
                                 "type": "image_url",

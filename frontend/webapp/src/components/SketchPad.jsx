@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, use } from "react";
 import { CallApi } from "../../api/api";
 
 const DropdownMenu = ({ id, label, options, openDropdown, setOpenDropdown, onThemeChange }) => {
@@ -31,7 +31,7 @@ const DropdownMenu = ({ id, label, options, openDropdown, setOpenDropdown, onThe
                 if(onThemeChange){
                   onThemeChange(option);
                 }
-                //onThemeChange && onThemeChange(option); // Call parent handler
+             
               }}
             >
               {option}
@@ -55,6 +55,7 @@ const SketchPad = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentColor, setCurrentColor] = useState("#000000");
   const [ThemeData,Setheme] = useState("Default");
+  const [additonalPrompt, setAdditonalPrompt] = useState(" "); //state for additional prompt
 
 
   const getCanvasImage = () => canvasRef.current.toDataURL("image/png");
@@ -65,14 +66,11 @@ const SketchPad = () => {
     console.log(ThemeData)
   }
 
-  useEffect(() =>{ 
-    console.log("Current theme:",ThemeData);
-  },[ThemeData]);
-
   const HandleAPICall = async () => {
     setIsLoading(true);
     const ImageData = getCanvasImage();
-    const response = await CallApi(ImageData,ThemeData);
+    console.log("Additional Prompt:",additonalPrompt);
+    const response = await CallApi(ImageData,ThemeData,additonalPrompt);
 
     if (response) {
       const img = new Image();
@@ -91,17 +89,29 @@ const SketchPad = () => {
 
   const updateCanvasSize = () => {
     const canvas = canvasRef.current;
-    const aspectRatio = 700 / 1080;
-    canvas.style.height = `${canvas.clientWidth * aspectRatio}px`;
+    const container = canvas.parentElement;
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    
+    
+    const ctx = ctxRef.current;
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = currentColor;
   };
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-    canvas.width = 1080;
-    canvas.height = 700;
-    canvas.style.width = "100%";
-    updateCanvasSize();
+    const container = canvas.parentElement;
+    
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.lineWidth = lineWidth;
     ctx.lineCap = "round";
     ctx.strokeStyle = currentColor;
@@ -136,9 +146,11 @@ const SketchPad = () => {
 
   const getMousePos = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
+    const scaleX = canvasRef.current.width / rect.width;
+    const scaleY = canvasRef.current.height / rect.height;
     return {
-      x: ((e.clientX - rect.left) / rect.width) * canvasRef.current.width,
-      y: ((e.clientY - rect.top) / rect.height) * canvasRef.current.height,
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
     };
   };
 
@@ -234,6 +246,10 @@ const SketchPad = () => {
     return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
   };
 
+ useEffect(() => {
+  console.log("Prompt", additonalPrompt)
+ },[additonalPrompt])
+
   return (
       <div className="text-gray-900 flex flex-col md:flex-row items-center py-8 justify-center px-4">
         <div className="mt-6 flex flex-col md:flex-row md:gap-6 w-full">
@@ -292,17 +308,17 @@ const SketchPad = () => {
           </div>
 
           {/* Canvas */}
-          <div className="flex-1 border rounded-lg bg-white shadow-md relative w-full">
+          <div className="flex-1 border rounded-lg bg-white shadow-md relative w-full h-[700px]">
             <canvas
                 ref={canvasRef}
                 onMouseDown={startDrawing}
                 onMouseMove={draw}
                 onMouseUp={stopDrawing}
                 onMouseOut={stopDrawing}
-                className="rounded-lg border-black border-solid"
+                className="rounded-lg w-full h-full"
             ></canvas>
             {isLoading && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-10">
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-10 ">
                   <div className="w-12 h-12 border-4 border-t-4 border-gray-200 rounded-full animate-spin mb-4"></div>
                   <span className="text-white text-6xl font-fraunces">Enhancing....</span>
                 </div>
@@ -337,13 +353,15 @@ const SketchPad = () => {
             {/* textarea and dropdowns */}
             <textarea
                 className="border border-black placeholder-gray-500 px-3 py-2 rounded-lg bg-background w-full md:w-[300px] h-[250px] resize-none"
-                placeholder="Additional Prompts..."
+                placeholder="Additional Notes..."
+                onChange={e => setAdditonalPrompt(e.target.value)} // Update state on change
+                //value={additonalPrompt} // Bind state to textarea value
             ></textarea>
 
           <DropdownMenu
             id="theme"
             label="Theme"
-            options={["Realism", "Minimalism", "Nature"]}
+            options={["Realism", "Minimalism", "Abstract","Cartoon","Anime"]}
             openDropdown={openDropdown}
             setOpenDropdown={setOpenDropdown}
             onThemeChange={handleThemeChange}
