@@ -5,6 +5,7 @@ import { db } from "@/firebase/config";
 import { doc, getDoc } from "firebase/firestore";
 import CategoryTag from "./CategoryTag";
 import TagCarousel from "./TagCarousel";
+import { formatTimeAgo } from "@/utils/generalUtils";
 
 export default function ArtCard({
 	art,
@@ -15,7 +16,9 @@ export default function ArtCard({
 	const [loading, setLoading] = useState("init");
 	const [artist, setArtist] = useState(null); // Store user data
 
-	const { id, title, image, theme, userID, date } = art; // Changed `categories` to `theme`
+	const { id, title, image, theme, userID, createdAt } = art; // Changed `categories` to `theme`
+
+	const posted = formatTimeAgo(createdAt); // Format the date to a more readable format
 
 	useEffect(() => {
 		if (!userID) return;
@@ -45,6 +48,8 @@ export default function ArtCard({
 	];
 	const randomHeightClass =
 		heightClasses[Math.floor(Math.random() * heightClasses.length)];
+
+	console.log("ArtCard: ", art);
 
 	return (
 		<div
@@ -128,7 +133,7 @@ export default function ArtCard({
 								{artist?.name || "Unknown User"}
 							</p>
 							<p className="text-[12px] text-gray-500">
-								Posted {date}
+								Posted {posted} ago
 							</p>
 						</div>
 					</div>
