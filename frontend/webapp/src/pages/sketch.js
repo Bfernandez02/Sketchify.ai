@@ -2,8 +2,24 @@ import React from "react";
 import { NextSeo } from "next-seo";
 import SketchPad from "@/components/SketchPad";
 import pencil from "../../public/pencil.png";
+import { useAuth } from "@/context/authContext";
 
 export default function Sketch() {
+	const user = useAuth();
+
+	if (user.userLoggedIn === false) {
+		return (
+			<div className="flex flex-col items-center h-[75vh] pt-24">
+				<h1 className="text-5xl font-fraunces font-bold mb-8">
+					Log in to get started with Sketchify
+				</h1>
+				<a href="/sign-in" className="btn">
+					Log in
+				</a>
+			</div>
+		);
+	}
+
 	return (
 		<>
 			<NextSeo title="Sketch | Sketchify" />
