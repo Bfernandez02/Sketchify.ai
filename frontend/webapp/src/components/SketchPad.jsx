@@ -74,6 +74,8 @@ const SketchPad = () => {
 	const [ThemeData, Setheme] = useState("Default");
 	const [additonalPrompt, setAdditonalPrompt] = useState(" "); //state for additional prompt
 
+	// console.log(ThemeData);
+
 	const getCanvasImage = () => canvasRef.current.toDataURL("image/png");
 
 	// converts base64 string to Blob for firebase storage
@@ -159,21 +161,27 @@ const SketchPad = () => {
 			const postDoc = await addDoc(
 				collection(db, "users", user.uid, "posts"),
 				{
-					//add post to user's posts collection
-					title: additonalPrompt || "Untitled",
+					title:
+						additonalPrompt ||
+						`${user.name} ${ThemeData.toLowerCase()} sketch`,
 					drawing: originalURL,
 					image: enhancedURL,
 					createdAt: serverTimestamp(),
-					userID: user.uid,
-					themes: ThemeData,
+					theme: ThemeData.toLowerCase(),
 				}
 			);
 
-			// Update user with post reference
-			const userRef = doc(db, "users", user.uid);
-			await updateDoc(userRef, {
-				myPosts: arrayUnion(postDoc.id),
+			// Update the same doc with its own ID
+			await updateDoc(postDoc, {
+				id: postDoc.id,
 			});
+
+			// ---- dont think we want this but we can add it later, adds a myPosts array to the user
+			// // Update user with post reference
+			// const userRef = doc(db, "users", user.uid);
+			// await updateDoc(userRef, {
+			// 	myPosts: arrayUnion(postDoc.id),
+			// });
 
 			console.log("Post saved to Firestore with ID:", postDoc.id);
 		} catch (err) {
