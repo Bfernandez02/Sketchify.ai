@@ -11,6 +11,7 @@ from openai import OpenAI
 import traceback
 import binascii
 import json
+import re
 from themes import get_theme_prompt, THEMES
 
 load_dotenv()
@@ -45,10 +46,10 @@ def create_transformation_prompt(theme_name, theme_context, theme_prompt, user_p
     # Add style-specific enhancers for common themes to improve results
     style_enhancers = {
         "Minimalism": "clean lines, elegant simplicity, essential elements only, minimalist design",
-        "Abstract": "abstract art style, emotional expression through color and form",
-        "Realism": "photorealistic details, true-to-life lighting and textures",
-        "Anime": "anime style art, expressive eyes, vibrant colors, manga aesthetics",
-        "Cartoon": "cartoon style, bold outlines, exaggerated features, animated look",
+        "Abstract": "abstract interpretation, non-literal, expressive colors, emotional resonance, abstract art style, free-form shapes",
+        "Realism": "photorealistic details, true-to-life lighting and textures, accurate lighting and shadows, precise proportions, lifelike quality",
+        "Anime": "anime style art, expressive eyes, vibrant colors, manga aesthetics, dynamic poses",
+        "Cartoon": "cartoon style, bold outlines, exaggerated features, vibrant colors, playful aesthetic, whimsical elements, animated look",
         "Nature": "natural elements, organic forms, environmental harmony"
     }
     
@@ -63,14 +64,8 @@ def create_transformation_prompt(theme_name, theme_context, theme_prompt, user_p
     focus_points = theme_prompt.replace("Translate this sketch into", "Create")
     focus_points = focus_points.replace("description", "image")
     
-    # Create a transformation prompt that combines:
-    # 1. Clear instruction to transform the sketch
-    # 2. Key style elements from the theme context
-    # 3. Focus points from the theme prompt
-    # 4. Additional style enhancers for better results
-    # 5. User's additional prompt if provided
-    
-    transformation_prompt = f"Transform this sketch into a high-quality {theme_name} style image. "
+    # Create a content-preserving transformation prompt
+    transformation_prompt = f"Transform this sketch into a high-quality {theme_name} style image while preserving its key elements and composition. "
     
     # Add extracted style guidance from theme context
     if clean_context:
@@ -91,34 +86,37 @@ def create_transformation_prompt(theme_name, theme_context, theme_prompt, user_p
     
     # Add user prompt if provided
     if user_prompt:
-        transformation_prompt += f"Additional details: {user_prompt}"
-        
+        transformation_prompt += f"Additional details: {user_prompt}. "
+    
     return transformation_prompt
 
-def generate_creative_description(transformed_image_prompt, theme):
+def all_in_one_gemini_request(image_base64, theme_name, theme_context, theme_prompt, user_prompt=""):
     """
-    Generate a user-friendly description of the image that doesn't sound like a prompt.
+    Make a single Gemini API call that:
+    1. Analyzes the sketch
+    2. Creates a style-specific prompt
+    3. Generates a descriptive title
+    4. Creates a user-friendly description
     """
     client = get_client()
     
-    description_prompt = f"""
-    Based on this image generation prompt:
-    "{transformed_image_prompt}"
+    # Create a prompt that requests multiple outputs in a structured format
+    all_in_one_prompt = f"""
+    You are an expert AI art assistant tasked with analyzing a sketch and providing information for style transformation.
     
-    Write a brief, engaging description (2-3 sentences) of the resulting image that a user would 
-    enjoy reading. Make it sound like you're describing a finished artwork, not like you're giving 
-    instructions to an AI.
+    First, examine the sketch carefully and identify exactly what is drawn.
     
-    The description should:
-    1. Focus on the visual elements and subject matter
-    2. Mention the {theme} style in a natural way
-    3. Sound like a gallery description or social media caption
-    4. Be written in present tense, describing what IS in the image
-    5. Avoid phrases like "this sketch depicts" or "this image shows"
+    Then, provide the following information in this exact format:
     
-    Example of good description:
-    "A serene mountain lake reflects the sunset sky, with golden light catching the peaks. The minimalist 
-    style emphasizes clean lines and essential elements, creating a tranquil scene of natural beauty."
+    SKETCH_CONTENT: [Write a detailed factual analysis of what's in the sketch - objects, figures, composition]
+    
+    TRANSFORMATION_PROMPT: [Create a detailed prompt to transform this sketch into {theme_name} style while preserving the original content. Use these style elements: {theme_context}]
+    
+    TITLE: [Create a memorable, specific 3-6 word title that focuses on the actual content of the sketch, NOT mentioning "{theme_name}", "art", "sketch" or "AI"]
+    
+    DESCRIPTION: [Write a brief, engaging 2-3 sentence description of how the sketch would look when transformed into {theme_name} style. Make it sound like a gallery caption, focusing on the actual content while mentioning the style elements]
+    
+    Follow this format exactly. Each section should be on its own line, with the exact labels as shown.
     """
     
     try:
@@ -128,125 +126,69 @@ def generate_creative_description(transformed_image_prompt, theme):
             messages=[
                 {
                     "role": "system",
-                    "content": "You write engaging, concise descriptions of artwork for users to read."
+                    "content": "You analyze sketches and provide detailed information for style transformation, titles, and descriptions."
                 },
                 {
                     "role": "user",
-                    "content": description_prompt
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": all_in_one_prompt
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/png;base64,{image_base64}"}
+                        }
+                    ]
                 }
             ]
         )
         
-        description = response.choices[0].message.content.strip()
+        full_response = response.choices[0].message.content.strip()
+        print(f"Full Gemini response: {full_response}")
         
-        # Clean up any quotation marks that might have been included
+        # Extract the different sections using regex
+        sketch_content_match = re.search(r'SKETCH_CONTENT:\s*(.*?)(?=\n\n[A-Z_]+:|$)', full_response, re.DOTALL)
+        transformation_match = re.search(r'TRANSFORMATION_PROMPT:\s*(.*?)(?=\n\n[A-Z_]+:|$)', full_response, re.DOTALL)
+        title_match = re.search(r'TITLE:\s*(.*?)(?=\n\n[A-Z_]+:|$)', full_response, re.DOTALL)
+        description_match = re.search(r'DESCRIPTION:\s*(.*?)(?=\n\n[A-Z_]+:|$)', full_response, re.DOTALL)
+        
+        # Extract the matches or use defaults
+        sketch_content = sketch_content_match.group(1).strip() if sketch_content_match else "A sketch"
+        transformation_prompt = transformation_match.group(1).strip() if transformation_match else create_transformation_prompt(theme_name, theme_context, theme_prompt, user_prompt)
+        title = title_match.group(1).strip() if title_match else f"{theme_name} Creation"
+        description = description_match.group(1).strip() if description_match else f"A {theme_name.lower()} style artwork based on the sketch."
+        
+        # Clean up any quotation marks
+        title = title.strip('"\'')
         description = description.strip('"\'')
         
-        return description
+        return {
+            "sketch_content": sketch_content,
+            "transformation_prompt": transformation_prompt,
+            "title": title,
+            "description": description
+        }
     except Exception as e:
-        logging.error(f"Error generating creative description: {e}")
-        # Fallback option - create a simple description based on theme
-        return f"A creative {theme.lower()} style artwork based on your original sketch."
-
-def generate_title(image_description, theme):
-    """
-    Generate a descriptive title based on the image description.
-    """
-    client = get_client()
-    
-    title_prompt = f"""
-    Based on this image description:
-    "{image_description}"
-    
-    Create a short, creative title (3-6 words) that captures the essence of the image.
-    
-    The title should:
-    1. Focus on the main subject or feeling of the image
-    2. Be memorable and interesting
-    3. NOT include words like "sketch", "AI", "generated", or "{theme}"
-    4. NOT be generic like "Beautiful Landscape" or "Artistic Creation"
-    
-    Return ONLY the title, with no quotes or explanation.
-    """
-    
-    try:
-        response = client.chat.completions.create(
-            model=gemini_model,
-            temperature=0.6,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You create concise, creative titles for artwork."
-                },
-                {
-                    "role": "user",
-                    "content": title_prompt
-                }
-            ],
-            max_tokens=10
-        )
+        logging.error(f"Error in all_in_one_gemini_request: {e}")
+        traceback.print_exc()
         
-        title = response.choices[0].message.content.strip()
+        # Fallback to manual prompt creation
+        transformation_prompt = create_transformation_prompt(theme_name, theme_context, theme_prompt, user_prompt)
         
-        # Clean up any quotation marks that might have been included
-        title = title.strip('"\'')
-        
-        # Check if title is too generic or contains theme name
-        if (len(title.split()) < 2 or 
-            theme.lower() in title.lower() or 
-            any(word in title.lower() for word in ["ai", "sketch", "art", "creation", "generated"])):
-            
-            # Try one more time with stronger instructions
-            retry_prompt = f"""
-            Create a SPECIFIC and CREATIVE title (3-6 words) for this image: "{image_description}"
-            
-            DO NOT use generic words or include "{theme}", "AI", "sketch", or "art".
-            Focus on the EXACT subject matter and feeling. Be precise and imaginative.
-            
-            Examples of good titles: "Moonlit Mountain Journey", "Whispering Forest Spirits", "Neon City Dreams"
-            Examples of bad titles: "Beautiful Art", "Creative Sketch", "Amazing {theme}"
-            
-            Return ONLY the title with no explanation.
-            """
-            
-            retry_response = client.chat.completions.create(
-                model=gemini_model,
-                temperature=0.7,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You create specific, creative titles focusing on exact content."
-                    },
-                    {
-                        "role": "user",
-                        "content": retry_prompt
-                    }
-                ],
-                max_tokens=10
-            )
-            
-            title = retry_response.choices[0].message.content.strip().strip('"\'')
-        
-        return title
-    except Exception as e:
-        logging.error(f"Error generating title: {e}")
-        
-        # Extract potential keywords from the description as fallback
-        try:
-            words = image_description.split()
-            if len(words) >= 3:
-                return " ".join(words[0:3])
-            else:
-                return f"{theme} Creation"
-        except:
-            return f"{theme} Creation"
+        return {
+            "sketch_content": "A sketch",
+            "transformation_prompt": transformation_prompt,
+            "title": f"{theme_name} Creation",
+            "description": f"A {theme_name.lower()} style artwork based on the sketch."
+        }
 
 @app.route('/', methods=['GET'])
 def home():
     return jsonify({
-        "message": "Welcome to Sketchify.ai One-Pass API",
+        "message": "Welcome to Sketchify.ai Single-Call API",
         "endpoints": [
-            {"path": "/generate-prompt", "method": "POST", "description": "Generate an image from a sketch using direct Imagen transformation"}
+            {"path": "/generate-prompt", "method": "POST", "description": "Generate an image from a sketch with a single API call"}
         ]
     })
 
@@ -274,7 +216,9 @@ def test():
 @app.route('/generate-prompt', methods=['POST'])
 def generate_prompt():
     """
-    One-pass image generation directly from a sketch using Imagen
+    All-in-one image generation endpoint using just two API calls:
+    1. Gemini (for analysis, prompt, title, and description)
+    2. Imagen (for image generation)
     """
     try:
         data = request.json
@@ -324,17 +268,27 @@ def generate_prompt():
             # Get client
             client = get_client()
             
-            # Create the transformation prompt using theme information from themes.py
-            transformation_prompt = create_transformation_prompt(
+            # STEP 1: Single call to Gemini for analysis, prompt, title, and description
+            gemini_response = all_in_one_gemini_request(
+                image_base64=clean_base64,
                 theme_name=theme_data,
                 theme_context=theme_context,
                 theme_prompt=theme_prompt,
                 user_prompt=prompt_data
             )
             
-            print(f"Transformation prompt: {transformation_prompt}")
+            # Extract the components from the response
+            sketch_content = gemini_response["sketch_content"]
+            transformation_prompt = gemini_response["transformation_prompt"]
+            title = gemini_response["title"]
+            description = gemini_response["description"]
             
-            # Generate image directly using Imagen
+            print(f"Sketch content: {sketch_content}")
+            print(f"Transformation prompt: {transformation_prompt}")
+            print(f"Title: {title}")
+            print(f"Description: {description}")
+            
+            # STEP 2: Generate image using Imagen
             imagen_response = client.images.generate(
                 model=imagen_model,
                 prompt=transformation_prompt,
@@ -345,19 +299,11 @@ def generate_prompt():
             # Extract the image
             img_base64 = imagen_response.data[0].b64_json
             
-            # Generate a user-friendly description for the image
-            user_description = generate_creative_description(transformation_prompt, theme_data)
-            print(f"Generated user description: {user_description}")
-            
-            # Generate a creative title based on the description
-            title = generate_title(user_description, theme_data)
-            print(f"Generated title: {title}")
-            
             # Return the response format expected by the client
             return jsonify({
                 "image": img_base64,
-                "description": user_description,  # User-friendly description
-                "prompt": user_description[:100] + "..." if len(user_description) > 100 else user_description,
+                "description": description,
+                "prompt": description[:100] + "..." if len(description) > 100 else description,
                 "title": title
             }), 200
             
