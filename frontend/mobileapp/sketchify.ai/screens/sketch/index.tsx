@@ -2,14 +2,14 @@ import React, { useRef, useState } from 'react';
 import { SafeAreaView, View, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useColorScheme } from '@/hooks/useColorScheme';
-
 import Canvas from './components/Canvas';
 import ToolsPanel from './components/ToolsPanel';
 import BrushSettings from './components/BrushSettings';
 import Toolbar from './components/Toolbar';
 import ThemeSelector from './components/ThemeSelector';
 
-// Hooks
+import { ThemeType, DEFAULT_THEME } from '@/types/themes';
+
 import useDrawing from './hooks/useDrawing';
 import useImageProcessing from './hooks/useImageProcessing';
 import { styles } from './styles';
@@ -21,7 +21,7 @@ export default function SketchScreen() {
 
   const [isColorPanelOpen, setIsColorPanelOpen] = useState(false);
   const [isBrushSettingsOpen, setIsBrushSettingsOpen] = useState(false);
-  const [selectedTheme, setSelectedTheme] = useState<'minimalism' | 'realism' | 'nature'>('minimalism');
+  const [selectedTheme, setSelectedTheme] = useState<ThemeType>(DEFAULT_THEME);
 
   const {
     paths,
@@ -35,7 +35,13 @@ export default function SketchScreen() {
     handleStrokeWidthChange,
   } = useDrawing();
 
-  const { isLoading, handleProcess } = useImageProcessing(viewShotRef, paths, currentPath);
+  // Pass selectedTheme to the useImageProcessing hook
+  const { isLoading, handleProcess } = useImageProcessing(
+    viewShotRef, 
+    paths, 
+    currentPath,
+    selectedTheme
+  );
 
   const toggleColorPanel = () => {
     setIsColorPanelOpen(!isColorPanelOpen);
@@ -47,7 +53,7 @@ export default function SketchScreen() {
     setIsColorPanelOpen(false);
   };
 
-  const handleThemeSelect = (theme: 'minimalism' | 'realism' | 'nature') => {
+  const handleThemeSelect = (theme: ThemeType) => {
     setSelectedTheme(theme);
   };
 

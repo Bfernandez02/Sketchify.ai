@@ -3,37 +3,19 @@ import {
   View,
   Text,
   Image,
-  Dimensions,
   TouchableOpacity,
   Animated,
 } from 'react-native';
 import PagerView from 'react-native-pager-view';
+import { ThemeType, THEMES } from '@/types/themes';
 import { styles } from './styles';
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
 interface ThemeSelectorProps {
-  selectedTheme: string;
-  onSelectTheme: (theme: 'minimalism' | 'realism' | 'nature') => void;
+  selectedTheme: ThemeType;
+  onSelectTheme: (theme: ThemeType) => void;
 }
-
-const themes = [
-  {
-    id: 'minimalism',
-    label: 'Minimalism',
-    image: require('@/assets/images/min.jpg'),
-  },
-  {
-    id: 'realism',
-    label: 'Realism',
-    image: require('@/assets/images/rea.jpg'),
-  },
-  {
-    id: 'nature',
-    label: 'Nature',
-    image: require('@/assets/images/abs.jpg'),
-  },
-];
 
 export default function ThemeSelector({
   selectedTheme,
@@ -41,13 +23,13 @@ export default function ThemeSelector({
 }: ThemeSelectorProps) {
   const pagerRef = useRef<PagerView>(null);
   const [activePage, setActivePage] = useState(
-    themes.findIndex((theme) => theme.id === selectedTheme) || 0
+    THEMES.findIndex((theme) => theme.id === selectedTheme) || 0
   );
 
   const handlePageChange = (event: any) => {
     const newPage = event.nativeEvent.position;
     setActivePage(newPage);
-    onSelectTheme(themes[newPage].id as 'minimalism' | 'realism' | 'nature');
+    onSelectTheme(THEMES[newPage].id);
   };
 
   return (
@@ -59,7 +41,7 @@ export default function ThemeSelector({
         orientation='horizontal'
         onPageSelected={handlePageChange}
       >
-        {themes.map((theme) => (
+        {THEMES.map((theme) => (
           <View key={theme.id} style={styles.pageContainer}>
             <View style={styles.themeCard}>
               <Image source={theme.image} style={styles.themeImage} />
@@ -71,7 +53,7 @@ export default function ThemeSelector({
       </AnimatedPagerView>
 
       <View style={styles.paginationContainer}>
-        {themes.map((theme, index) => (
+        {THEMES.map((theme, index) => (
           <TouchableOpacity
             key={theme.id}
             style={[

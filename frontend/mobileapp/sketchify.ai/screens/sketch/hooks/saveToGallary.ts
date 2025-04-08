@@ -2,15 +2,13 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/
 import { collection, doc, setDoc, getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { SketchPost } from '@/types/sketch';
+import { ThemeType, DEFAULT_THEME } from '@/types/themes';
 
-/**
- * Save images to Firebase with React Native compatible approach
- */
 export const saveToGallery = async (
   base64Image: string,
   originalDrawing: string,
   prompt: string,
-  theme: "minimalism" | "realism" | "nature" = "minimalism",
+  theme: ThemeType = DEFAULT_THEME,
   title: string = "My Sketch"
 ): Promise<string> => {
   try {

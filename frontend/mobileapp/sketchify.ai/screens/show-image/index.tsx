@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   SafeAreaView, 
   View, 
@@ -13,7 +13,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import PagerView from 'react-native-pager-view';
-import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { styles } from './styles';
 
 const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
@@ -30,12 +30,48 @@ export default function ShowImageScreen() {
   const imageWidth = width * 0.9;
   const imageHeight = imageWidth;
 
-  // Extract the parameters
-  const { imageUrl, drawingUrl, promptText, title, theme } = params;
+  // Extract the parameters - Check for all possible param names
+  const { 
+    imageUrl, 
+    imageData, // Base64 fallback for enhanced image
+    drawingUrl,
+    drawingData, // Base64 fallback for original drawing
+    promptText, 
+    title, 
+    theme 
+  } = params;
+
+  // Enhanced image source (prefer URL, fall back to base64)
+  const enhancedImageSource = imageUrl 
+    ? { uri: fixFirebaseStorageUrl(imageUrl as string) }
+    : imageData 
+      ? { uri: imageData.toString().startsWith('data:') 
+          ? imageData as string 
+          : `data:image/png;base64,${imageData}` }
+      : null;
+
+  // Original drawing source (prefer URL, fall back to base64)
+  const originalDrawingSource = drawingUrl 
+    ? { uri: fixFirebaseStorageUrl(drawingUrl as string) }
+    : drawingData 
+      ? { uri: drawingData.toString().startsWith('data:') 
+          ? drawingData as string 
+          : `data:image/png;base64,${drawingData}` }
+      : null;
+
+  // Debug the params
+  useEffect(() => {
+    console.log("ShowImageScreen params:", Object.keys(params));
+    console.log("Enhanced image source:", enhancedImageSource ? "Available" : "Not available");
+    console.log("Original drawing source:", originalDrawingSource ? "Available" : "Not available");
+  }, []);
 
   // Function to properly encode Firebase Storage URLs
   function fixFirebaseStorageUrl(url: string): string {
     try {
+      // Skip base64 data
+      if (url.startsWith('data:')) return url;
+      
       const regex = /\/o\/([^?]+)/;
       const match = url.match(regex);
       if (match && match[1]) {
@@ -50,10 +86,6 @@ export default function ShowImageScreen() {
     }
   }
 
-  // Properly encode the URLs
-  const encodedImageUrl = imageUrl ? fixFirebaseStorageUrl(imageUrl as string) : null;
-  const encodedDrawingUrl = drawingUrl ? fixFirebaseStorageUrl(drawingUrl as string) : null;
-
   const handleBack = () => {
     router.back();
   };
@@ -66,7 +98,7 @@ export default function ShowImageScreen() {
     router.push('/(tabs)/sketch');
   };
 
-  const handlePageChange = (event) => {
+  const handlePageChange = (event : any) => {
     setCurrentPage(event.nativeEvent.position);
   };
 
@@ -158,16 +190,16 @@ export default function ShowImageScreen() {
           initialPage={1} // Start on AI image (right page)
           orientation="horizontal"
           onPageSelected={handlePageChange}
-          // transitionStyle="scroll" // Smooth scrolling transition
         >
+          {/* Page 0: Original Drawing */}
           <View key="0" style={styles.page}>
-            (
+            {originalDrawingSource ? (
               <View style={[styles.drawingContainer, { width: imageWidth, height: imageWidth * 0.7 }]}>
                 {originalLoading && (
                   <ActivityIndicator size="small" color="#666" style={styles.loader} />
                 )}
                 <Image
-                  source={{ uri: encodedDrawingUrl }}
+                  source={originalDrawingSource}
                   style={[styles.drawingImage, { width: imageWidth * 0.9, height: imageWidth * 0.6 }]}
                   resizeMode="contain"
                   onLoadStart={() => setOriginalLoading(true)}
@@ -179,19 +211,24 @@ export default function ShowImageScreen() {
                   }}
                 />
               </View>
-            )
+            ) : (
+              <View style={styles.noImageContainer}>
+                <Ionicons name="image-outline" size={48} color="#CCCCCC" />
+                <Text style={styles.noImageText}>No original image available</Text>
+              </View>
+            )}
             <Text style={styles.sectionTitle}>Original Sketch</Text>
           </View>
 
           {/* Page 1: AI-Generated Image */}
           <View key="1" style={styles.page}>
-            {encodedImageUrl ? (
+            {enhancedImageSource ? (
               <View style={styles.imageContainer}>
                 {enhancedLoading && (
                   <ActivityIndicator size="large" color="#666" style={styles.loader} />
                 )}
                 <Image
-                  source={{ uri: encodedImageUrl }}
+                  source={enhancedImageSource}
                   style={[styles.image, { width: imageWidth, height: imageHeight }]}
                   resizeMode="contain"
                   onLoadStart={() => setEnhancedLoading(true)}
@@ -206,7 +243,7 @@ export default function ShowImageScreen() {
             ) : (
               <View style={styles.noImageContainer}>
                 <Ionicons name="image-outline" size={48} color="#CCCCCC" />
-                <Text style={styles.noImageText}>No image available</Text>
+                <Text style={styles.noImageText}>No enhanced image available</Text>
               </View>
             )}
             {/* Prompt and Theme below AI image */}
