@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { PanResponder, Alert, GestureResponderEvent } from 'react-native';
-import { DrawingPath, Point } from '../types';
+import { DrawingPath, Point } from '@/types/sketch';
 import { DEFAULT_STROKE_WIDTH, DEFAULT_STROKE_COLOR, MIN_STROKE_WIDTH, MAX_STROKE_WIDTH } from '../constants';
 
 /**
@@ -19,6 +19,21 @@ const useDrawing = () => {
     return { x: locationX, y: locationY };
   };
 
+  // Helper to convert points to SVG path
+  const pointsToPath = (points: Point[]): string => {
+    if (points.length === 0) return '';
+    
+    // Start with move to first point
+    let path = `M ${points[0].x} ${points[0].y}`;
+    
+    // Add line to each subsequent point
+    for (let i = 1; i < points.length; i++) {
+      path += ` L ${points[i].x} ${points[i].y}`;
+    }
+    
+    return path;
+  };
+
   // Handle start of the drawing
   const handleDrawStart = useCallback((evt: GestureResponderEvent) => {
     const point = getLocationCoordinates(evt);
@@ -27,6 +42,7 @@ const useDrawing = () => {
       color: strokeColor,
       width: strokeWidth,
       points: [point],
+      opacity: 1,
     });
   }, [strokeColor, strokeWidth]);
 
@@ -34,7 +50,7 @@ const useDrawing = () => {
   const handleDrawMove = useCallback((evt: GestureResponderEvent) => {
     const point = getLocationCoordinates(evt);
     setCurrentPath(prev => {
-      if (!prev) return prev;
+      if (!prev || !prev.points) return prev;
       
       const lastPoint = prev.points[prev.points.length - 1];
       const dx = point.x - lastPoint.x;
@@ -44,9 +60,11 @@ const useDrawing = () => {
       // Only add points if they're a certain distance away (prevents too many points)
       if (distance > 2) {
         console.log("Adding point at distance", distance);
+        const newPoints = [...prev.points, point];
         return {
           ...prev,
-          points: [...prev.points, point],
+          points: newPoints,
+          path: pointsToPath(newPoints), // Update path string
         };
       }
       return prev;
@@ -57,9 +75,16 @@ const useDrawing = () => {
   const handleDrawEnd = useCallback(() => {
     console.log("Drawing ended");
     setCurrentPath(prev => {
-      if (prev && prev.points.length > 1) {
+      if (prev && prev.points && prev.points.length > 1) {
         console.log("Completed path with", prev.points.length, "points");
-        setPaths(prevPaths => [...prevPaths, prev]);
+        
+        // Ensure the final path has both points and path string
+        const finalPath = {
+          ...prev,
+          path: prev.path || pointsToPath(prev.points),
+        };
+        
+        setPaths(prevPaths => [...prevPaths, finalPath]);
       }
       return null;
     });

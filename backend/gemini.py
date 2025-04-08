@@ -10,7 +10,6 @@ import requests
 from openai import OpenAI
 import traceback
 import binascii
-
 import requests
 import json
 from themes import get_theme_prompt
@@ -34,14 +33,102 @@ api_key = os.getenv("GEMINI_API_KEY")
 gemini_model = "gemini-2.0-flash" 
 imagen_model = "imagen-3.0-generate-002" 
 
-# Initialize OpenAI client with Gemini API base URL
 def get_client():
     return OpenAI(
         api_key=api_key,
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
     )
 
-# Endpoints
+def generate_title_from_description(description, theme):
+    """
+    Generate a descriptive title based on the actual content of the image description.
+    """
+    client = get_client()
+    
+    prompt = f"""
+    Analyze this image description and create a specific, descriptive title (4-8 words) that focuses on the EXACT SUBJECT and CONTENT of the image. 
+    
+    DO NOT use generic phrases like "AI-enhanced", "Artistic", "Creative" or "{theme}" in the title.
+    
+    Description: "{description}"
+    
+    Instructions:
+    1. Identify the MAIN SUBJECT of the image (person, animal, landscape, object, etc.)
+    2. Include specific details about what the subject is DOING or what makes it UNIQUE
+    3. Create a title that would help someone visualize the EXACT image without seeing it
+    4. Avoid mentioning AI, sketches, or the theme/style - focus only on the actual content
+    
+    Return ONLY the title text without quotes or additional explanation.
+    """
+    
+    try:
+        response = client.chat.completions.create(
+            model=gemini_model,
+            temperature=0.4,  # Lower temperature for more precise output
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a precise image captioning system that creates specific, descriptive titles focusing on the exact content of images."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            max_tokens=15  # Keep it concise
+        )
+        
+        title = response.choices[0].message.content.strip()
+        # Remove quotes if present
+        title = title.strip('"\'')
+        
+        # If the title is still generic, extract key elements from description as fallback
+        if any(generic in title.lower() for generic in ["ai", "sketch", "art", "creative", "artistic", theme.lower()]):
+            # Try one more time with stronger instructions
+            retry_prompt = f"""
+            The image description is: "{description}"
+            
+            Create a VERY SPECIFIC title about the EXACT subject and content. 
+            ABSOLUTELY NO mentions of AI, art styles, or "{theme}".
+            Focus ONLY on what is literally depicted (e.g., "Mountain Lake at Sunset", "Fox Hunting in Snow").
+            """
+            
+            retry_response = client.chat.completions.create(
+                model=gemini_model,
+                temperature=0.2,  # Even lower temperature
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You create literal, specific image titles based only on content."
+                    },
+                    {
+                        "role": "user",
+                        "content": retry_prompt
+                    }
+                ],
+                max_tokens=15
+            )
+            
+            title = retry_response.choices[0].message.content.strip().strip('"\'')
+        
+        return title
+    except Exception as e:
+        logging.error(f"Error generating title: {e}")
+        # Extract key nouns from description as fallback
+        try:
+            # Use a simpler prompt to get key subject
+            key_elements_prompt = f"What is the main subject of this image: {description[:100]}? Answer in 2-4 words ONLY."
+            simple_response = client.chat.completions.create(
+                model=gemini_model,
+                temperature=0.1,
+                messages=[{"role": "user", "content": key_elements_prompt}],
+                max_tokens=10
+            )
+            subject = simple_response.choices[0].message.content.strip().strip('"\'')
+            return subject
+        except:
+            return f"{theme.capitalize()} Scene"  # Ultimate fallback
+
 @app.route('/', methods=['GET'])
 def home():
     return jsonify({
@@ -176,13 +263,13 @@ def generate_prompt():
             # Extract the image
             img_base64 = imagen_response.data[0].b64_json
             
-            # Optional: include title and prompt based on the description
-            title = f"AI Enhanced Sketch ({theme_data.capitalize()})"
+            # Generate a creative title based on the description
+            title = generate_title_from_description(description, theme_data)
             
             return jsonify({
                 "image": img_base64,
                 "description": description,
-                "prompt": description[:100] + "...",  # Shortened version as prompt
+                "prompt": description[:100] + "...",  
                 "title": title
             }), 200
             

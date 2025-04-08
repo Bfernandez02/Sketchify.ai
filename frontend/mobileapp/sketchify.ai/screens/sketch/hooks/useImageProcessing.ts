@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import axios from "axios";
 import { useRouter } from 'expo-router';
-import { DrawingPath, ApiResponse, ApiErrorResponse } from '../types';
+import { DrawingPath, ApiResponse, ApiErrorResponse } from '@/types/sketch';
+import { ThemeType, DEFAULT_THEME } from '@/types/themes';
 import { API_BASE_URL } from '../constants';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-import { saveToGallery } from './saveToGallary'
+import { saveToGallery } from './saveToGallary';
 
-const callApi = async (imageData: string, theme: string = "minimalism"): Promise<ApiResponse | ApiErrorResponse> => {
+const callApi = async (imageData: string, theme: ThemeType = DEFAULT_THEME): Promise<ApiResponse | ApiErrorResponse> => {
   try {
     const cleanImageData = imageData.includes('base64,') 
       ? imageData
@@ -44,12 +45,18 @@ const isErrorResponse = (response: ApiResponse | ApiErrorResponse): response is 
 const useImageProcessing = (
   viewShotRef: React.RefObject<any>,
   paths: DrawingPath[],
-  currentPath: DrawingPath | null
+  currentPath: DrawingPath | null,
+  selectedTheme: ThemeType = DEFAULT_THEME
 ) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
   
+/**
+ * Process the sketch drawing and enhance it with AI
+ */
+// Inside useImageProcessing hook
+
 /**
  * Process the sketch drawing and enhance it with AI
  */
@@ -86,9 +93,9 @@ const handleProcess = async (): Promise<void> => {
     
     console.log("Converted to base64, length:", manipResult.base64.length);
     
-    // Call API to enhance the image
-    console.log("Calling API...");
-    const response = await callApi(manipResult.base64);
+    // Call API to enhance the image - pass the selected theme
+    console.log("Calling API with theme:", selectedTheme);
+    const response = await callApi(manipResult.base64, selectedTheme);
     
     if (isErrorResponse(response)) {
       throw new Error(response.error);
@@ -99,7 +106,8 @@ const handleProcess = async (): Promise<void> => {
     // Use response data or defaults
     const promptText = response.prompt || "Enhanced sketch";
     const title = response.title || "My AI Enhanced Sketch";
-    const theme: "minimalism" | "realism" | "nature" = "minimalism";
+    // Use the selected theme
+    const theme = selectedTheme;
     
     try {
       // Try to save to Firebase
@@ -114,11 +122,12 @@ const handleProcess = async (): Promise<void> => {
       
       console.log("Successfully saved to gallery with URL:", enhancedImageUrl);
       
-      // Navigate to show-image page with URLs
+      // Navigate to show-image page with URLs and make sure to include drawingData
       router.push({
         pathname: '/show-image',
         params: {
           imageUrl: enhancedImageUrl,
+          // Original drawing - pass both URL and data as fallback
           drawingData: manipResult.base64, 
           promptText: promptText,
           title: title,
@@ -133,7 +142,8 @@ const handleProcess = async (): Promise<void> => {
       router.push({
         pathname: '/show-image',
         params: {
-          imageData: response.image, // Use base64 data directly
+          imageData: response.image, // Enhanced image as base64
+          drawingData: manipResult.base64, // Original drawing as base64
           promptText: promptText,
           title: title,
           theme: theme
