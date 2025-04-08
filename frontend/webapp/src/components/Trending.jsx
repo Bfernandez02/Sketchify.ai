@@ -4,7 +4,7 @@ import min from "../../public/min.jpg";
 import rea from "../../public/rea.jpg";
 import Image from "next/image";
 
-export default function Trending() {
+export default function Trending({ onThemeSelect }) {
 	const trendingThemes = [
 		{ name: "Nature", image: abs },
 		{ name: "Minimalism", image: min },
@@ -12,8 +12,15 @@ export default function Trending() {
 	];
 
 	const [selectedTheme, setSelectedTheme] = useState("");
-	const reset = () => setSelectedTheme("");
+	const reset = () => {
+		setSelectedTheme("");
+		onThemeSelect("");
+	};
 
+	const handleThemeSelect = (themeName) => {
+		setSelectedTheme(themeName);
+		onThemeSelect(themeName);
+	};
 	return (
 		<div className="max-w-[1280px] mx-auto p-4">
 			<h2 className="font-fraunces text-4xl pb-4 md:text-left text-center">
@@ -24,9 +31,8 @@ export default function Trending() {
 					<div
 						key={index}
 						className="md:w-[400px] md:h-[200px] w-full h-[120px] rounded-[20px] relative overflow-hidden hover:scale-[98%] transition-transform duration-300 hover:cursor-pointer"
-						onClick={() => setSelectedTheme(theme.name)}
+						onClick={() => handleThemeSelect(theme.name)}
 					>
-						{/* Image */}
 						<Image
 							className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
 							src={theme.image.src}
@@ -34,11 +40,7 @@ export default function Trending() {
 							width={800}
 							height={400}
 						/>
-
-						{/* Dark Overlay Mask */}
 						<div className="absolute inset-0 bg-black opacity-60"></div>
-
-						{/* Centered Text */}
 						<h3 className="absolute inset-0 flex items-center justify-center font-fraunces text-4xl text-white ">
 							{theme.name}
 						</h3>
