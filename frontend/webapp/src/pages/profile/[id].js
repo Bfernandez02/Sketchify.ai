@@ -16,6 +16,7 @@ export async function getServerSideProps(context) {
 		const userDoc = await getDoc(doc(db, "users", id));
 		if (userDoc.exists()) {
 			user = { id: userDoc.id, ...userDoc.data() };
+			console.log(user);
 		}
 
 		// Get all posts from the user's "posts" subcollection
@@ -79,6 +80,7 @@ export default function Profile({ user, posts }) {
 	const [selectedOption, setSelectedOption] = useState("My Artwork");
 	const { currentUser } = useAuth();
 
+	console.log("posts", posts);
 	if (!user) return <p>User not found</p>;
 
 	return (
@@ -128,7 +130,6 @@ export default function Profile({ user, posts }) {
 								grid={true}
 								artist={post.user}
 							/>{" "}
-							{/* Pass the user data to ArtCard */}
 						</div>
 					))
 				)}
