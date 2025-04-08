@@ -1,6 +1,16 @@
 import React, { useRef, useState, useEffect } from "react";
 import { CallApi } from "../../api/api";
 import { useAuth } from "@/context/authContext";
+import { storage, db } from "@/firebase/config";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import {
+	doc,
+	addDoc,
+	collection,
+	serverTimestamp,
+	arrayUnion,
+	updateDoc,
+} from "firebase/firestore";
 
 const DropdownMenu = ({
 	id,
@@ -16,9 +26,6 @@ const DropdownMenu = ({
 	const handleToggle = () => {
 		setOpenDropdown(isOpen ? null : id);
 	};
-
-	const currentUser = useAuth();
-	console.log(currentUser);
 
 	return (
 		<div className="relative w-full md:w-[300px]">
@@ -69,6 +76,22 @@ const SketchPad = () => {
 
 	const getCanvasImage = () => canvasRef.current.toDataURL("image/png");
 
+	// converts base64 string to Blob for firebase storage
+	const base64ToBlob = (base64) => {
+		const byteString = atob(base64.split(",")[1]);
+		const mimeString = base64.split(",")[0].split(":")[1].split(";")[0];
+		const ab = new ArrayBuffer(byteString.length);
+		const ia = new Uint8Array(ab);
+		for (let i = 0; i < byteString.length; i++) {
+			ia[i] = byteString.charCodeAt(i);
+		}
+		return new Blob([ab], { type: mimeString });
+	};
+
+	// current user
+	const { currentUser } = useAuth();
+	// console.log(currentUser);
+
 	const handleThemeChange = (theme) => {
 		// Function to handle theme change
 		Setheme(theme);
@@ -76,30 +99,86 @@ const SketchPad = () => {
 		console.log(ThemeData);
 	};
 
+	// Main function to handle API call and image upload to firebase
+	// This function is called when the "Enhance" button is clicked
 	const HandleAPICall = async () => {
 		setIsLoading(true);
-		const ImageData = getCanvasImage();
-		console.log("Additional Prompt:", additonalPrompt);
-		const response = await CallApi(ImageData, ThemeData, additonalPrompt);
 
-		if (response) {
-			const img = new Image();
-			img.src = `data:image/png;base64,${response.data.image}`;
-			img.onload = () => {
-				const canvas = canvasRef.current;
-				ctxRef.current.clearRect(0, 0, canvas.width, canvas.height);
-				ctxRef.current.drawImage(
-					img,
-					0,
-					0,
-					canvas.width,
-					canvas.height
-				);
-				setIsLoading(false);
-			};
-			img.onerror = () => setIsLoading(false);
-		} else {
+		const canvasImageDataURL = getCanvasImage();
+		const originalBlob = base64ToBlob(canvasImageDataURL);
+		const userId = currentUser.uid; // Get the user ID from the current user
+
+		// 1. Upload original
+		const originalRef = ref(
+			storage,
+			`users/${userId}/profile/sketch_original_${Date.now()}.png`
+		);
+		await uploadBytes(originalRef, originalBlob);
+		const originalURL = await getDownloadURL(originalRef);
+
+		console.log("Original image uploaded:", originalURL);
+
+		// 2. Call the enhancement API
+		const response = await CallApi(
+			canvasImageDataURL,
+			ThemeData,
+			additonalPrompt
+		);
+		if (!response) {
 			setIsLoading(false);
+			return;
+		}
+
+		// 3. Convert and upload enhanced image
+		const enhancedBase64 = `data:image/png;base64,${response.data.image}`;
+		const enhancedBlob = base64ToBlob(enhancedBase64);
+		const enhancedRef = ref(
+			storage,
+			`users/${userId}/profile/sketch_enhanced_${Date.now()}.png`
+		);
+		await uploadBytes(enhancedRef, enhancedBlob);
+		const enhancedURL = await getDownloadURL(enhancedRef);
+
+		console.log("Enhanced image uploaded:", enhancedURL);
+
+		// 4. Draw enhanced image on canvas
+		const img = new Image();
+		img.src = enhancedBase64;
+		img.onload = () => {
+			const canvas = canvasRef.current;
+			ctxRef.current.clearRect(0, 0, canvas.width, canvas.height);
+			ctxRef.current.drawImage(img, 0, 0, canvas.width, canvas.height);
+			setIsLoading(false);
+		};
+		img.onerror = () => setIsLoading(false);
+
+		// 5. Save post to Firestore
+		try {
+			const user = currentUser;
+
+			const postDoc = await addDoc(
+				collection(db, "users", user.uid, "posts"),
+				{
+					//add post to user's posts collection
+					title: additonalPrompt || "Untitled",
+					drawing: originalURL,
+					image: enhancedURL,
+					postedAt: new Date().toISOString(),
+					createdAt: serverTimestamp(),
+					userID: user.uid,
+					themes: ThemeData,
+				}
+			);
+
+			// Update user with post reference
+			const userRef = doc(db, "users", user.uid);
+			await updateDoc(userRef, {
+				myPosts: arrayUnion(postDoc.id),
+			});
+
+			console.log("Post saved to Firestore with ID:", postDoc.id);
+		} catch (err) {
+			console.error("Error saving to Firestore:", err);
 		}
 	};
 
