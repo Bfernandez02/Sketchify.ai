@@ -16,9 +16,10 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, doc, setDoc, getDocs, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { styles } from './styles';
+import { SketchPost, GalleryMetadata } from '@/types/sketch';
 
 export default function GalleryScreen() {
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [galleryItems, setGalleryItems] = useState<SketchPost[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { width } = Dimensions.get('window');
@@ -49,7 +50,7 @@ export default function GalleryScreen() {
     const q = query(postsRef, orderBy("createdAt", "desc"));
     
     return onSnapshot(q, (snapshot) => {
-      const items: GalleryItem[] = snapshot.docs.map(doc => {
+      const items: SketchPost[] = snapshot.docs.map(doc => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -57,8 +58,8 @@ export default function GalleryScreen() {
           prompt: data.prompt,
           theme: data.theme,
           createdAt: data.createdAt.toDate().toISOString(),
-          imageUrl: data.image,
-          drawingUrl: data.drawing
+          image: data.image,
+          drawing: data.drawing
         };
       });
       
@@ -90,7 +91,7 @@ export default function GalleryScreen() {
       
       const querySnapshot = await getDocs(q);
       
-      const items: GalleryItem[] = querySnapshot.docs.map(doc => {
+      const items: SketchPost[] = querySnapshot.docs.map(doc => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -98,8 +99,8 @@ export default function GalleryScreen() {
           prompt: data.prompt,
           theme: data.theme,
           createdAt: data.createdAt.toDate().toISOString(),
-          imageUrl: data.image,
-          drawingUrl: data.drawing
+          image: data.image,
+          drawing: data.drawing
         };
       });
       
@@ -115,7 +116,7 @@ export default function GalleryScreen() {
     router.back();
   };
 
-  const renderGalleryItem = ({ item }: { item: GalleryItem }) => {
+  const renderGalleryItem = ({ item }: { item: SketchPost }) => {
     const formattedDate = new Date(item.createdAt).toLocaleDateString();
     
     return (
@@ -125,8 +126,8 @@ export default function GalleryScreen() {
           router.push({
             pathname: '/show-image',
             params: {
-              imageUrl: item.imageUrl,
-              drawingUrl: item.drawingUrl,
+              imageUrl: item.image,
+              drawingUrl: item.drawing,
               promptText: item.prompt,
               title: item.title,
               theme: item.theme
@@ -135,7 +136,7 @@ export default function GalleryScreen() {
         }}
       >
         <Image
-          source={{ uri: item.imageUrl }}
+          source={{ uri: item.image }}
           style={[styles.galleryImage, { width: imageSize - 16, height: imageSize - 16 }]}
           resizeMode="cover"
         />

@@ -5,7 +5,7 @@ export type SketchPost = {
     id: string;
     title: string;
     prompt: string;
-    theme: "minimalism" | "realism" | "nature";
+    theme: "minimalism" | "realism" | "nature" | "anime" | "cartoon";
     createdAt: Date;
     drawing: string;  // URL for the original drawing
     image: string;    // URL for the enhanced image
@@ -33,3 +33,9 @@ export type SketchPost = {
     width: number;
     opacity: number;
   }
+
+
+  export interface GalleryMetadata {
+    items: SketchPost[];
+  }
+    

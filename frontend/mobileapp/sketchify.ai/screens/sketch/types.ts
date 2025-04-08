@@ -24,15 +24,3 @@ export interface ApiResponse {
 export interface ApiErrorResponse {
   error: string;
 }
-
-export interface GalleryItem {
-  id: string;
-  filename: string;
-  prompt: string;
-  createdAt: string;
-  filepath: string;
-}
-
-export interface GalleryMetadata {
-  items: GalleryItem[];
-}
