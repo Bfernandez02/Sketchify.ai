@@ -163,7 +163,6 @@ const SketchPad = () => {
 					title: additonalPrompt || "Untitled",
 					drawing: originalURL,
 					image: enhancedURL,
-					postedAt: new Date().toISOString(),
 					createdAt: serverTimestamp(),
 					userID: user.uid,
 					themes: ThemeData,
