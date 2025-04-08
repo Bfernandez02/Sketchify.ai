@@ -49,6 +49,7 @@ export function AuthProvider({ children }) {
 			photoURL: user.photoURL,
 			provider: user.providerData[0]?.providerId,
 			emailVerified: user.emailVerified,
+			savedPosts : additionalData.savedPosts || [], // Initialize savedPosts to an empty array if not present
 			...additionalData, // Merge Firestore user collection fields
 		};
 
