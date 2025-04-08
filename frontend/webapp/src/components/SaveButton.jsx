@@ -20,26 +20,28 @@ export default function SaveButton({ artID }) {
     try {
       const userDocRef = doc(db, "users", currentUser.uid);
 
-      if (currentUser.savedPosts) {
-        const savedPosts = currentUser.savedPosts || [];
+      const savedPosts = currentUser.savedPosts || [];
 
-        if (savedPosts.includes(artID)) {
-          // Remove the artwork from savedPosts
-          const updatedPosts = savedPosts.filter((id) => id !== artID);
-          await updateDoc(userDocRef, {
-            savedPosts: updatedPosts,
-          });
-          toast.success("Artwork removed from your saved posts!");
-        } else {
-          // Add the artwork to savedPosts
-          await updateDoc(userDocRef, {
-            savedPosts: [...savedPosts, artID],
-          });
-          toast.success("Artwork saved to your posts!");
-        }
+      if (savedPosts.includes(artID)) {
+        // Remove the artwork from savedPosts
+        const updatedPosts = savedPosts.filter((id) => id !== artID);
+        await updateDoc(userDocRef, {
+          savedPosts: updatedPosts,
+        });
+        toast.success("Artwork removed from your saved posts!");
       } else {
-        console.error("User not found");
+        // Add the artwork to savedPosts
+        const updatedPosts = [...savedPosts, artID];
+        await updateDoc(userDocRef, {
+          savedPosts: updatedPosts,
+        });
+        toast.success("Artwork saved to your posts!");
       }
+
+      // Update the currentUser object to reflect the changes
+      currentUser.savedPosts = savedPosts.includes(artID)
+        ? savedPosts.filter((id) => id !== artID)
+        : [...savedPosts, artID];
     } catch (error) {
       console.error("Error updating saved posts:", error);
     }
