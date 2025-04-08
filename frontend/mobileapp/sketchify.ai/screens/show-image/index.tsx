@@ -249,7 +249,7 @@ export default function ShowImageScreen() {
             {/* Prompt and Theme below AI image */}
             {promptText && (
               <View style={styles.promptContainer}>
-                <Text style={styles.promptTitle}>AI Interpretation</Text>
+                <Text style={styles.promptTitle}>Description</Text>
                 <Text style={styles.promptText}>{promptText as string}</Text>
               </View>
             )}
