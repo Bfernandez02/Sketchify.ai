@@ -145,8 +145,8 @@ export default function Art() {
 				/>
 			</div>
 
-			{/* related art */}
-			{/* <RelatedArt /> --- can add this back in later? maybe find and show other posts by user or other posts with same themes? */}
+			{/* Related artwork */}
+			{/* <RelatedArt /> -- to do, use current arts theme to find up to 3 related artworks from all users? */}
 		</div>
 	);
 }

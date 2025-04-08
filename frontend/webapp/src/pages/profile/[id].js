@@ -77,7 +77,7 @@ export async function getServerSideProps(context) {
 }
 
 export default function Profile({ user, posts }) {
-	const [selectedOption, setSelectedOption] = useState("My Artwork");
+	const [selectedOption, setSelectedOption] = useState("Artwork");
 	const [savedPosts, setSavedPosts] = useState([]);
 	const { currentUser } = useAuth();
 
@@ -85,7 +85,7 @@ export default function Profile({ user, posts }) {
 	if (!user) return <p>User not found</p>;
 
 	useEffect(() => {
-		if (selectedOption === "My Saved" && user?.savedPosts?.length > 0) {
+		if (selectedOption === "Liked" && user?.savedPosts?.length > 0) {
 			const fetchSavedPosts = async () => {
 				try {
 					const saved = await Promise.all(
@@ -170,25 +170,25 @@ export default function Profile({ user, posts }) {
 			<div className="flex justify-between items-center pt-12">
 				<h2 className="font-fraunces">Artwork</h2>
 				<select
-					className="bg-transparent border border-black rounded pr-2 py-2 cursor-pointer focus:outline-none text-left"
+					className="bg-transparent pr-1 py-[2px] cursor-pointer underline focus:outline-none text-left"
 					value={selectedOption}
 					onChange={(e) => setSelectedOption(e.target.value)}
 				>
-					<option value="My Artwork">My Artwork</option>
-					<option value="My Saved">Favourites</option>
+					<option value="Artwork">Artwork</option>
+					<option value="Liked">Favourites</option>
 				</select>
 			</div>
 
 			<div className="flex flex-wrap gap-4 mb-4">
-				{(selectedOption === "My Artwork" ? posts : savedPosts)
-					.length === 0 ? (
+				{(selectedOption === "Artwork" ? posts : savedPosts).length ===
+				0 ? (
 					<p>
-						{selectedOption === "My Artwork"
+						{selectedOption === "Artwork"
 							? "No artwork posted yet."
 							: "No saved posts yet."}
 					</p>
 				) : (
-					(selectedOption === "My Artwork" ? posts : savedPosts).map(
+					(selectedOption === "Artwork" ? posts : savedPosts).map(
 						(post) => (
 							<div key={post.id} className="w-[300px]">
 								<ArtCard
