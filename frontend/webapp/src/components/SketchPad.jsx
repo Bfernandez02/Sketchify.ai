@@ -99,6 +99,7 @@ const SketchPad = () => {
 		ctx.lineWidth = lineWidth;
 		ctx.lineCap = "round";
 		ctx.strokeStyle = currentColor;
+		ctx.fillStyle = "#FFFFFF";
 	};
 
 	useEffect(() => {
@@ -116,6 +117,7 @@ const SketchPad = () => {
 		ctx.lineWidth = lineWidth;
 		ctx.lineCap = "round";
 		ctx.strokeStyle = currentColor;
+		ctx.fillStyle = "#FFFFFF";
 
 		ctxRef.current = ctx;
 
