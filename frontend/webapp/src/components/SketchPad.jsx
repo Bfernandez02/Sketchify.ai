@@ -95,6 +95,9 @@ const SketchPad = () => {
 		canvas.width = newWidth;
 		canvas.height = newHeight;
 
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+
 		const ctx = canvas.getContext("2d");
 		ctx.lineWidth = lineWidth;
 		ctx.lineCap = "round";
