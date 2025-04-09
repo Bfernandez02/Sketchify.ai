@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { db } from "@/firebase/config";
 import { getDoc, doc, collection, getDocs } from "firebase/firestore";
@@ -77,11 +77,71 @@ export async function getServerSideProps(context) {
 }
 
 export default function Profile({ user, posts }) {
-	const [selectedOption, setSelectedOption] = useState("My Artwork");
+	const [selectedOption, setSelectedOption] = useState("Artwork");
+	const [savedPosts, setSavedPosts] = useState([]);
 	const { currentUser } = useAuth();
 
-	console.log("posts", posts);
+	// console.log("posts", posts);
 	if (!user) return <p>User not found</p>;
+
+	useEffect(() => {
+		if (selectedOption === "Liked" && user?.savedPosts?.length > 0) {
+			const fetchSavedPosts = async () => {
+				try {
+					const saved = await Promise.all(
+						user.savedPosts.map(async (postId) => {
+							// You don’t know the exact user path, so loop through all users to find the post
+							const usersSnapshot = await getDocs(
+								collection(db, "users")
+							);
+							for (const userDoc of usersSnapshot.docs) {
+								const postRef = doc(
+									db,
+									"users",
+									userDoc.id,
+									"posts",
+									postId
+								);
+								const postSnap = await getDoc(postRef);
+								if (postSnap.exists()) {
+									const postData = postSnap.data();
+									const userData = userDoc.data();
+									return {
+										id: postId,
+										userID: userDoc.id,
+										...postData,
+										createdAt:
+											postData.createdAt
+												?.toDate()
+												.toISOString() || null,
+										postedAt:
+											postData.postedAt
+												?.toDate()
+												.toISOString() || null,
+										user: {
+											name:
+												userData.name || "Unknown User",
+											profileImage:
+												userData.profileImage ||
+												"/default-avatar.png",
+										},
+									};
+								}
+							}
+							return null; // If not found
+						})
+					);
+
+					// Remove nulls and set
+					setSavedPosts(saved.filter(Boolean));
+				} catch (err) {
+					console.error("Error fetching saved posts:", err);
+				}
+			};
+
+			fetchSavedPosts();
+		}
+	}, [selectedOption, user?.savedPosts]);
 
 	return (
 		<div className="max-w-[1280px] mx-auto px-4">
@@ -110,28 +170,35 @@ export default function Profile({ user, posts }) {
 			<div className="flex justify-between items-center pt-12">
 				<h2 className="font-fraunces">Artwork</h2>
 				<select
-					className="bg-transparent border border-black rounded pr-2 py-2 cursor-pointer focus:outline-none text-left"
+					className="bg-transparent pr-1 py-[2px] cursor-pointer underline focus:outline-none text-left"
 					value={selectedOption}
 					onChange={(e) => setSelectedOption(e.target.value)}
 				>
-					<option value="My Artwork">My Artwork</option>
-					<option value="My Saved">Favourites</option>
+					<option value="Artwork">Artwork</option>
+					<option value="Liked">Favourites</option>
 				</select>
 			</div>
 
 			<div className="flex flex-wrap gap-4 mb-4">
-				{posts.length === 0 ? (
-					<p>No artwork posted yet.</p>
+				{(selectedOption === "Artwork" ? posts : savedPosts).length ===
+				0 ? (
+					<p>
+						{selectedOption === "Artwork"
+							? "No artwork posted yet."
+							: "No saved posts yet."}
+					</p>
 				) : (
-					posts.map((post) => (
-						<div key={post.id} className="w-[300px]">
-							<ArtCard
-								art={post}
-								grid={true}
-								artist={post.user}
-							/>{" "}
-						</div>
-					))
+					(selectedOption === "Artwork" ? posts : savedPosts).map(
+						(post) => (
+							<div key={post.id} className="w-[300px]">
+								<ArtCard
+									art={post}
+									grid={true}
+									artist={post.user}
+								/>{" "}
+							</div>
+						)
+					)
 				)}
 			</div>
 		</div>
