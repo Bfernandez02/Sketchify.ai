@@ -1,5 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
 import { CallApi } from "../../api/api";
+import Pencil from "../../public/pencilTool.png";
+import Line from "../../public/lineTool.png";
+import Square from "../../public/squareTool.png";
+import Triangle from "../../public/triangleTool.png";
+import Circle from "../../public/circleTool.png";
+import Bucket from "../../public/bucketTool.png";
+import Eraser from "../../public/eraserTool.png";
 
 const DropdownMenu = ({ id, label, options, openDropdown, setOpenDropdown, onThemeChange }) => {
   const [selected, setSelected] = useState("");
@@ -10,118 +17,114 @@ const DropdownMenu = ({ id, label, options, openDropdown, setOpenDropdown, onThe
   };
 
   return (
-    <div className="relative w-full md:w-[300px]">
-      <button
-        className="w-full bg-primary text-white px-4 py-2 rounded-lg flex items-center font-fraunces text-center justify-center"
-        onClick={handleToggle}
-      >
-        {selected || label}
-        <span className="ml-2">▼</span>
-      </button>
-      {isOpen && (
-        <ul className="absolute left-0 mt-1 w-full border border-gray-300 rounded-lg shadow-lg z-50 font-fraunces bg-primary text-white text-center">
-          {options.map((option, index) => (
-            <li
-              key={index}
-              className="px-4 py-2 hover:bg-gray-200 cursor-pointer hover:text-black text-lg"
-              onClick={() => {
-                setSelected(option);
-                setOpenDropdown(null);
+      <div className="relative w-full md:w-[300px]">
+        <button
+            className="w-full bg-primary text-white px-4 py-2 rounded-lg flex items-center font-fraunces text-center justify-center"
+            onClick={handleToggle}
+        >
+          {selected || label}
+          <span className="ml-2">▼</span>
+        </button>
+        {isOpen && (
+            <ul className="absolute left-0 mt-1 w-full border border-gray-300 rounded-lg shadow-lg z-50 font-fraunces bg-primary text-white text-center">
+              {options.map((option, index) => (
+                  <li
+                      key={index}
+                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer hover:text-black text-lg"
+                      onClick={() => {
+                        setSelected(option);
+                        setOpenDropdown(null);
 
-                if(onThemeChange){
-                  onThemeChange(option);
-                }
-                //onThemeChange && onThemeChange(option); // Call parent handler
-              }}
-            >
-              {option}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+                        if(onThemeChange){
+                          onThemeChange(option);
+                        }
+                        //onThemeChange && onThemeChange(option); // Call parent handler
+                      }}
+                  >
+                    {option}
+                  </li>
+              ))}
+            </ul>
+        )}
+      </div>
   );
 };
 
 const SketchPad = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState(null);
-  const [activeTool, setActiveTool] = useState(null);
-  const [lineStart, setLineStart] = useState(null);
-  const [lineWidth, setLineWidth] = useState(2);
-  const [undoStack, setUndoStack] = useState([]); // Undo stack
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
+
   const [isDrawing, setIsDrawing] = useState(false);
+  const [lineStart, setLineStart] = useState(null);
+  const [undoStack, setUndoStack] = useState([]);
+  const [lineWidth, setLineWidth] = useState(2);
   const [currentColor, setCurrentColor] = useState("#000000");
-  const [ThemeData,Setheme] = useState("Default");
-
-
-  const getCanvasImage = () => canvasRef.current.toDataURL("image/png");
-
-  const handleThemeChange = (theme) => { // Function to handle theme change
-    Setheme(theme);
-
-    console.log(ThemeData)
-  }
-
-  useEffect(() =>{ 
-    console.log("Current theme:",ThemeData);
-  },[ThemeData]);
-
-  const HandleAPICall = async () => {
-    setIsLoading(true);
-    const ImageData = getCanvasImage();
-    const response = await CallApi(ImageData,ThemeData);
-
-    if (response) {
-      const img = new Image();
-      img.src = `data:image/png;base64,${response.data.image}`;
-      img.onload = () => {
-        const canvas = canvasRef.current;
-        ctxRef.current.clearRect(0, 0, canvas.width, canvas.height);
-        ctxRef.current.drawImage(img, 0, 0, canvas.width, canvas.height);
-        setIsLoading(false);
-      };
-      img.onerror = () => setIsLoading(false);
-    } else {
-      setIsLoading(false);
-    }
-  };
+  const [activeTool, setActiveTool] = useState(null);
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [ThemeData, Setheme] = useState("Default");
+  const [isLoading, setIsLoading] = useState(false);
 
   const updateCanvasSize = () => {
     const canvas = canvasRef.current;
-    const aspectRatio = 700 / 1080;
-    canvas.style.height = `${canvas.clientWidth * aspectRatio}px`;
-  };
+    if (!canvas) return;
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
+    const containerWidth = canvas.parentElement.clientWidth;
+    const aspectRatio = 700 / 1080;
+    const newWidth = containerWidth;
+    const newHeight = newWidth * aspectRatio;
+
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+
     const ctx = canvas.getContext("2d");
-    canvas.width = 1080;
-    canvas.height = 700;
-    canvas.style.width = "100%";
-    updateCanvasSize();
     ctx.lineWidth = lineWidth;
     ctx.lineCap = "round";
     ctx.strokeStyle = currentColor;
+  };
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+
+    const aspectRatio = 700 / 1080;
+    canvas.width = 1080;
+    canvas.height = 700;
+    canvas.style.width = "100%";
+
+    updateCanvasSize();
+
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = currentColor;
+
     ctxRef.current = ctx;
 
     window.addEventListener("resize", updateCanvasSize);
     return () => window.removeEventListener("resize", updateCanvasSize);
   }, []);
 
+
+
   useEffect(() => {
-    const ctx = ctxRef.current;
-    if (ctx) {
-      ctx.lineWidth = lineWidth;
-      ctx.strokeStyle = activeTool === "eraser" ? "#FFFFFF" : currentColor;
-    }
+    if (!ctxRef.current) return;
+    ctxRef.current.lineWidth = lineWidth;
+    ctxRef.current.strokeStyle = activeTool === "eraser" ? "#FFFFFF" : currentColor;
   }, [lineWidth, currentColor, activeTool]);
+
+  const getMousePos = (e) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    return {
+      x: ((e.clientX - rect.left) / rect.width) * canvasRef.current.width,
+      y: ((e.clientY - rect.top) / rect.height) * canvasRef.current.height,
+    };
+  };
 
   const saveState = () => {
     const canvas = canvasRef.current;
-    const imageData = ctxRef.current.getImageData(0, 0, canvas.width, canvas.height);
+    const ctx = ctxRef.current;
+    if (!canvas || !ctx) return;
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     setUndoStack((prev) => [...prev, imageData]);
   };
 
@@ -134,24 +137,27 @@ const SketchPad = () => {
     }
   };
 
-  const getMousePos = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    return {
-      x: ((e.clientX - rect.left) / rect.width) * canvasRef.current.width,
-      y: ((e.clientY - rect.top) / rect.height) * canvasRef.current.height,
-    };
+  const hexToRgb = (hex) => {
+    const bigint = parseInt(hex.slice(1), 16);
+    return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
   };
 
   const floodFill = (startX, startY, fillColor) => {
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
+    if (!canvas || !ctx) return;
+
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
 
     const stack = [];
     const pixelPos = (x, y) => (y * canvas.width + x) * 4;
 
-    const startIdx = pixelPos(Math.floor(startX), Math.floor(startY));
+    const x0 = Math.floor(startX);
+    const y0 = Math.floor(startY);
+    if (x0 < 0 || y0 < 0 || x0 >= canvas.width || y0 >= canvas.height) return;
+
+    const startIdx = pixelPos(x0, y0);
     const startColor = [
       data[startIdx],
       data[startIdx + 1],
@@ -172,32 +178,35 @@ const SketchPad = () => {
       data[idx + 3] = 255;
     };
 
-    stack.push([Math.floor(startX), Math.floor(startY)]);
+    stack.push([x0, y0]);
 
     while (stack.length > 0) {
       const [x, y] = stack.pop();
-      const idx = pixelPos(x, y);
       if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) continue;
+      const idx = pixelPos(x, y);
       if (!matchColor(idx)) continue;
       setPixel(idx);
       stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
     }
+
     ctx.putImageData(imageData, 0, 0);
   };
 
   const startDrawing = (e) => {
     saveState();
     const pos = getMousePos(e);
-    if (activeTool === "line") {
+    const ctx = ctxRef.current;
+    if (!ctx) return;
+
+    if (["line", "square", "triangle", "circle"].includes(activeTool)) {
       setLineStart(pos);
     } else if (activeTool === "freehand" || activeTool === "eraser") {
-      ctxRef.current.globalCompositeOperation =
-          activeTool === "eraser" ? "destination-out" : "source-over";
-      ctxRef.current.beginPath();
-      ctxRef.current.moveTo(pos.x, pos.y);
+      ctx.globalCompositeOperation = activeTool === "eraser" ? "destination-out" : "source-over";
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
       setIsDrawing(true);
     } else if (activeTool === "bucket") {
-      ctxRef.current.globalCompositeOperation = "source-over";
+      ctx.globalCompositeOperation = "source-over";
       const fillColor = hexToRgb(currentColor);
       floodFill(pos.x, pos.y, fillColor);
     }
@@ -210,17 +219,55 @@ const SketchPad = () => {
     ctxRef.current.stroke();
   };
 
-  const stopDrawing = () => {
-    ctxRef.current.globalCompositeOperation = "source-over";
-    if (activeTool === "line" && lineStart) {
-      const pos = getMousePos(event);
-      ctxRef.current.beginPath();
-      ctxRef.current.moveTo(lineStart.x, lineStart.y);
-      ctxRef.current.lineTo(pos.x, pos.y);
-      ctxRef.current.stroke();
+  const stopDrawing = (e) => {
+    const pos = getMousePos(e);
+    const ctx = ctxRef.current;
+    ctx.globalCompositeOperation = "source-over";
+
+    if (lineStart && ["line", "square", "triangle", "circle"].includes(activeTool)) {
+      if (activeTool === "line") {
+        ctx.beginPath();
+        ctx.moveTo(lineStart.x, lineStart.y);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+      } else if (activeTool === "square") {
+        const x = Math.min(lineStart.x, pos.x);
+        const y = Math.min(lineStart.y, pos.y);
+        const width = Math.abs(pos.x - lineStart.x);
+        const height = Math.abs(pos.y - lineStart.y);
+        ctx.strokeRect(x, y, width, height);
+      } else if (activeTool === "triangle") {
+        const x1 = lineStart.x;
+        const y1 = lineStart.y;
+        const x2 = pos.x;
+        const y2 = pos.y;
+
+        const topX = (x1 + x2) / 2;
+        const topY = Math.min(y1, y2);
+        const baseY = Math.max(y1, y2);
+
+        ctx.beginPath();
+        ctx.moveTo(topX, topY);
+        ctx.lineTo(x1, baseY);
+        ctx.lineTo(x2, baseY);
+        ctx.closePath();
+        ctx.stroke();
+      } else if (activeTool === "circle") {
+        const dx = pos.x - lineStart.x;
+        const dy = pos.y - lineStart.y;
+        const radius = Math.sqrt(dx * dx + dy * dy) / 2;
+        const centerX = (lineStart.x + pos.x) / 2;
+        const centerY = (lineStart.y + pos.y) / 2;
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+      }
       setLineStart(null);
-    } else if (isDrawing) {
-      ctxRef.current.closePath();
+    }
+
+    if (isDrawing) {
+      ctx.closePath();
       setIsDrawing(false);
     }
   };
@@ -229,17 +276,36 @@ const SketchPad = () => {
     setActiveTool(activeTool === toolName ? null : toolName);
   };
 
-  const hexToRgb = (hex) => {
-    const bigint = parseInt(hex.slice(1), 16);
-    return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+  const getCanvasImage = () => canvasRef.current.toDataURL("image/png");
+
+  const handleThemeChange = (theme) => {
+    Setheme(theme);
+  };
+
+  const HandleAPICall = async () => {
+    setIsLoading(true);
+    const ImageData = getCanvasImage();
+    const response = await CallApi(ImageData, ThemeData);
+
+    if (response) {
+      const img = new Image();
+      img.src = `data:image/png;base64,${response.data.image}`;
+      img.onload = () => {
+        const canvas = canvasRef.current;
+        ctxRef.current.clearRect(0, 0, canvas.width, canvas.height);
+        ctxRef.current.drawImage(img, 0, 0, canvas.width, canvas.height);
+        setIsLoading(false);
+      };
+      img.onerror = () => setIsLoading(false);
+    } else {
+      setIsLoading(false);
+    }
   };
 
   return (
       <div className="text-gray-900 flex flex-col md:flex-row items-center py-8 justify-center px-4">
         <div className="mt-6 flex flex-col md:flex-row md:gap-6 w-full">
-          {/* Left Sidebar */}
           <div className="flex flex-col bg-gray-900 text-white p-1 rounded-lg space-y-4 w-full md:w-auto">
-            {/* ... tools */}
             <div className="p-2 bg-gray-900 rounded-md flex items-center justify-center">
               <input
                   type="color"
@@ -249,10 +315,8 @@ const SketchPad = () => {
               />
               <span className="text-white ml-2">Color</span>
             </div>
-
-            {/* ... line width */}
             <div className="p-2 bg-gray-900 rounded-md flex items-center justify-between">
-              <span className="text-white">Line Width</span>
+              <span className="text-white"></span>
               <input
                   type="range"
                   min="1"
@@ -260,39 +324,62 @@ const SketchPad = () => {
                   value={lineWidth}
                   onChange={(e) => setLineWidth(e.target.value)}
                   className="w-32"
+
               />
               <span className="text-white ml-2">{lineWidth}</span>
             </div>
-
-            {/* tools */}
             <button
-                className="w-full md:w-[300px] bg-primary text-white px-4 py-2 rounded-lg font-fraunces"
+                className="w-full bg-primary text-white px-4 py-2 rounded-lg font-fraunces flex flex-col items-center gap-2"
                 onClick={() => toggleTool("freehand")}
             >
-              Freehand Tool
+              <img src={Pencil.src} style={{ width: '100px', height: 'auto' }} alt="Freehand" className="mx-auto block" />
+
             </button>
             <button
-                className="w-full md:w-[300px] bg-primary text-white px-4 py-2 rounded-lg font-fraunces"
+                className="w-full bg-primary text-white px-4 py-2 rounded-lg font-fraunces flex flex-col items-center gap-2"
                 onClick={() => toggleTool("line")}
             >
-              Line Tool
+              <img src={Line.src} style={{ width: '100px', height: 'auto' }} alt="Line" className="mx-auto block" />
+
             </button>
             <button
-                className="w-full md:w-[300px] bg-primary text-white px-4 py-2 rounded-lg font-fraunces"
+                className="w-full bg-primary text-white px-4 py-2 rounded-lg font-fraunces flex flex-col items-center gap-2"
+                onClick={() => toggleTool("square")}
+            >
+              <img src={Square.src} style={{ width: '100px', height: 'auto' }} alt="Square" className="mx-auto block" />
+
+            </button>
+            <button
+                className="w-full bg-primary text-white px-4 py-2 rounded-lg font-fraunces flex flex-col items-center gap-2"
+                onClick={() => toggleTool("triangle")}
+            >
+              <img src={Triangle.src} style={{ width: '100px', height: 'auto' }} alt="Triangle" className="mx-auto block" />
+
+            </button>
+            <button
+                className="w-full bg-primary text-white px-4 py-2 rounded-lg font-fraunces flex flex-col items-center gap-2"
+                onClick={() => toggleTool("circle")}
+            >
+              <img src={Circle.src} style={{ width: '100px', height: 'auto' }} alt="Circle" className="mx-auto block" />
+
+            </button>
+            <button
+                className="w-full bg-primary text-white px-4 py-2 rounded-lg font-fraunces flex flex-col items-center gap-2"
                 onClick={() => toggleTool("bucket")}
             >
-              Paint Bucket Tool
+              <img src={Bucket.src} style={{ width: '100px', height: 'auto' }} alt="Bucket" className="mx-auto block" />
+
             </button>
             <button
-                className="w-full md:w-[300px] bg-primary text-white px-4 py-2 rounded-lg font-fraunces"
+                className="w-full bg-primary text-white px-4 py-2 rounded-lg font-fraunces flex flex-col items-center gap-2"
                 onClick={() => toggleTool("eraser")}
             >
-              Eraser Tool
+              <img src={Eraser.src} style={{ width: '100px', height: 'auto' }} alt="Eraser" className="mx-auto block" />
             </button>
+
           </div>
 
-          {/* Canvas */}
-          <div className="flex-1 border rounded-lg bg-white shadow-md relative w-full">
+          <div className="flex-1 border rounded-lg bg-white shadow-md relative w-full min-h-[500px]">
             <canvas
                 ref={canvasRef}
                 onMouseDown={startDrawing}
@@ -301,6 +388,7 @@ const SketchPad = () => {
                 onMouseOut={stopDrawing}
                 className="rounded-lg border-black border-solid"
             ></canvas>
+
             {isLoading && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 z-10">
                   <div className="w-12 h-12 border-4 border-t-4 border-gray-200 rounded-full animate-spin mb-4"></div>
@@ -308,66 +396,45 @@ const SketchPad = () => {
                 </div>
             )}
 
-            {/* Clear & Undo Buttons */}
             <div className="absolute bottom-2 right-2 flex gap-2">
-              <button
-                  className="bg-gray-800 text-white p-2 rounded-md"
-                  onClick={() =>
-                      ctxRef.current.clearRect(
-                          0,
-                          0,
-                          canvasRef.current.width,
-                          canvasRef.current.height
-                      )
-                  }
-              >
+              <button className="bg-gray-800 text-white p-2 rounded-md" onClick={() => ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)}>
                 Clear 🔲
               </button>
-              <button
-                  className="bg-gray-800 text-white p-2 rounded-md"
-                  onClick={undo}
-              >
+              <button className="bg-gray-800 text-white p-2 rounded-md" onClick={undo}>
                 Undo ↩️
               </button>
             </div>
           </div>
 
-          {/* Right Sidebar */}
           <div className="flex flex-col space-y-6 w-full md:w-auto">
-            {/* textarea and dropdowns */}
-            <textarea
-                className="border border-black placeholder-gray-500 px-3 py-2 rounded-lg bg-background w-full md:w-[300px] h-[250px] resize-none"
-                placeholder="Additional Prompts..."
-            ></textarea>
+            <textarea className="border border-black placeholder-gray-500 px-3 py-2 rounded-lg bg-background w-full md:w-[300px] h-[250px] resize-none" placeholder="Additional Prompts..."></textarea>
 
-          <DropdownMenu
-            id="theme"
-            label="Theme"
-            options={["Realism", "Minimalism", "Nature"]}
-            openDropdown={openDropdown}
-            setOpenDropdown={setOpenDropdown}
-            onThemeChange={handleThemeChange}
-          />
-          <DropdownMenu
-            id="option1"
-            label="Option"
-            options={["Option 1", "Option 2", "Option 3"]}
-            openDropdown={openDropdown}
-            setOpenDropdown={setOpenDropdown}
-          />
-          <DropdownMenu
-            id="option2"
-            label="Option"
-            options={["Option A", "Option B", "Option C"]}
-            openDropdown={openDropdown}
-            setOpenDropdown={setOpenDropdown}
-          />
+            <DropdownMenu
+                id="theme"
+                label="Theme"
+                options={["Realism", "Minimalism", "Nature"]}
+                openDropdown={openDropdown}
+                setOpenDropdown={setOpenDropdown}
+                onThemeChange={handleThemeChange}
+            />
+            <DropdownMenu
+                id="option1"
+                label="Option"
+                options={["Option 1", "Option 2", "Option 3"]}
+                openDropdown={openDropdown}
+                setOpenDropdown={setOpenDropdown}
+            />
+            <DropdownMenu
+                id="option2"
+                label="Option"
+                options={["Option A", "Option B", "Option C"]}
+                openDropdown={openDropdown}
+                setOpenDropdown={setOpenDropdown}
+            />
 
             <div className="pt-8">
               <button
-                  className={`w-full md:w-[300px] bg-secondary text-white px-4 py-2 rounded-lg font-fraunces ${
-                      isLoading ? "opacity-50" : "opacity-100"
-                  }`}
+                  className={`w-full md:w-[300px] bg-secondary text-white px-4 py-2 rounded-lg font-fraunces ${isLoading ? "opacity-50" : "opacity-100"}`}
                   onClick={HandleAPICall}
                   disabled={isLoading}
               >
