@@ -179,12 +179,27 @@ def generate_prompt():
         image_data = data.get("image")
         theme_data = data.get("theme", "Default")  # Default to minimalism if no theme provided
         prompt_data = data.get("prompt","") # Retrive the additional prompt from the json data
-        
+
+        print(f"Additionl prompt: {prompt_data}")
+    
+
+
         print(f"Received prompt: {prompt_data}")
         print(f"Theme: {theme_data}")
 
         # Get theme info ONCE and use it consistently
         theme_context, theme_prompt, temperature = get_theme_prompt(theme_data)
+
+        final_prompt = theme_prompt  # Start with the theme prompt
+
+        # Append user prompt if provided
+        if prompt_data:
+            final_prompt = f"{theme_prompt}\n Additional requirements: {prompt_data}"
+            logging.info(f"Added user prompt to theme: {prompt_data}")
+            print("In the if statement")
+
+        print(f"Final prompt: {final_prompt}")
+            
         logging.info(f"Using theme: {theme_data} with temperature: {temperature}")
 
         if not image_data:
@@ -236,7 +251,7 @@ def generate_prompt():
                         "content": [
                             {
                                 "type": "text",
-                                "text": (theme_prompt)
+                                "text": final_prompt
                               
                                 
                             },
