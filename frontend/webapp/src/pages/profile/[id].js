@@ -81,9 +81,6 @@ export default function Profile({ user, posts }) {
   const [postsToDisplay, setPostsToDisplay] = useState(posts);
 
   const isOwnProfile = currentUser?.uid === user?.uid;
-
-  console.log(user);
-
   const [activeTab, setActiveTab] = useState("Artwork");
 
   // console.log("posts", posts);
