@@ -76,7 +76,7 @@ export default function Art() {
 
 	// console.log(art);
 	return (
-		<div className="content-container px-4">
+		<div className="content-container px-4 min-h-screen">
 			{/* title and categories */}
 			<div className="flex md:flex-row md:justify-between flex-col mb-10 mt-2 max-w-[1200px] mx-auto md:gap-0 gap-4">
 				<div className="flex flex-col w-100% md:w-1/2 md:gap-0 gap-4">
