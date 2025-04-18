@@ -4,7 +4,7 @@ import axios from "axios";
 import { useRouter } from 'expo-router';
 import { DrawingPath, ApiResponse, ApiErrorResponse } from '@/types/sketch';
 import { ThemeType, DEFAULT_THEME } from '@/types/themes';
-import { API_BASE_URL } from '../constants';
+import { LOCAL_API_URL, EXPO_PUBLIC_PROD_API_URL } from '../constants';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { saveToGallery } from './saveToGallary';
 
@@ -16,7 +16,7 @@ const callApi = async (imageData: string, theme: ThemeType = DEFAULT_THEME): Pro
     
     console.log("Calling API with image data and theme:", theme);
 
-    const response = await axios.post<ApiResponse>(`${API_BASE_URL}/generate-prompt`, {
+    const response = await axios.post<ApiResponse>(`${EXPO_PUBLIC_PROD_API_URL}/generate-prompt`, {
       image: cleanImageData,
       theme: theme
     });
