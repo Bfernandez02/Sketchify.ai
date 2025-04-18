@@ -145,8 +145,7 @@ export default function Art() {
 				/>
 			</div>
 
-			{/* Related artwork */}
-			{/* <RelatedArt /> -- to do, use current arts theme to find up to 3 related artworks from all users? */}
+			<RelatedArt theme={art.theme} />
 		</div>
 	);
 }
