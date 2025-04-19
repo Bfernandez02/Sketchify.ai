@@ -15,14 +15,13 @@ Software Engineering Process
 
 ## Development Tools
 The development tools in which will be utilized for the project will be the following:
-Next.js (Front-End - Web App)
-React Native (Front-End - Mobile App)
-Firebase (Authentication/ Database tools)
-Axios (API Calls)
-Python
-Flask (Backend)
-Open AI (Chat-GPT 4o mini API)
-Stability AI (For text to image generation)
+- Next.js (Front-End - Web App)
+- React Native (Front-End - Mobile App)
+- Firebase (Authentication/ Database tools)
+- Axios (API Calls)
+- Python Flask (Backend)
+- Open AI (Chat-GPT 4o mini API)
+- Stability AI, Gemini (For text to image generation)
 	These tools listed above will be what we plan to use however, due to the agile nature of our development process these tools can change.
  
 ## Objectives
