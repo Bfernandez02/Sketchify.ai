@@ -2,7 +2,7 @@ import axios from "axios";
 const  BASE_URL = "http://localhost:5001"
 
 export const CallApi = async(ImageData,ThemeData,Prompt,Complexity)=>{
-    console.log
+    
     try {
         const response = axios.post(`${BASE_URL}/generate-prompt`,{
             image: ImageData,
