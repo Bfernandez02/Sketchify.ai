@@ -401,36 +401,35 @@ const SketchPad = () => {
       setIsLoading(false);
     };
     img.onerror = () => setIsLoading(false);
+	
+    try {
+      const user = currentUser;
 
-    // 5. Save post to Firestore
-    // try {
-    //   const user = currentUser;
+      const postDoc = await addDoc(collection(db, "users", user.uid, "posts"), {
+        title:
+          additonalPrompt || `${user.name} ${ThemeData.toLowerCase()} sketch`,
+        drawing: originalURL,
+        image: enhancedURL,
+        createdAt: serverTimestamp(),
+        theme: ThemeData.toLowerCase(),
+      });
 
-    //   const postDoc = await addDoc(collection(db, "users", user.uid, "posts"), {
-    //     title:
-    //       additonalPrompt || `${user.name} ${ThemeData.toLowerCase()} sketch`,
-    //     drawing: originalURL,
-    //     image: enhancedURL,
-    //     createdAt: serverTimestamp(),
-    //     theme: ThemeData.toLowerCase(),
-    //   });
+      // Update the same doc with its own ID
+      await updateDoc(postDoc, {
+        id: postDoc.id,
+      });
 
-    //   // Update the same doc with its own ID
-    //   await updateDoc(postDoc, {
-    //     id: postDoc.id,
-    //   });
+      // ---- dont think we want this but we can add it later, adds a myPosts array to the user
+      // // Update user with post reference
+      // const userRef = doc(db, "users", user.uid);
+      // await updateDoc(userRef, {
+      // 	myPosts: arrayUnion(postDoc.id),
+      // });
 
-    //   // ---- dont think we want this but we can add it later, adds a myPosts array to the user
-    //   // // Update user with post reference
-    //   // const userRef = doc(db, "users", user.uid);
-    //   // await updateDoc(userRef, {
-    //   // 	myPosts: arrayUnion(postDoc.id),
-    //   // });
-
-    //   console.log("Post saved to Firestore with ID:", postDoc.id);
-    // } catch (err) {
-    //   console.error("Error saving to Firestore:", err);
-    // }
+      console.log("Post saved to Firestore with ID:", postDoc.id);
+    } catch (err) {
+      console.error("Error saving to Firestore:", err);
+    }
   };
 
   useEffect(() => {
