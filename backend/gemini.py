@@ -178,7 +178,7 @@ def generate_prompt():
         data = request.json
         image_data = data.get("image")
         theme_data = data.get("theme", "Default")  # Default to minimalism if no theme provided
-        prompt_data = data.get("userPrompt","") # Retrive the additional prompt from the json data
+        prompt_data = data.get("prompt","") 
         complexity_data = data.get("complexity", "standard")  # Default to Medium if no complexity provided
 
         steps_dict = {

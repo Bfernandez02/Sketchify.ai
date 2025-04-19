@@ -1,12 +1,14 @@
 export interface UserData {
-    name: string;
-    email: string;
-    bio: string;
-    profileImage: string;
-    bannerImage: string;
-    createdAt: string;
-    updatedAt: string;
-  }
+  uid: string;
+  name: string;
+  email: string;
+  bio?: string;
+  profileImage?: string;
+  bannerImage?: string;
+  createdAt: string;
+  updatedAt: string;
+  savedPosts?: string[];
+}
 export interface AuthContextType {
     user: UserData | null;
     loading: boolean;
