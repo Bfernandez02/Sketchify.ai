@@ -17,7 +17,6 @@ body {
 	font-size: 1.125rem; /* 18px */
 }
 
-/* Not sure if we are going to want a global content container or not, because of the heros this might actually suck to use - feel free to change Brandon */
 .content-container {
 	max-width: 1560px;
 	margin: 0 auto;
@@ -57,4 +56,24 @@ button {
 label {
 	font-size: 16px;
 	font-family: "Roboto", sans-serif;
+}
+
+/* nprogress loading styles */
+/* NProgress customization */
+#nprogress {
+	pointer-events: none;
+}
+
+#nprogress .bar {
+	background: var(--red);
+	position: fixed;
+	z-index: 9999;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 3px;
+}
+
+#nprogress .spinner {
+	display: none;
 }
