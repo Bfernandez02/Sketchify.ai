@@ -178,9 +178,17 @@ def generate_prompt():
         data = request.json
         image_data = data.get("image")
         theme_data = data.get("theme", "Default")  # Default to minimalism if no theme provided
-        prompt_data = data.get("prompt","") # Retrive the additional prompt from the json data
+        prompt_data = data.get("userPrompt","") # Retrive the additional prompt from the json data
+        complexity_data = data.get("complexity", "standard")  # Default to Medium if no complexity provided
 
-        print(f"Additionl prompt: {prompt_data}")
+        steps_dict = {
+            "standard":"standard",
+            "HD": "hd",
+        }
+
+        quality = steps_dict.get(complexity_data, "standard")  # Default to Medium if not found   
+
+     
     
 
 
@@ -191,9 +199,9 @@ def generate_prompt():
         theme_context, theme_prompt, temperature = get_theme_prompt(theme_data)
 
         final_prompt = theme_prompt  # Start with the theme prompt
-
+        print(f" here is the additonal prompt{prompt_data}")
         # Append user prompt if provided
-        if prompt_data:
+        if prompt_data!="":
             final_prompt = f"{theme_prompt}\n Additional requirements: {prompt_data}"
             logging.info(f"Added user prompt to theme: {prompt_data}")
             print("In the if statement")
@@ -273,6 +281,7 @@ def generate_prompt():
                 prompt=description,
                 response_format='b64_json',
                 n=1,
+                quality= quality,
             )
             
             # Extract the image
