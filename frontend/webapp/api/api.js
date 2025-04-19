@@ -1,10 +1,10 @@
 import axios from "axios";
-const  BASE_URL = "http://localhost:5001"
 
 export const CallApi = async(ImageData,ThemeData,Prompt,Complexity)=>{
-    
+const LOCAL_URL = "http://localhost:5001";
+const PROD_URL = process.env.NEXT_PUBLIC_PROD_API_URL
     try {
-        const response = axios.post(`${BASE_URL}/generate-prompt`,{
+        const response = await axios.post(`${PROD_URL}/generate-prompt`, {
             image: ImageData,
             theme: ThemeData ||"Default",
             userPrompt:Prompt||"",
@@ -15,4 +15,4 @@ export const CallApi = async(ImageData,ThemeData,Prompt,Complexity)=>{
         console.error("Error:", error);
         return { error: "Something went wrong while calling the API" };
     }
-}
+};

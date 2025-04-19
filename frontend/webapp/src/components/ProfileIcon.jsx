@@ -1,5 +1,5 @@
 import React from "react";
-import handleLogout from "@/firebase/handlelogout";
+import handleLogout from "@/firebase/handleLogout";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";

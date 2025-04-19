@@ -17,13 +17,19 @@ export default function ArtCard({
 }) {
 	const [loading, setLoading] = useState("init");
 	const { currentUser } = useAuth();
-	const [artist, setArtist] = useState(null); // Store user data
+	const [artist, setArtist] = useState(null);
 
-	const { id, title, image, theme, userID, createdAt } = art; // Changed `categories` to `theme`
+	const { id, title, image, theme, userID, createdAt, user } = art;
 
-	const posted = formatTimeAgo(createdAt); // Format the date to a more readable format
+	const posted = formatTimeAgo(createdAt);
 
+	// Use user from props first, otherwise fetch it
 	useEffect(() => {
+		if (user) {
+			setArtist(user);
+			return;
+		}
+
 		if (!userID) return;
 
 		const fetchUser = async () => {
@@ -40,7 +46,7 @@ export default function ArtCard({
 		};
 
 		fetchUser();
-	}, [userID]);
+	}, [user, userID]);
 
 	const heightClasses = [
 		"h-[160px]",

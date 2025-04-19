@@ -4,6 +4,8 @@ import { db } from "@/firebase/config";
 import { getDoc, doc, collection, getDocs } from "firebase/firestore";
 import { useAuth } from "@/context/authContext";
 import ArtCard from "@/components/ArtCard";
+import Link from "next/link";
+import DisplayArtsGrid from "@/components/DisplayArtsGrid";
 
 export async function getServerSideProps(context) {
 	const { id } = context.params;
@@ -77,15 +79,19 @@ export async function getServerSideProps(context) {
 }
 
 export default function Profile({ user, posts }) {
-	const [selectedOption, setSelectedOption] = useState("Artwork");
 	const [savedPosts, setSavedPosts] = useState([]);
 	const { currentUser } = useAuth();
+
+	const [postsToDisplay, setPostsToDisplay] = useState(posts);
+
+	const isOwnProfile = currentUser?.uid === user?.uid;
+	const [activeTab, setActiveTab] = useState("Artwork");
 
 	// console.log("posts", posts);
 	if (!user) return <p>User not found</p>;
 
 	useEffect(() => {
-		if (selectedOption === "Liked" && user?.savedPosts?.length > 0) {
+		if (user?.savedPosts?.length > 0) {
 			const fetchSavedPosts = async () => {
 				try {
 					const saved = await Promise.all(
@@ -141,14 +147,28 @@ export default function Profile({ user, posts }) {
 
 			fetchSavedPosts();
 		}
-	}, [selectedOption, user?.savedPosts]);
+	}, [user?.savedPosts]);
+
+	console.log("savedPosts", savedPosts);
 
 	return (
 		<div className="max-w-[1280px] mx-auto px-4">
+			{user?.bannerImage ? (
+				<Image
+					className="rounded-t-[20px] w-full h-[164px] object-cover"
+					src={user.bannerImage}
+					alt="Profile picture"
+					width={500}
+					height={500}
+				/>
+			) : (
+				<div className="rounded-t-[20px] w-full h-[164px] object-cover bg-primary"></div>
+			)}
+
 			<div className="flex gap-6 justify-center items-center">
 				<Image
-					className="rounded-full w-[164px] h-[164px] md:flex hidden object-cover"
-					src={user.profileImage}
+					className="rounded-full w-[114px] h-[114px] md:w-[164px] md:h-[164px] object-cover -mt-[50px] border-4 border-background bg-background"
+					src={user.profileImage || "/default-avatar.png"}
 					alt="Profile picture"
 					width={500}
 					height={500}
@@ -167,38 +187,71 @@ export default function Profile({ user, posts }) {
 				</div>
 			</div>
 
-			<div className="flex justify-between items-center pt-12">
-				<h2 className="font-fraunces">Artwork</h2>
-				<select
-					className="bg-transparent pr-1 py-[2px] cursor-pointer underline focus:outline-none text-left"
-					value={selectedOption}
-					onChange={(e) => setSelectedOption(e.target.value)}
-				>
-					<option value="Artwork">Artwork</option>
-					<option value="Liked">Favourites</option>
-				</select>
+			{/* navigation tabs */}
+			<div className="border-t border-gray-200 mt-4">
+				<div className="max-w-3xl mx-auto flex justify-center">
+					<button
+						shallow
+						scroll={false}
+						onClick={() => {
+							setActiveTab("Artwork");
+							if (posts.length === 0) {
+								setPostsToDisplay([]);
+							} else {
+								setPostsToDisplay(posts);
+							}
+						}}
+						className={`px-4 py-2 font-medium text-[18px] rounded-none border-t-2 transition-all duration-200 ease-in-out ${
+							activeTab === "Artwork"
+								? "text-black border-black"
+								: "text-gray-500 border-transparent hover:text-gray-700"
+						}`}
+					>
+						Artwork
+					</button>
+					{isOwnProfile && (
+						<>
+							<button
+								shallow
+								scroll={false}
+								onClick={() => {
+									setActiveTab("Saves");
+									if (savedPosts.length === 0) {
+										setPostsToDisplay([]);
+									} else {
+										setPostsToDisplay(savedPosts);
+									}
+								}}
+								className={`px-4 py-2 text-[18px] rounded-none font-medium border-t-2 transition-all duration-200 ease-in-out ${
+									activeTab === "Saves"
+										? "text-black border-black"
+										: "text-gray-500 border-transparent hover:text-gray-700"
+								}`}
+							>
+								Saves
+							</button>
+							<button
+								shallow
+								scroll={false}
+								onClick={() => setActiveTab("Archived")}
+								className={`px-4 py-2 text-[18px] rounded-none font-medium border-t-2 transition-all duration-200 ease-in-out ${
+									activeTab === "Archived"
+										? "text-black border-black"
+										: "text-gray-500 border-transparent hover:text-gray-700"
+								}`}
+							>
+								Archived
+							</button>
+						</>
+					)}
+				</div>
 			</div>
 
-			<div className="flex flex-wrap gap-4 mb-4">
-				{(selectedOption === "Artwork" ? posts : savedPosts).length ===
-				0 ? (
-					<p>
-						{selectedOption === "Artwork"
-							? "No artwork posted yet."
-							: "No saved posts yet."}
-					</p>
+			<div className="flex flex-wrap gap-4 mb-[100px]">
+				{postsToDisplay.length === 0 ? (
+					<p>No {activeTab} posted yet.</p>
 				) : (
-					(selectedOption === "Artwork" ? posts : savedPosts).map(
-						(post) => (
-							<div key={post.id} className="w-[300px]">
-								<ArtCard
-									art={post}
-									grid={true}
-									artist={post.user}
-								/>{" "}
-							</div>
-						)
-					)
+					<DisplayArtsGrid arts={postsToDisplay} />
 				)}
 			</div>
 		</div>
