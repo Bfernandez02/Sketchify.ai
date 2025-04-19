@@ -98,7 +98,7 @@ const SketchPad = () => {
 		// Function to handle theme change
 		Setheme(theme);
 
-		console.log(ThemeData);
+		// console.log(ThemeData);
 	};
 
 	// Main function to handle API call and image upload to firebase
@@ -118,7 +118,7 @@ const SketchPad = () => {
 		await uploadBytes(originalRef, originalBlob);
 		const originalURL = await getDownloadURL(originalRef);
 
-		console.log("Original image uploaded:", originalURL);
+		// console.log("Original image uploaded:", originalURL);
 
 		// 2. Call the enhancement API
 		const response = await CallApi(
@@ -141,7 +141,7 @@ const SketchPad = () => {
 		await uploadBytes(enhancedRef, enhancedBlob);
 		const enhancedURL = await getDownloadURL(enhancedRef);
 
-		console.log("Enhanced image uploaded:", enhancedURL);
+		// console.log("Enhanced image uploaded:", enhancedURL);
 
 		// 4. Draw enhanced image on canvas
 		const img = new Image();
@@ -183,7 +183,7 @@ const SketchPad = () => {
 			// 	myPosts: arrayUnion(postDoc.id),
 			// });
 
-			console.log("Post saved to Firestore with ID:", postDoc.id);
+			// console.log("Post saved to Firestore with ID:", postDoc.id);
 		} catch (err) {
 			console.error("Error saving to Firestore:", err);
 		}
@@ -355,7 +355,7 @@ const SketchPad = () => {
 	};
 
 	useEffect(() => {
-		console.log("Prompt", additonalPrompt);
+		// console.log("Prompt", additonalPrompt);
 	}, [additonalPrompt]);
 
 	return (
