@@ -15,8 +15,9 @@ Software Engineering Process
 
 ## Development Tools
 The development tools in which will be utilized for the project will be the following:
-React Native (Front-End)
-Supabase (Authentication/ Database tools)
+Next.js (Front-End - Web App)
+React Native (Front-End - Mobile App)
+Firebase (Authentication/ Database tools)
 Axios (API Calls)
 Python
 Flask (Backend)
