@@ -53,18 +53,13 @@ def create_transformation_prompt(theme_name, theme_context, theme_prompt, user_p
         "Nature": "natural elements, organic forms, environmental harmony"
     }
     
-    # Extract key concepts from the theme context (system prompt)
-    # Remove instructions that are specific to description tasks
     clean_context = theme_context.replace("these are instructions for a diffusion model.", "")
     clean_context = clean_context.replace("Describe the sketch", "Transform the sketch")
     clean_context = clean_context.replace("in 1-2 sentences", "")
     
-    # Extract style focus points from theme prompt (user prompt)
-    # Remove instructions about descriptions and focus on style elements
     focus_points = theme_prompt.replace("Translate this sketch into", "Create")
     focus_points = focus_points.replace("description", "image")
     
-    # Create a content-preserving transformation prompt
     transformation_prompt = f"Transform this sketch into a high-quality {theme_name} style image while preserving its key elements and composition. "
     
     # Add extracted style guidance from theme context

@@ -21,8 +21,8 @@ logger = logging.getLogger("GeminiTestProxy")
 
 # Constants
 OUTPUT_DIR = "test_output"
-ORIGINAL_IMPL_URL = "http://localhost:5002/generate-prompt"  # First implementation 
-SINGLE_PASS_URL = "http://localhost:5003/generate-prompt"    # Second implementation
+ORIGINAL_IMPL_URL = "http://localhost:5002/generate-prompt"
+SINGLE_PASS_URL = "http://localhost:5003/generate-prompt"   
 
 # Ensure output directory exists
 if not os.path.exists(OUTPUT_DIR):
@@ -132,7 +132,17 @@ def generate_prompt():
         
         # Get request data
         data = request.json
-        logger.info(f"Received request with theme: {data.get('theme', 'Default')}")
+        
+        # Extract key parameters for logging
+        theme = data.get('theme', 'Default')
+        prompt = data.get('prompt', '')
+        complexity = data.get('complexity', 'standard')
+        
+        # Log detailed request information
+        logger.info(f"\n=== NEW REQUEST (ID: {test_id}) ===")
+        logger.info(f"Theme: {theme}")
+        logger.info(f"Prompt: {prompt if prompt else 'None provided'}")
+        logger.info(f"Complexity: {complexity}")
         
         # Run tests for both implementations
         results = run_tests_async(data, test_id)
@@ -155,7 +165,9 @@ def generate_prompt():
             latency_diff = results["original"]["latency"] - results["single_pass"]["latency"]
             improvement = (latency_diff / results["original"]["latency"]) * 100
             
-            logger.info("=== PERFORMANCE SUMMARY ===")
+            logger.info("\n=== PERFORMANCE SUMMARY ===")
+            logger.info(f"Theme: {theme}")
+            logger.info(f"Prompt: {prompt if prompt else 'None provided'}")
             logger.info(f"Original: {results['original']['latency']:.2f}s")
             logger.info(f"Single Pass: {results['single_pass']['latency']:.2f}s")
             
@@ -168,7 +180,9 @@ def generate_prompt():
                         "original_latency": results["original"]["latency"],
                         "single_pass_latency": results["single_pass"]["latency"],
                         "improvement_percent": improvement,
-                        "test_id": test_id
+                        "test_id": test_id,
+                        "theme": theme,
+                        "prompt": prompt
                     }
                 })
             else:
@@ -180,7 +194,9 @@ def generate_prompt():
                         "original_latency": results["original"]["latency"],
                         "single_pass_latency": results["single_pass"]["latency"],
                         "improvement_percent": improvement,
-                        "test_id": test_id
+                        "test_id": test_id,
+                        "theme": theme,
+                        "prompt": prompt
                     }
                 })
         
@@ -191,7 +207,9 @@ def generate_prompt():
                 "metadata": {
                     "original_latency": results["original"]["latency"],
                     "single_pass_success": False,
-                    "test_id": test_id
+                    "test_id": test_id,
+                    "theme": theme,
+                    "prompt": prompt
                 }
             })
         
@@ -201,7 +219,9 @@ def generate_prompt():
                 "metadata": {
                     "original_success": False,
                     "single_pass_latency": results["single_pass"]["latency"],
-                    "test_id": test_id
+                    "test_id": test_id,
+                    "theme": theme,
+                    "prompt": prompt
                 }
             })
         
@@ -210,7 +230,9 @@ def generate_prompt():
             "error": "Both implementations failed",
             "original_error": results["original"].get("error"),
             "single_pass_error": results["single_pass"].get("error"),
-            "test_id": test_id
+            "test_id": test_id,
+            "theme": theme,
+            "prompt": prompt
         }), 500
             
     except Exception as e:
