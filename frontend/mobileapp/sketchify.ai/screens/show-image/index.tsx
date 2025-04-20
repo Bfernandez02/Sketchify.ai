@@ -191,36 +191,34 @@ export default function ShowImageScreen() {
           orientation="horizontal"
           onPageSelected={handlePageChange}
         >
-          {/* Page 0: Original Drawing */}
           <View key="0" style={styles.page}>
-            {originalDrawingSource ? (
-              <View style={[styles.drawingContainer, { width: imageWidth, height: imageWidth * 0.7 }]}>
-                {originalLoading && (
-                  <ActivityIndicator size="small" color="#666" style={styles.loader} />
+          {originalDrawingSource ? (
+              <View style={styles.imageContainer}>
+                {originalDrawingSource && (
+                  <ActivityIndicator size="large" color="#666" style={styles.loader} />
                 )}
                 <Image
                   source={originalDrawingSource}
-                  style={[styles.drawingImage, { width: imageWidth * 0.9, height: imageWidth * 0.6 }]}
+                  style={[styles.image, { width: imageWidth, height: imageHeight }]}
                   resizeMode="contain"
-                  onLoadStart={() => setOriginalLoading(true)}
-                  onLoad={() => console.log("Original drawing loaded successfully")}
-                  onLoadEnd={() => setOriginalLoading(false)}
+                  onLoadStart={() => setEnhancedLoading(true)}
+                  onLoad={() => console.log("Enhanced image loaded successfully")}
+                  onLoadEnd={() => setEnhancedLoading(false)}
                   onError={(e) => {
-                    console.error("Original drawing load error:", e.nativeEvent.error);
-                    setOriginalLoading(false);
+                    console.error("Enhanced image load error:", e.nativeEvent.error);
+                    setEnhancedLoading(false);
                   }}
                 />
               </View>
             ) : (
               <View style={styles.noImageContainer}>
                 <Ionicons name="image-outline" size={48} color="#CCCCCC" />
-                <Text style={styles.noImageText}>No original image available</Text>
+                <Text style={styles.noImageText}>No enhanced image available</Text>
               </View>
             )}
             <Text style={styles.sectionTitle}>Original Sketch</Text>
           </View>
 
-          {/* Page 1: AI-Generated Image */}
           <View key="1" style={styles.page}>
             {enhancedImageSource ? (
               <View style={styles.imageContainer}>
@@ -246,7 +244,7 @@ export default function ShowImageScreen() {
                 <Text style={styles.noImageText}>No enhanced image available</Text>
               </View>
             )}
-            {/* Prompt and Theme below AI image */}
+
             {promptText && (
               <View style={styles.promptContainer}>
                 <Text style={styles.promptTitle}>Description</Text>

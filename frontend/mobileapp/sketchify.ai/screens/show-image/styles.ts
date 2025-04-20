@@ -180,8 +180,9 @@ export const styles = StyleSheet.create({
       fontWeight: '500',
     },
     page: {
+      paddingBottom: 20,
       flex: 1,
-      justifyContent: 'center',
+      justifyContent:'flex-start',
       alignItems: 'center',
       paddingVertical: 20,
     },
