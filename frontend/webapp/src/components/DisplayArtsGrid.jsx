@@ -44,11 +44,11 @@ export default function DisplayArtsGrid({ arts, simple = false }) {
 		// </div>
 		// </Masonry>
 
-		<div className="xl:columns-5 lg:columns-4 md:columns-3 sm:columns-2 gap-4">
+		<div className={`  gap-4 ${arts.length < 5 ? "flex flex-row flex-wrap" : "xl:columns-5 lg:columns-4 md:columns-3 sm:columns-2"}`}>
 			{arts.map((art) => (
 				<div
 					key={art.id}
-					className="break-inside-avoid cursor-pointer mb-4 w-full inline-block"
+					className="break-inside-avoid cursor-pointer mb-4 w-full inline-block max-w-[350px]"
 				>
 					<ArtCard art={art} simple={false} grid={true} />
 				</div>

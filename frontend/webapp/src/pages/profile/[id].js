@@ -249,7 +249,7 @@ export default function Profile({ user, posts }) {
 				</div>
 			</div>
 
-			<div className="flex flex-wrap gap-4 mb-[100px]">
+			<div className=" gap-4 mb-[100px]">
 				{postsToDisplay.length === 0 ? (
 					<p>No {activeTab} posted yet.</p>
 				) : (
