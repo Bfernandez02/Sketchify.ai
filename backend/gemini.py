@@ -188,10 +188,6 @@ def generate_prompt():
 
         quality = steps_dict.get(complexity_data, "standard")  # Default to Medium if not found   
 
-     
-    
-
-
         print(f"Received prompt: {prompt_data}")
         print(f"Theme: {theme_data}")
 
@@ -318,4 +314,4 @@ if __name__ == '__main__':
         print("WARNING: GEMINI_API_KEY environment variable not set")
         print("Set this in your .env file or environment variables")
     
-    app.run(debug=True, port=5001, threaded=True)
+    app.run(debug=True, port=5002, threaded=True)

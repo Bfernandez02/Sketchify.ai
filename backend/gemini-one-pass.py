@@ -341,4 +341,4 @@ if __name__ == '__main__':
         print("WARNING: GEMINI_API_KEY environment variable not set")
         print("Set this in your .env file or environment variables")
 
-    app.run(debug=True, port=5001, threaded=True)
+    app.run(debug=True, port=5003, threaded=True)
