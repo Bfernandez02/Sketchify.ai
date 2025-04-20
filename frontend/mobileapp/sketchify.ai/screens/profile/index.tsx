@@ -1,34 +1,42 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
   Image,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   Share,
   StyleSheet,
-  ScrollView
+  ScrollView,
+  Animated
 } from 'react-native';
+import PagerView from 'react-native-pager-view';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAuth } from 'firebase/auth';
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import { doc, getDoc, getFirestore, collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
+import { UserData } from '@/types/auth';
+import { SketchPost } from '@/types/sketch';
 import { styles } from './styles';
 
-
+const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
 export default function ProfileScreen({ route }: { route?: { params?: { userId?: string } } }) {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const [userData, setUserData] = useState<UserData & { documentId: string } | null>(null);
+  const [userPosts, setUserPosts] = useState<SketchPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCurrentUser, setIsCurrentUser] = useState(false);
+  const [activePage, setActivePage] = useState(0);
+  
+  const pagerRef = useRef<PagerView>(null);
 
+  // Theme settings
   const isDark = colorScheme === 'dark';
   const textColor = isDark ? '#FFFFFF' : '#000000';
   const backgroundColor = isDark ? '#121212' : '#F9F9F9';
@@ -39,7 +47,39 @@ export default function ProfileScreen({ route }: { route?: { params?: { userId?:
   // Get the userId from route params or use current user
   const userId = route?.params?.userId;
   
-  // Simple implementation to fetch user data
+  // Fetch user posts (limited to 10 most recent)
+  const fetchUserPosts = useCallback(async (userId: string) => {
+    try {
+      const db = getFirestore();
+      const postsRef = collection(db, 'users', userId, 'posts');
+      const q = query(postsRef, orderBy('createdAt', 'desc'));
+      
+      const querySnapshot = await getDocs(q);
+      const posts: SketchPost[] = [];
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        posts.push({
+          id: doc.id,
+          title: data.title || '',
+          prompt: data.prompt || '',
+          theme: data.theme || '',
+          createdAt: data.createdAt instanceof Date 
+            ? data.createdAt 
+            : (data.createdAt?.toDate ? data.createdAt.toDate() : new Date()),
+          drawing: data.drawing || '',
+          image: data.image || ''
+        });
+      });
+      
+      setUserPosts(posts);
+      console.log(`Fetched ${posts.length} posts for user: ${userId}`);
+    } catch (err) {
+      console.error('Error fetching user posts:', err);
+    }
+  }, []);
+
+  // Fetch user data
   const fetchUserData = useCallback(async () => {
     try {
       setLoading(true);
@@ -62,23 +102,25 @@ export default function ProfileScreen({ route }: { route?: { params?: { userId?:
       }
       
       const userData = userDoc.data() as UserData;
-      // Store both the document data and the document ID
+      
       setUserData({
         ...userData,
-        // We'll store the document ID separately for reference
         documentId: targetUserId
       });
 
-      console.log("Fetched user data for ID:", targetUserId); 
+      console.log("Fetched user data for ID:", targetUserId);
+      
+      // Fetch user posts
+      await fetchUserPosts(targetUserId as string);
     } catch (err) {
       console.error('Error fetching user data:', err);
       setError((err as Error).message || 'Failed to load profile');
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, fetchUserPosts]);
   
-  // Simple share functionality
+  // Share profile
   const handleShare = useCallback(async () => {
     if (!userData) return;
     
@@ -92,7 +134,13 @@ export default function ProfileScreen({ route }: { route?: { params?: { userId?:
     }
   }, [userData]);
 
-  // Fetch data when screen comes into focus
+  // Handle page change in the carousel
+  const handlePageChange = (event: any) => {
+    const newPage = event.nativeEvent.position;
+    setActivePage(newPage);
+  };
+
+  // Fetch data when the screen comes into focus
   useFocusEffect(
     useCallback(() => {
       fetchUserData();
@@ -101,7 +149,7 @@ export default function ProfileScreen({ route }: { route?: { params?: { userId?:
 
   if (loading) {
     return (
-      <View style={[styles.container, { backgroundColor }]}>
+      <View style={[styles.container, { backgroundColor, justifyContent: 'center', alignSelf:'center' }]}>
         <ActivityIndicator size="large" color={accentColor} />
         <Text style={{ marginTop: 12, color: textColor }}>Loading profile...</Text>
       </View>
@@ -110,7 +158,7 @@ export default function ProfileScreen({ route }: { route?: { params?: { userId?:
 
   if (error) {
     return (
-      <View style={[styles.container, { backgroundColor }]}>
+      <View style={[styles.container, { backgroundColor, justifyContent: 'center' }]}>
         <Text style={{ marginTop: 12, color: textColor, textAlign: 'center' }}>
           {error}
         </Text>
@@ -133,6 +181,7 @@ export default function ProfileScreen({ route }: { route?: { params?: { userId?:
   return (
     <View style={[styles.container, { backgroundColor, paddingTop: insets.top }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Profile Header */}
         <View style={styles.headerContainer}>
           {userData?.bannerImage ? (
             <Image 
@@ -169,6 +218,7 @@ export default function ProfileScreen({ route }: { route?: { params?: { userId?:
           </View>
         </View>
         
+        {/* Profile Info */}
         <View style={styles.profileInfoContainer}>
           <Text style={[styles.userName, { color: textColor }]}>
             {userData?.name || 'User'}
@@ -187,7 +237,7 @@ export default function ProfileScreen({ route }: { route?: { params?: { userId?:
           <View style={[styles.statsContainer, { borderColor: dividerColor }]}>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: textColor }]}>
-                {'-'}
+                {userPosts.length || 0}
               </Text>
               <Text style={[styles.statLabel, { color: textColor + '99' }]}>
                 Sketches
@@ -198,10 +248,10 @@ export default function ProfileScreen({ route }: { route?: { params?: { userId?:
             
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: textColor }]}>
-                {'-'}
+                {userData?.savedPosts?.length || 0}
               </Text>
               <Text style={[styles.statLabel, { color: textColor + '99' }]}>
-                Posts
+                Saved Posts
               </Text>
             </View>
           </View>
@@ -218,6 +268,73 @@ export default function ProfileScreen({ route }: { route?: { params?: { userId?:
           </View>
         </View>
 
+        {userPosts.length > 0 && (
+          <View style={styles.sketchesContainer}>
+            <Text style={[styles.sectionTitle, { color: textColor }]}>
+              Recent Sketches
+            </Text>
+            
+            <View style={styles.carouselContainer}>
+              <AnimatedPagerView
+                ref={pagerRef}
+                style={styles.pagerView}
+                initialPage={0}
+                orientation='horizontal'
+                onPageSelected={handlePageChange}
+              >
+                {userPosts.slice(0, 10).map((post) => (
+                  <View key={post.id} style={styles.pageContainer}>
+                    <TouchableOpacity
+                      style={[styles.postItem, { backgroundColor: cardBackgroundColor }]}
+                      onPress={() => router.push({
+                        pathname: '/show-image',
+                        params: {
+                          imageUrl: post.image,
+                          drawingUrl: post.drawing,
+                          promptText: post.prompt,
+                          title: post.title,
+                          theme: post.theme
+                        }
+                      })}
+                    >
+                      <Image
+                        source={{ uri: post.image || post.drawing }}
+                        style={styles.postImage}
+                        resizeMode="cover"
+                      />
+                      <View style={styles.postInfo}>
+                        <Text style={[styles.postTitle, { color: textColor }]} numberOfLines={1}>
+                          {post.title || 'Untitled Sketch'}
+                        </Text>
+                        <Text style={[styles.postDate, { color: textColor + '80' }]}>
+                          {post.createdAt.toLocaleDateString()}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </AnimatedPagerView>
+              
+              {/* Pagination dots */}
+              <View style={styles.paginationContainer}>
+                {userPosts.slice(0, 10).map((post, index) => (
+                  <TouchableOpacity
+                    key={post.id}
+                    style={[
+                      styles.paginationDot,
+                      activePage === index && styles.activePaginationDot,
+                    ]}
+                    onPress={() => {
+                      pagerRef.current?.setPage(index);
+                    }}
+                  />
+                ))}
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Activity Section */}
         <View style={styles.activityContainer}>
           <Text style={[styles.sectionTitle, { color: textColor }]}>
             Account Activity
@@ -263,4 +380,3 @@ export default function ProfileScreen({ route }: { route?: { params?: { userId?:
     </View>
   );
 }
-

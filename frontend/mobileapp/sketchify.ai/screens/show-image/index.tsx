@@ -33,9 +33,9 @@ export default function ShowImageScreen() {
   // Extract the parameters - Check for all possible param names
   const { 
     imageUrl, 
-    imageData, // Base64 fallback for enhanced image
+    imageData, 
     drawingUrl,
-    drawingData, // Base64 fallback for original drawing
+    drawingData,
     promptText, 
     title, 
     theme 
