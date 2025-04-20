@@ -145,20 +145,32 @@ def all_in_one_gemini_request(image_base64, theme_name, theme_context, theme_pro
     
     # Create a prompt that requests multiple outputs in a structured format
     all_in_one_prompt = f"""
-    You are an expert AI art assistant tasked with analyzing a sketch and providing information for style transformation.
-    
-    First, examine the sketch carefully and identify exactly what is drawn.
-    
+You are an expert AI art assistant tasked with analyzing a sketch and providing information for style transformation.
+
+First, examine the sketch carefully and identify exactly what is drawn.
+"""
+
+    # Only add the user request section if there actually is one
+    if user_prompt:
+        all_in_one_prompt += f"\nIMPORTANT USER REQUEST: {user_prompt}\n"
+
+    all_in_one_prompt += f"""
     Then, provide the following information in this exact format:
-    
+
     SKETCH_CONTENT: [Write a detailed factual analysis of what's in the sketch - objects, figures, composition]
-    
-    TRANSFORMATION_PROMPT: [Create a detailed prompt to transform this sketch into {theme_name} style while preserving the original content. Use these style elements: {theme_context}]
-    
+
+    TRANSFORMATION_PROMPT: [Create a detailed prompt to transform this sketch into {theme_name} style while preserving the original content. Use these style elements: {theme_context}"""
+
+    # Add user request instruction only if there is one
+    if user_prompt:
+        all_in_one_prompt += f". MAKE SURE to incorporate this user request: {user_prompt}"
+
+    all_in_one_prompt += f"""]
+
     TITLE: [Create a memorable, specific 3-6 word title that focuses on the actual content of the sketch, NOT mentioning "{theme_name}", "art", "sketch" or "AI"]
-    
+
     DESCRIPTION: [Write a brief, engaging 2-3 sentence description of how the sketch would look when transformed into {theme_name} style. Make it sound like a gallery caption, focusing on the actual content while mentioning the style elements]
-    
+
     Follow this format exactly. Each section should be on its own line, with the exact labels as shown.
     """
     
@@ -265,12 +277,16 @@ def generate_prompt():
     """
     try:
         data = request.json
+        print("Full request data:", data)
+
         image_data = data.get("image")
         theme_data = data.get("theme", "Default")
         prompt_data = data.get("prompt", "")  # Additional prompt from the user
+        complexity_data = data.get("complexity", "standard")  # Image quality setting
 
         print(f"Received prompt: {prompt_data}")
         print(f"Theme: {theme_data}")
+        print(f"Complexity: {complexity_data}")
 
         # Get theme info from themes.py
         theme_context, theme_prompt, temperature = get_theme_prompt(theme_data)
@@ -331,12 +347,16 @@ def generate_prompt():
             print(f"Title: {title}")
             print(f"Description: {description}")
             
+            # Set quality based on complexity parameter
+            quality = "hd" if complexity_data.lower() == "hd" else "standard"
+            
             # STEP 2: Generate image using Imagen
             imagen_response = client.images.generate(
                 model=imagen_model,
                 prompt=transformation_prompt,
                 response_format='b64_json',
                 n=1,
+                quality=quality,
             )
             
             # Extract the image
