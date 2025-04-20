@@ -10,11 +10,11 @@ export default function Sketch() {
 	if (user.userLoggedIn === false) {
 		return (
 			<div className="flex flex-col items-center h-[75vh] pt-24">
-				<h1 className="text-5xl font-fraunces font-bold mb-8">
-					Log in to get started with Sketchify
+				<h1 className="md:text-5xl text-3xl font-fraunces font-bold mb-8 text-center">
+					Log in to start creating!
 				</h1>
 				<a href="/sign-in" className="btn">
-					Log in
+					Login
 				</a>
 			</div>
 		);

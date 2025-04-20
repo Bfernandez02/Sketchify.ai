@@ -77,3 +77,7 @@ label {
 #nprogress .spinner {
 	display: none;
 }
+
+#nprogress .peg {
+	display: none;
+}
