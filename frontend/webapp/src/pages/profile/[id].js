@@ -6,6 +6,7 @@ import { useAuth } from "@/context/authContext";
 import ArtCard from "@/components/ArtCard";
 import Link from "next/link";
 import DisplayArtsGrid from "@/components/DisplayArtsGrid";
+import { NextSeo } from "next-seo";
 
 export async function getServerSideProps(context) {
 	const { id } = context.params;
@@ -18,7 +19,7 @@ export async function getServerSideProps(context) {
 		const userDoc = await getDoc(doc(db, "users", id));
 		if (userDoc.exists()) {
 			user = { id: userDoc.id, ...userDoc.data() };
-			console.log(user);
+			// console.log(user);
 		}
 
 		// Get all posts from the user's "posts" subcollection
@@ -149,10 +150,11 @@ export default function Profile({ user, posts }) {
 		}
 	}, [user?.savedPosts]);
 
-	console.log("savedPosts", savedPosts);
+	// console.log("savedPosts", savedPosts);
 
 	return (
 		<div className="max-w-[1280px] mx-auto px-4">
+			<NextSeo title={`${user.name}'s profile | Sketchify`} />
 			{user?.bannerImage ? (
 				<Image
 					className="rounded-t-[20px] w-full h-[164px] object-cover"

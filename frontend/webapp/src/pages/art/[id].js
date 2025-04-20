@@ -7,6 +7,7 @@ import { db } from "@/firebase/config";
 import { getDoc, doc, collection, getDocs } from "firebase/firestore";
 import { useRouter } from "next/router";
 import { formatTimeAgo } from "@/utils/generalUtils";
+import { NextSeo } from "next-seo";
 
 export default function Art() {
 	const [art, setArt] = useState(null); // Store post data
@@ -75,8 +76,14 @@ export default function Art() {
 	if (!art || !user) return <p>Art or user not found</p>;
 
 	// console.log(art);
+
 	return (
 		<div className="content-container px-4 min-h-screen">
+			<NextSeo
+				title={`${
+					art.title?.trim() ? art.title : "Artwork"
+				} | Sketchify`}
+			/>
 			{/* title and categories */}
 			<div className="flex md:flex-row md:justify-between flex-col mb-10 mt-2 max-w-[1200px] mx-auto md:gap-0 gap-4">
 				<div className="flex flex-col w-100% md:w-1/2 md:gap-0 gap-4">
