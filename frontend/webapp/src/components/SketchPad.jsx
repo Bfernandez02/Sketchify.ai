@@ -375,12 +375,10 @@ const SketchPad = () => {
 
     if (!response) {
       setIsLoading(false);
-	  console.log('erorr yc')
+	  console.log('There was an Error with the API call')
       return; 
     }
-
-	
-    
+	  const title = response.data.title;
     const enhancedBase64 = `data:image/png;base64,${response.data.image}`;
     const enhancedBlob = base64ToBlob(enhancedBase64);
     const enhancedRef = ref(
@@ -407,7 +405,7 @@ const SketchPad = () => {
 
       const postDoc = await addDoc(collection(db, "users", user.uid, "posts"), {
         title:
-          additonalPrompt || `${user.name} ${ThemeData.toLowerCase()} sketch`,
+          title || `${user.name} ${ThemeData.toLowerCase()} sketch`,
         drawing: originalURL,
         image: enhancedURL,
         createdAt: serverTimestamp(),
