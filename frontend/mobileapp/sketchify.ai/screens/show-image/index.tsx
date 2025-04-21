@@ -211,9 +211,9 @@ export default function ShowImageScreen() {
                 />
               </View>
             ) : (
-              <View style={styles.noImageContainer}>
+              <View>
                 <Ionicons name="image-outline" size={48} color="#CCCCCC" />
-                <Text style={styles.noImageText}>No enhanced image available</Text>
+                <Text>No enhanced image available</Text>
               </View>
             )}
             <Text style={styles.sectionTitle}>Original Sketch</Text>
@@ -239,9 +239,9 @@ export default function ShowImageScreen() {
                 />
               </View>
             ) : (
-              <View style={styles.noImageContainer}>
+              <View>
                 <Ionicons name="image-outline" size={48} color="#CCCCCC" />
-                <Text style={styles.noImageText}>No enhanced image available</Text>
+                <Text>No enhanced image available</Text>
               </View>
             )}
 

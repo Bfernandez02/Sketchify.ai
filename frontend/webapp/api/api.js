@@ -12,7 +12,9 @@ const PROD_URL = process.env.NEXT_PUBLIC_PROD_API_URL
             prompt:Prompt||"",
             complexity: Complexity ||"standard"
         });
+        console.log(`Image generation took ${response.data.latency} seconds`);
         return response;
+    
     } catch (error) {
         console.error("Error:", error);
         return { error: "Something went wrong while calling the API" };
