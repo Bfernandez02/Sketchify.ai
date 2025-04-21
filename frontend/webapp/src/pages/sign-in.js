@@ -75,7 +75,7 @@ export default function SignIn() {
 	return (
 		<div className="mb-[120px]">
 			<NextSeo
-				title="Sketchify.ai | Sign In"
+				title="Sign In | Sketchify"
 				description="Sign in to Sketchify to start creating and sharing your art."
 			/>
 
