@@ -11,12 +11,11 @@ export default function CategoryTag({ id, className, onClick = null, href = null
           {id}
         </div>
       ) : (
-        <Link
-          href={href || `/category/${id}`}
+        <div
           className={`w-fit rounded-[20px] border text-[16px] border-primary p-2 py-0  text-primary hover:text-white ${className}`}
         >
           {id}
-        </Link>
+        </div>
       )}
     </>
   );
