@@ -80,7 +80,7 @@ export default function Signup() {
 	return (
 		<div className="mb-[120px]">
 			<NextSeo
-				title="Sketchify.ai | Sign Up"
+				title="Sign Up | Sketchify"
 				description="Join Sketchify to start creating and sharing your art."
 			/>
 

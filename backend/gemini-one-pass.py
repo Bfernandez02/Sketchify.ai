@@ -15,7 +15,6 @@ import re
 from themes import get_theme_prompt, THEMES
 
 load_dotenv()
-# Flask app setup
 app = Flask(__name__)
 CORS(app)
 

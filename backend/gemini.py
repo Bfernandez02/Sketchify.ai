@@ -15,7 +15,6 @@ import json
 from themes import get_theme_prompt
 
 load_dotenv()
-# Flask app setup
 app = Flask(__name__)
 CORS(app)
 
@@ -64,7 +63,7 @@ def generate_title_from_description(description, theme):
     try:
         response = client.chat.completions.create(
             model=gemini_model,
-            temperature=0.4,  # Lower temperature for more precise output
+            temperature=0.4,
             messages=[
                 {
                     "role": "system",
@@ -75,7 +74,7 @@ def generate_title_from_description(description, theme):
                     "content": prompt
                 }
             ],
-            max_tokens=15  # Keep it concise
+            max_tokens=15  
         )
         
         title = response.choices[0].message.content.strip()

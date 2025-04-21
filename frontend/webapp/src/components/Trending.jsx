@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export default function Trending({ onThemeSelect }) {
 	const trendingThemes = [
-		{ name: "Nature", image: abs },
+		{ name: "Cartoon", image: abs },
 		{ name: "Minimalism", image: min },
 		{ name: "Realism", image: rea },
 	];

@@ -35,7 +35,6 @@ export default function SketchScreen() {
     handleStrokeWidthChange,
   } = useDrawing();
 
-  // Pass selectedTheme to the useImageProcessing hook
   const { isLoading, handleProcess } = useImageProcessing(
     viewShotRef, 
     paths, 
