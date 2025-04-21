@@ -117,7 +117,7 @@ export default function Step1({ formData, setFormData, handleNextStep }) {
 					<i className="fa-solid fa-lock text-primary w-fit text-[16px] mr-2" />
 					<input
 						type="password"
-						placeholder="confirm Password"
+						placeholder="confirm password"
 						id="confirmPassword"
 						maxLength={40}
 						required
