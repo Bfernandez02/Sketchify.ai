@@ -116,7 +116,7 @@ describe("SketchPad Component", () => {
     });
 
     test("handles API call failure correctly", async () => {
-        // This is a very tiny valid PNG file's base64 (1x1 transparent pixel)
+        // very tiny valid PNG file's base64 (1x1 transparent pixel)
         const tinyPngBase64 =
             "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==";
 

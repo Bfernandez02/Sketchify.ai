@@ -9,10 +9,10 @@ jest.mock("./SaveButton", () => () => <div data-testid="save-button" />);
 jest.mock("./CategoryTag", () => ({ id, className }) => <div className={className}>{id}</div>);
 jest.mock("./TagCarousel", () => () => <div data-testid="tag-carousel">Mock Carousel</div>);
 
-// ✅ Mock firebase config
+//  Mock firebase config
 jest.mock("@/firebase/config", () => ({ db: {} }));
 
-// ✅ Mock Firestore behavior
+//  Mock Firestore behavior
 jest.mock("firebase/firestore", () => ({
   doc: jest.fn(),
   getDoc: jest.fn(() =>
@@ -26,7 +26,7 @@ jest.mock("firebase/firestore", () => ({
   ),
 }));
 
-// ✅ Mock auth and utilities
+//  Mock auth and utilities
 jest.mock("@/context/authContext", () => ({
   useAuth: () => ({
     currentUser: { uid: "mockUser", email: "mock@example.com" },
