@@ -590,11 +590,13 @@ const SketchPad = () => {
         <div className="flex-1 border rounded-lg bg-white shadow-md relative w-full min-h-[500px]">
           <canvas
             ref={canvasRef}
-            onMouseDown={startDrawing}
-            onMouseMove={draw}
-            onMouseUp={stopDrawing}
-            onMouseOut={stopDrawing}
-            className="rounded-lg border-black border-solid"
+
+            onPointerDown={startDrawing}
+            onPointerMove={draw}
+            onPointerUp={stopDrawing}
+            onPointerCancel={stopDrawing}
+
+            className="rounded-lg border-black border-solid touch-none"
             style={{
               cursor: activeTool === 'eraser' 
                 ? `url(${Eraser.src}) 0 20, auto`
