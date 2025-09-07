@@ -2,100 +2,72 @@ import React from "react";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import ArtCard from "./ArtCard";
 
-// ----------------------------------
-// Mocks Setup
-// ----------------------------------
-
-// Next.js Image: Render an <img> element with a fallback alt text.
-jest.mock("next/image", () => (props) => {
-  return <img {...props} alt={props.alt || "mock-image"} />;
-});
-
-// Next.js Link: Render a simple <a> element.
+// Mocks
+jest.mock("next/image", () => (props) => <img {...props} />);
 jest.mock("next/link", () => ({ children, href }) => <a href={href}>{children}</a>);
+jest.mock("./SaveButton", () => () => <div data-testid="save-button" />);
+jest.mock("./CategoryTag", () => ({ id, className }) => <div className={className}>{id}</div>);
+jest.mock("./TagCarousel", () => () => <div data-testid="tag-carousel">Mock Carousel</div>);
 
-// Firebase config and Firestore mocks.
+//  Mock firebase config
 jest.mock("@/firebase/config", () => ({ db: {} }));
-jest.mock("firebase/firestore", () => {
-  const originalModule = jest.requireActual("firebase/firestore");
-  return {
-    ...originalModule,
-    doc: jest.fn(),
-    getDoc: jest.fn(() =>
-      Promise.resolve({
-        exists: () => true,
-        data: () => ({
-          name: "Mock Artist",
-          profileImage: "/default-avatar.png",
-        }),
-      })
-    ),
-  };
-});
 
-// Child component mocks.
-// TagCarousel is mocked to render a div with a specific test id.
-jest.mock("./TagCarousel", () => {
-  return ({ children }) => <div data-testid="tag-carousel">{children}</div>;
-});
-// CategoryTag is mocked to simply render its id.
-jest.mock("./CategoryTag", () => {
-  return ({ id }) => <div>{id}</div>;
-});
+//  Mock Firestore behavior
+jest.mock("firebase/firestore", () => ({
+  doc: jest.fn(),
+  getDoc: jest.fn(() =>
+    Promise.resolve({
+      exists: () => true,
+      data: () => ({
+        name: "Mock Artist",
+        profileImage: "/mock-profile.jpg",
+      }),
+    })
+  ),
+}));
 
-// ----------------------------------
-// Test Data
-// ----------------------------------
+//  Mock auth and utilities
+jest.mock("@/context/authContext", () => ({
+  useAuth: () => ({
+    currentUser: { uid: "mockUser", email: "mock@example.com" },
+  }),
+}));
+
+jest.mock("@/utils/generalUtils", () => ({
+  formatTimeAgo: () => "96w",
+}));
+
 const mockArt = {
   id: "art123",
   title: "Beautiful Sunset",
   image: "/sunset.jpg",
-  categories: [{ id: "Landscape", name: "Landscape" }],
-  themes: ["Nature", "Evening"],
+  theme: "Nature",
   userID: "user456",
-  date: "2023-06-15",
+  createdAt: {
+    seconds: Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 7 * 96,
+  },
 };
 
-// ----------------------------------
-// Test Suite
-// ----------------------------------
 describe("ArtCard Component", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it("renders the ArtCard with title, image, tag carousels, and artist info", async () => {
+  test("renders the ArtCard with title, image, tag carousel, and artist info", async () => {
     await act(async () => {
       render(<ArtCard art={mockArt} />);
     });
 
-    // Check that the title and image render correctly.
-    expect(screen.getByText("Beautiful Sunset")).toBeInTheDocument();
     expect(screen.getByAltText("Beautiful Sunset")).toBeInTheDocument();
+    expect(screen.getByText("Beautiful Sunset")).toBeInTheDocument();
 
-    // Use getAllByTestId to get both tag carousel elements.
-    const tagCarousels = screen.getAllByTestId("tag-carousel");
-    // Expect two tag carousels: one for categories and one for themes.
-    expect(tagCarousels).toHaveLength(2);
-
-    // The first tag carousel should render the category ("Landscape").
-    expect(tagCarousels[0]).toHaveTextContent("Landscape");
-
-    // The second tag carousel should render the themes ("Nature" and "Evening").
-    expect(tagCarousels[1]).toHaveTextContent("Nature");
-    expect(tagCarousels[1]).toHaveTextContent("Evening");
-
-    // Verify that the posted date is rendered.
-    expect(screen.getByText("Posted 2023-06-15")).toBeInTheDocument();
-
-    // Wait for the asynchronous artist data to load, then verify the artist's name.
+    // ✅ Wait for artist data to be populated
     await waitFor(() => {
       expect(screen.getByText("Mock Artist")).toBeInTheDocument();
     });
+
+    expect(screen.getByText("Posted 96w ago")).toBeInTheDocument();
+    expect(screen.getByTestId("save-button")).toBeInTheDocument();
+    expect(screen.getByTestId("tag-carousel")).toBeInTheDocument();
   });
 
-  it("renders fallback artist info when artist data is missing", async () => {
-    // Force getDoc to return a value indicating no user data.
+  test("renders fallback artist info when artist is missing", async () => {
     const { getDoc } = require("firebase/firestore");
     getDoc.mockResolvedValueOnce({ exists: () => false });
 
@@ -108,10 +80,13 @@ describe("ArtCard Component", () => {
     });
   });
 
-  it("renders default alt text when title is missing", () => {
+  test("renders default alt text when title is missing", async () => {
     const artWithoutTitle = { ...mockArt, title: "" };
-    render(<ArtCard art={artWithoutTitle} />);
-    // Since the title is empty, the Next.js Image mock falls back to "mock-image".
-    expect(screen.getByAltText("mock-image")).toBeInTheDocument();
+
+    await act(async () => {
+      render(<ArtCard art={artWithoutTitle} />);
+    });
+
+    expect(screen.getByAltText("")).toBeInTheDocument();
   });
 });
