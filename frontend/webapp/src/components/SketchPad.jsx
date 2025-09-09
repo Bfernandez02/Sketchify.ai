@@ -256,7 +256,7 @@ const SketchPad = () => {
       setLineStart(pos);
     } else if (activeTool === "freehand" || activeTool === "eraser") {
       ctx.globalCompositeOperation =
-        activeTool === "eraser" ? "destination-out" : "source-over";
+        activeTool === "eraser" ? "#FFFFFF" : "source-over";
       ctx.beginPath();
       ctx.moveTo(pos.x, pos.y);
       setIsDrawing(true);
